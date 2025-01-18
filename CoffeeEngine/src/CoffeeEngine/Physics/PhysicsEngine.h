@@ -1,5 +1,6 @@
 #pragma once
 #include <bullet/btBulletDynamicsCommon.h>
+#include <glm/glm.hpp>
 
 namespace Coffee{
 
@@ -17,6 +18,14 @@ namespace Coffee{
         static void Init();
         static void Update(float dt);
         static void Destroy();
+
+        static btDynamicsWorld* GetWorld() { return dynamicsWorld; }
+
+        static void SetGravity(const glm::vec3& gravity);
+        static glm::vec3 GetGravity();
+
+        static btVector3 GlmToBullet(const glm::vec3& v);
+        static glm::vec3 BulletToGlm(const btVector3& v);
 
     private:
 
