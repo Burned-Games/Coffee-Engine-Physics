@@ -37,12 +37,13 @@ find_package(Tracy CONFIG REQUIRED)
 find_package(nfd REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(Lua REQUIRED)
+find_package(Bullet REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 add_library(coffee-engine ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${INCLUDE_DIRS} ${LUA_INCLUDE_DIR}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${INCLUDE_DIRS} ${LUA_INCLUDE_DIR} ${BULLET_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -61,6 +62,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     nfd::nfd
     icon_font_cpp_headers
     ${LUA_LIBRARIES}
+    ${BULLET_LIBRARIES}
 )
 
 # Set this in a profile like (Release + Profile)
