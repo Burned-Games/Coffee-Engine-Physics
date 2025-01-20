@@ -39,7 +39,7 @@ namespace Coffee{
         static void Update(float dt);
         static void Destroy();
 
-        static btDynamicsWorld* GetWorld() { return dynamicsWorld; }
+        static btDynamicsWorld* GetWorld() { return m_World; }
 
         static void SetGravity(const glm::vec3& gravity);
         static glm::vec3 GetGravity();
@@ -57,14 +57,14 @@ namespace Coffee{
 
     private:
 
-        static btDynamicsWorld* dynamicsWorld;
+        static btDynamicsWorld* m_World;
 
-        static btCollisionConfiguration*	collision_conf;
-        static btDispatcher*				dispatcher;
-        static btBroadphaseInterface*		broad_phase;
-        static btConstraintSolver*          solver;
-        static btVehicleRaycaster*			vehicle_raycaster;
-        static DebugDrawer*				    debug_draw;
+        static btCollisionConfiguration*	m_collision_conf;
+        static btDispatcher*				m_dispatcher;
+        static btBroadphaseInterface*		m_broad_phase;
+        static btConstraintSolver*          m_solver;
+        static btVehicleRaycaster*			m_vehicle_raycaster;
+        static DebugDrawer*				    m_debug_draw;
 
         static std::vector<btCollisionObject*> m_CollisionObjects;
         static std::vector<btCollisionShape*> m_CollisionShapes;

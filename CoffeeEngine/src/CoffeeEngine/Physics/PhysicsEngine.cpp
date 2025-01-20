@@ -7,12 +7,12 @@ namespace Coffee {
 
     using namespace Coffee;
     
-    btDynamicsWorld* PhysicsEngine::dynamicsWorld = nullptr;
-    btCollisionConfiguration* PhysicsEngine::collision_conf = nullptr;
-    btDispatcher* PhysicsEngine::dispatcher = nullptr;
-    btBroadphaseInterface* PhysicsEngine::broad_phase = nullptr;
-    btConstraintSolver* PhysicsEngine::solver = nullptr;
-    btVehicleRaycaster* PhysicsEngine::vehicle_raycaster = nullptr;
+    btDynamicsWorld* PhysicsEngine::m_World = nullptr;
+    btCollisionConfiguration* PhysicsEngine::m_collision_conf = nullptr;
+    btDispatcher* PhysicsEngine::m_dispatcher = nullptr;
+    btBroadphaseInterface* PhysicsEngine::m_broad_phase = nullptr;
+    btConstraintSolver* PhysicsEngine::m_solver = nullptr;
+    btVehicleRaycaster* PhysicsEngine::m_vehicle_raycaster = nullptr;
     std::vector<btCollisionObject*> PhysicsEngine::m_CollisionObjects;
     std::vector<btCollisionShape*> PhysicsEngine::m_CollisionShapes;
 
@@ -20,25 +20,25 @@ namespace Coffee {
     {
         COFFEE_CORE_INFO("Initializing Physics Engine");
         
-        collision_conf = new btDefaultCollisionConfiguration();
-        dispatcher = new btCollisionDispatcher(collision_conf);
-        broad_phase = new btDbvtBroadphase();
-        solver = new btSequentialImpulseConstraintSolver();
+        m_collision_conf = new btDefaultCollisionConfiguration();
+        m_dispatcher = new btCollisionDispatcher(m_collision_conf);
+        m_broad_phase = new btDbvtBroadphase();
+        m_solver = new btSequentialImpulseConstraintSolver();
 
-        dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broad_phase, solver, collision_conf);
+        m_World = new btDiscreteDynamicsWorld(m_dispatcher, m_broad_phase, m_solver, m_collision_conf);
 
-        debug_draw = new DebugDrawer();
+        m_debug_draw = new DebugDrawer();
 
-        dynamicsWorld->setDebugDrawer(debug_draw);
+        m_World->setDebugDrawer(m_debug_draw);
 
         SetGravity(glm::vec3(0.0f, -9.81f, 0.0f));
     }
 
     void PhysicsEngine::Update(float dt)
     {
-        if (dynamicsWorld)
+        if (m_World)
         {
-            dynamicsWorld->stepSimulation(dt, 10);
+            m_World->stepSimulation(dt, 10);
         }
     }
 
@@ -46,7 +46,7 @@ namespace Coffee {
     {
         for (auto* obj : m_CollisionObjects)
         {
-            dynamicsWorld->removeCollisionObject(obj);
+            m_World->removeCollisionObject(obj);
             delete obj;
         }
         m_CollisionObjects.clear();
@@ -57,41 +57,41 @@ namespace Coffee {
         }
         m_CollisionShapes.clear();
 
-        delete dynamicsWorld;
-        delete solver;
-        delete broad_phase;
-        delete dispatcher;
-        delete collision_conf;
-        delete vehicle_raycaster;
+        delete m_World;
+        delete m_solver;
+        delete m_broad_phase;
+        delete m_dispatcher;
+        delete m_collision_conf;
+        delete m_vehicle_raycaster;
 
-        dynamicsWorld = nullptr;
-        solver = nullptr;
-        broad_phase = nullptr;
-        dispatcher = nullptr;
-        collision_conf = nullptr;
-        vehicle_raycaster = nullptr;
+        m_World = nullptr;
+        m_solver = nullptr;
+        m_broad_phase = nullptr;
+        m_dispatcher = nullptr;
+        m_collision_conf = nullptr;
+        m_vehicle_raycaster = nullptr;
     }
 
     void PhysicsEngine::SetGravity(const glm::vec3& gravity)
     {
-        if (dynamicsWorld)
+        if (m_World)
         {
-            dynamicsWorld->setGravity(PhysUtils::GlmToBullet(gravity));
+            m_World->setGravity(PhysUtils::GlmToBullet(gravity));
         }
     }
 
     glm::vec3 PhysicsEngine::GetGravity()
     {
-        if (dynamicsWorld)
+        if (m_World)
         {
-            return PhysUtils::BulletToGlm(dynamicsWorld->getGravity());
+            return PhysUtils::BulletToGlm(m_World->getGravity());
         }
         return glm::vec3(0.0f);
     }
     
     void PhysicsEngine::ProcessCollisionEvents()
     {
-        if (!dynamicsWorld) return;    
+        if (!m_World) return;    
     }
 
     void PhysicsEngine::ProcessTriggerEvents()
@@ -161,7 +161,7 @@ namespace Coffee {
             object->setCollisionFlags(object->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         }
 
-        dynamicsWorld->addCollisionObject(object);
+        m_World->addCollisionObject(object);
         m_CollisionObjects.push_back(object);
 
         return object;
@@ -171,7 +171,7 @@ namespace Coffee {
     {
         if (!object) return;
 
-        dynamicsWorld->removeCollisionObject(object);
+        m_World->removeCollisionObject(object);
         
         auto it = std::find(m_CollisionObjects.begin(), m_CollisionObjects.end(), object);
         if (it != m_CollisionObjects.end())
