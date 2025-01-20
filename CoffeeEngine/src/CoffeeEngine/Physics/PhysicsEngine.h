@@ -44,6 +44,7 @@ namespace Coffee{
         static void SetGravity(const glm::vec3& gravity);
         static glm::vec3 GetGravity();
 
+        // Call collision delegates on event
         static void ProcessCollisionEvents();
         static void ProcessTriggerEvents();
 

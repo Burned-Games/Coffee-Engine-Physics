@@ -106,7 +106,7 @@ namespace Coffee {
         switch (config.type)
         {
             case CollisionShapeType::BOX:
-                shape = new btBoxShape(GlmToBullet(config.size * 0.5f));
+                shape = new btBoxShape(PhysUtils::GlmToBullet(config.size * 0.5f));
                 break;
             case CollisionShapeType::SPHERE:
                 shape = new btSphereShape(config.size.x);
@@ -115,10 +115,10 @@ namespace Coffee {
                 shape = new btCapsuleShape(config.size.x, config.size.y);
                 break;
             case CollisionShapeType::CYLINDER:
-                shape = new btCylinderShape(GlmToBullet(config.size));
+                shape = new btCylinderShape(PhysUtils::GlmToBullet(config.size));
                 break;
             default:
-                shape = new btBoxShape(GlmToBullet(config.size * 0.5f));
+                shape = new btBoxShape(PhysUtils::GlmToBullet(config.size * 0.5f));
                 break;
         }
 
@@ -143,7 +143,7 @@ namespace Coffee {
                 shape->calculateLocalInertia(config.mass, localInertia);
 
             btDefaultMotionState* motionState = new btDefaultMotionState(
-                btTransform(btQuaternion(0, 0, 0, 1), GlmToBullet(position))
+                btTransform(btQuaternion(0, 0, 0, 1), PhysUtils::GlmToBullet(position))
             );
 
             btRigidBody::btRigidBodyConstructionInfo rbInfo(
@@ -154,7 +154,7 @@ namespace Coffee {
         }
 
         object->setCollisionShape(shape);
-        object->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), GlmToBullet(position)));
+        object->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), PhysUtils::GlmToBullet(position)));
 
         if (config.isTrigger)
         {
