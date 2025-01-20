@@ -1,7 +1,12 @@
 #include "PhysicsEngine.h"
+#include "PhysUtils.h"
+
+#include "CoffeeEngine/Core/Log.h"
 
 namespace Coffee {
 
+    using namespace Coffee;
+    
     btDynamicsWorld* PhysicsEngine::dynamicsWorld = nullptr;
     btCollisionConfiguration* PhysicsEngine::collision_conf = nullptr;
     btDispatcher* PhysicsEngine::dispatcher = nullptr;
@@ -11,13 +16,19 @@ namespace Coffee {
 
     void PhysicsEngine::Init()
     {
+        COFFEE_CORE_INFO("Initializing Physics Engine");
+        
         collision_conf = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collision_conf);
         broad_phase = new btDbvtBroadphase();
         solver = new btSequentialImpulseConstraintSolver();
 
         dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broad_phase, solver, collision_conf);
-        
+
+        debug_draw = new DebugDrawer();
+
+        dynamicsWorld->setDebugDrawer(debug_draw);
+
         SetGravity(glm::vec3(0.0f, -9.81f, 0.0f));
     }
 
@@ -50,7 +61,7 @@ namespace Coffee {
     {
         if (dynamicsWorld)
         {
-            dynamicsWorld->setGravity(GlmToBullet(gravity));
+            dynamicsWorld->setGravity(PhysUtils::GlmToBullet(gravity));
         }
     }
 
@@ -58,18 +69,18 @@ namespace Coffee {
     {
         if (dynamicsWorld)
         {
-            return BulletToGlm(dynamicsWorld->getGravity());
+            return PhysUtils::BulletToGlm(dynamicsWorld->getGravity());
         }
         return glm::vec3(0.0f);
     }
-
-    btVector3 PhysicsEngine::GlmToBullet(const glm::vec3& v)
+    
+    void PhysicsEngine::ProcessCollisionEvents()
     {
-        return btVector3(v.x, v.y, v.z);
+        if (!dynamicsWorld) return;    
     }
 
-    glm::vec3 PhysicsEngine::BulletToGlm(const btVector3& v)
+    void PhysicsEngine::ProcessTriggerEvents()
     {
-        return glm::vec3(v.x(), v.y(), v.z());
+        
     }
 }
