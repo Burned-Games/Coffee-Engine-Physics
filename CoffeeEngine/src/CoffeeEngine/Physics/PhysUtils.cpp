@@ -1,7 +1,3 @@
-//
-// Created by Roger on 20/1/2025.
-//
-
 #include "PhysUtils.h"
 
 namespace Coffee {

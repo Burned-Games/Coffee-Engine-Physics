@@ -1,7 +1,3 @@
-//
-// Created by Roger on 20/1/2025.
-//
-
 #include "DebugDrawer.h"
 
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
@@ -22,7 +18,7 @@ namespace Coffee {
     
     void DebugDrawer::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
     {
-        
+        DebugRenderer::DrawSphere(PhysUtils::BulletToGlm(PointOnB),0.1f);
     }
     
     void DebugDrawer::reportErrorWarning(const char* warningString)
@@ -32,7 +28,7 @@ namespace Coffee {
     
     void DebugDrawer::draw3dText(const btVector3& location, const char* textString)
     {
-        COFFEE_TRACE(("DebugDrawer::draw3dText((%i,%i,%i),%s)\n"), location.x(),location.y(),location.z(), textString);
+        //COFFEE_TRACE(("DebugDrawer::draw3dText((%i,%i,%i),%s)\n"), location.x(),location.y(),location.z(), textString);
     }
     
     void DebugDrawer::setDebugMode(int debugMode)

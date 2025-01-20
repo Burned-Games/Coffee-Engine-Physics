@@ -39,13 +39,12 @@ namespace Coffee{
         static void Update(float dt);
         static void Destroy();
 
-        static btDynamicsWorld* GetWorld() { return m_World; }
+        static btDynamicsWorld* GetWorld() { return m_world; }
 
         static void SetGravity(const glm::vec3& gravity);
         static glm::vec3 GetGravity();
 
-        // Call collision delegates on event
-        static void ProcessCollisionEvents();
+        // Call collision delegates for triggers
         static void ProcessTriggerEvents();
 
         
@@ -58,7 +57,7 @@ namespace Coffee{
 
     private:
 
-        static btDynamicsWorld* m_World;
+        static btDynamicsWorld* m_world;
 
         static btCollisionConfiguration*	m_collision_conf;
         static btDispatcher*				m_dispatcher;
