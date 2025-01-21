@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Collider.h"
-#include "PhysicsEngine.h"
 
 namespace Coffee
 {
@@ -13,25 +12,11 @@ namespace Coffee
                     float mass = 1.0f);
         ~BoxCollider();
 
-        // Setters and getters for position
-        void SetPosition(const glm::vec3& position);
-        glm::vec3 GetPosition() const;
-
-        // Enable or disable the collider
-        void SetEnabled(bool enabled);
-        bool IsEnabled() const;
-
-        // Access underlying Bullet collision object
-        btCollisionObject* GetCollisionObject() const { return m_collisionObject; }
+      protected:
+        void UpdateCollisionShape() override;
 
       private:
-        btCollisionObject* m_collisionObject;
         glm::vec3 m_size;
-        bool m_isStatic;
-        bool m_isTrigger;
-        float m_mass;
-
-        void UpdateCollisionObject();
     };
 
 } // namespace Coffee
