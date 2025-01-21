@@ -4,6 +4,7 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include "Collider.h"
 
 namespace Coffee{
 
@@ -46,6 +47,8 @@ namespace Coffee{
 
         // Call collision delegates for triggers
         static void ProcessTriggerEvents();
+
+        static void SetPosition(btCollisionObject* object, const glm::vec3& position);
 
         
 

@@ -1,6 +1,7 @@
 #include "PhysicsEngine.h"
 #include "PhysUtils.h"
 
+
 #include "CoffeeEngine/Core/Log.h"
 
 #include <entt/entity/entity.hpp>
@@ -93,43 +94,43 @@ namespace Coffee {
         return glm::vec3(0.0f);
     }
 
-    void PhysicsEngine::ProcessTriggerEvents()
-    {
-        if (m_world == nullptr) return;
+    //void PhysicsEngine::ProcessTriggerEvents()
+    //{
+    //    if (m_world == nullptr) return;
 
-        // TODO cuando haya colliders descomentar esto y adaptarlo correctamente
-        /*
-        int numManifolds = m_world->getDispatcher()->getNumManifolds();
-        for(int i = 0; i<numManifolds; i++)
-        {
-            btPersistentManifold* contactManifold = m_world->getDispatcher()->getManifoldByIndexInternal(i);
-            auto* obA = (btCollisionObject*)(contactManifold->getBody0());
-            auto* obB = (btCollisionObject*)(contactManifold->getBody1());
+    //    // TODO cuando haya colliders descomentar esto y adaptarlo correctamente
+    //    /*
+    //    int numManifolds = m_world->getDispatcher()->getNumManifolds();
+    //    for(int i = 0; i<numManifolds; i++)
+    //    {
+    //        btPersistentManifold* contactManifold = m_world->getDispatcher()->getManifoldByIndexInternal(i);
+    //        auto* obA = (btCollisionObject*)(contactManifold->getBody0());
+    //        auto* obB = (btCollisionObject*)(contactManifold->getBody1());
 
 
-            int numContacts = contactManifold->getNumContacts();
-            if(numContacts > 0)
-            {
-                Collider* body_a = (Collider*)obA->getUserPointer();
-                Collider* body_b = (Collider*)obB->getUserPointer();
+    //        int numContacts = contactManifold->getNumContacts();
+    //        if(numContacts > 0)
+    //        {
+    //            Collider* body_a = (Collider*)obA->getUserPointer();
+    //            Collider* body_b = (Collider*)obB->getUserPointer();
 
-                if(body_a && body_b)
-                {
-                    std::vector<CollisionCallback> items = body_a->collision_listeners;
-                    for (auto& item : items)
-                    {
-                        item(body_a, body_b);
-                    }
-                    items = body_b->collision_listeners;
-                    for (auto& item : items)
-                    {
-                        item(body_b, body_a);
-                    }
-                }
-            }
-        }
-        */
-    }
+    //            if(body_a && body_b)
+    //            {
+    //                std::vector<CollisionCallback> items = body_a->collision_listeners;
+    //                for (auto& item : items)
+    //                {
+    //                    item(body_a, body_b);
+    //                }
+    //                items = body_b->collision_listeners;
+    //                for (auto& item : items)
+    //                {
+    //                    item(body_b, body_a);
+    //                }
+    //            }
+    //        }
+    //    }
+    //    */
+    //}
 
     btCollisionShape* PhysicsEngine::CreateCollisionShape(const CollisionShapeConfig& config)
     {
@@ -220,4 +221,51 @@ namespace Coffee {
 
         delete object;
     }
+
+    void PhysicsEngine::ProcessTriggerEvents()
+    {
+        if (!m_world)
+            return;
+
+        int numManifolds = m_world->getDispatcher()->getNumManifolds();
+        for (int i = 0; i < numManifolds; ++i)
+        {
+            btPersistentManifold* contactManifold = m_world->getDispatcher()->getManifoldByIndexInternal(i);
+
+            const btCollisionObject* objA = contactManifold->getBody0();
+            const btCollisionObject* objB = contactManifold->getBody1();
+
+            if (contactManifold->getNumContacts() > 0)
+            {
+                // Asegúrate de que los UserPointers son válidos y convertibles
+                if (objA->getUserPointer() && objB->getUserPointer())
+                {
+                    Collider* colliderA = dynamic_cast<Collider*>(static_cast<Collider*>(objA->getUserPointer()));
+                    Collider* colliderB = dynamic_cast<Collider*>(static_cast<Collider*>(objB->getUserPointer()));
+
+                    if (colliderA && colliderB)
+                    {
+                        colliderA->OnCollision(colliderB);
+                        colliderB->OnCollision(colliderA);
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+    void PhysicsEngine::SetPosition(btCollisionObject* object, const glm::vec3& position)
+    {
+        if (!object)
+            return;
+
+        btTransform transform = object->getWorldTransform();
+        transform.setOrigin(PhysUtils::GlmToBullet(position));
+        object->setWorldTransform(transform);
+    }
+
+
+
 }
