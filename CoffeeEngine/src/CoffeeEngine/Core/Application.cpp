@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Physics/PhysicsEngine.h"
+#include "CoffeeEngine/Physics/PhysicsJoints.h"
 
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL.h>
