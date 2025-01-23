@@ -40,29 +40,29 @@ namespace Coffee
         // if (event.IsRepeat() > 0)
         //     return false;
 
-        const float moveSpeed = 1.0f; // 移动速度
-        auto& position = selectedEntity.GetComponent<TransformComponent>().Position;
+        //const float moveSpeed = 1.0f; // 移动速度
+        //auto& position = selectedEntity.GetComponent<TransformComponent>().Position;
 
-        if (selectedEntity.GetComponent<TagComponent>().Tag == "FINAL_MODEL_74.fbx")
-        {
-            switch (event.GetKeyCode())
-            {
-            case Coffee::Key::W:
-                position.z += moveSpeed; // 前进
-                break;
-            case Coffee::Key::S:
-                position.z -= moveSpeed; // 后退
-                break;
-            case Coffee::Key::A:
-                position.x += moveSpeed; // 左移
-                break;
-            case Coffee::Key::D:
-                position.x -= moveSpeed; // 右移
-                break;
-            default:
-                return false;
-            }
-        }
+        //if (selectedEntity.GetComponent<TagComponent>().Tag == "FINAL_MODEL_74.fbx")
+        //{
+        //    switch (event.GetKeyCode())
+        //    {
+        //    case Coffee::Key::W:
+        //        position.z += moveSpeed; // 前进
+        //        break;
+        //    case Coffee::Key::S:
+        //        position.z -= moveSpeed; // 后退
+        //        break;
+        //    case Coffee::Key::A:
+        //        position.x += moveSpeed; // 左移
+        //        break;
+        //    case Coffee::Key::D:
+        //        position.x -= moveSpeed; // 右移
+        //        break;
+        //    default:
+        //        return false;
+        //    }
+        //}
         return true;
     }
 
