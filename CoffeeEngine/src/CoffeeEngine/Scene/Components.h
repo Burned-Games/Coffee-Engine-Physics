@@ -284,6 +284,23 @@ namespace Coffee {
             archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
         }
     };
+
+    struct MoveComponent
+    {
+        std::string Tag; ///< The tag string.
+
+        MoveComponent() = default;
+        MoveComponent(const MoveComponent&) = default;
+        MoveComponent(const std::string& tag) : Tag(tag) {}
+
+        /**
+         * @brief Serializes the TagComponent.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to serialize to.
+         */
+        template <class Archive> void serialize(Archive& archive) { archive(cereal::make_nvp("Tag", Tag)); }
+    };
+
 }
 
 /** @} */

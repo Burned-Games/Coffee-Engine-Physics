@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Events/ApplicationEvent.h"
@@ -12,6 +13,9 @@
 
 #include <Panels/ImportPanel.h>
 #include <Panels/OutputPanel.h>
+#include <CoffeeEngine/Physics/Vehicle.h>
+
+
 
 namespace Coffee {
 
@@ -58,6 +62,8 @@ namespace Coffee {
         Ref<Scene> m_ActiveScene;
 
         EditorCamera m_EditorCamera;
+
+        Vehicle vehicle;
 
         enum class SceneState
         {

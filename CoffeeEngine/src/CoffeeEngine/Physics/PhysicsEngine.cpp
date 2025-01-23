@@ -3,7 +3,7 @@
 
 
 #include "CoffeeEngine/Core/Log.h"
-
+#include "Vehicle.h"
 #include <entt/entity/entity.hpp>
 
 namespace Coffee {
@@ -20,6 +20,7 @@ namespace Coffee {
     
     std::vector<btCollisionObject*> PhysicsEngine::m_CollisionObjects;
     std::vector<btCollisionShape*> PhysicsEngine::m_CollisionShapes;
+    Vehicle vehicle;
 
     void PhysicsEngine::Init()
     {
@@ -34,6 +35,8 @@ namespace Coffee {
 
         m_debug_draw = new DebugDrawer();
 
+          
+
         m_world->setDebugDrawer(m_debug_draw);
 
         SetGravity(glm::vec3(0.0f, -9.81f, 0.0f));
@@ -45,6 +48,8 @@ namespace Coffee {
         {
             m_world->stepSimulation(dt, 10);
         }
+
+        //vehicle.update(dt);
     }
 
     void PhysicsEngine::Destroy()

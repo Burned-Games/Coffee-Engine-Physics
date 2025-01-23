@@ -37,6 +37,7 @@
 
 #include <IconsLucide.h>
 
+
 namespace Coffee {
 
     static RendererStats s_RendererData;
@@ -88,6 +89,9 @@ namespace Coffee {
 
         m_ActiveScene->OnEvent(event);
 
+
+        vehicle.OnEvent(event); 
+
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<KeyPressedEvent>(COFFEE_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
         dispatcher.Dispatch<MouseButtonPressedEvent>(COFFEE_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
@@ -103,6 +107,7 @@ namespace Coffee {
         {
             case Coffee::Key::G:
                 m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+                printf("G pressed");
             break;
             case Coffee::Key::R:
                 m_GizmoType = ImGuizmo::OPERATION::ROTATE;
