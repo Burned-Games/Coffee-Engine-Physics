@@ -76,7 +76,7 @@ namespace Coffee {
             break;
             case SceneState::Play:
                 m_ActiveScene->OnUpdateRuntime(dt);
-                vehicle.update(dt);
+                //vehicle.update(dt);
             break;
 
         }
@@ -553,7 +553,7 @@ namespace Coffee {
 
         if(selectedEntity)
         {
-            //vehicle.setEntity(selectedEntity); 
+            vehicle.setEntity(selectedEntity); 
             auto& transformComponent = selectedEntity.GetComponent<TransformComponent>();
             if (selectedEntity.HasComponent<MeshComponent>()) {
                 auto& meshComponent = selectedEntity.GetComponent<MeshComponent>();

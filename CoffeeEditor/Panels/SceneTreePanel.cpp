@@ -794,6 +794,13 @@ namespace Coffee {
                         entity.AddComponent<RigidbodyComponent>();
                     ImGui::CloseCurrentPopup();
                 }
+                //Collider
+                else if (items[item_current] == "BoxCollider Component")
+                {
+                    if (!entity.HasComponent<RigidbodyComponent>())
+                        entity.AddComponent<RigidbodyComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
                 else
                 {
                     ImGui::CloseCurrentPopup();

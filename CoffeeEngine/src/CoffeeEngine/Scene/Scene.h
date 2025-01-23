@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <string>
 
+
 namespace Coffee {
 
     /**
@@ -108,6 +109,7 @@ namespace Coffee {
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
         Octree<Ref<Mesh>> m_Octree;
+        //Vehicle vehicle;
 
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;
