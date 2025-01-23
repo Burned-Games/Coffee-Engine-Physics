@@ -694,6 +694,25 @@ namespace Coffee {
             
             }
         }
+        if (entity.HasComponent<BoxColliderComponent>())
+        {
+            auto& boxCollider = entity.GetComponent<BoxColliderComponent>();
+
+            if (ImGui::CollapsingHeader("Box Collider", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // 显示 BoxCollider 的大小
+                ImGui::Text("Size");
+                ImGui::DragFloat3("##BoxSize", glm::value_ptr(boxCollider.Size), 0.1f, 0.0f, 100.0f);
+
+                // 显示 BoxCollider 的偏移
+                ImGui::Text("Offset");
+                ImGui::DragFloat3("##BoxOffset", glm::value_ptr(boxCollider.Offset), 0.1f);
+
+                // 是否是 Trigger
+                ImGui::Checkbox("Is Trigger", &boxCollider.IsTrigger);
+            }
+        }
+
 
         ImGui::Separator();
 
@@ -716,8 +735,13 @@ namespace Coffee {
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
             std::string items[] = {
-                "Tag Component",   "Transform Component", "Mesh Component",       "Material Component",
-                "Light Component", "Camera Component",    "Lua Script Component", "Rigidbody Component"};
+                "Tag Component",   "Transform Component", "Mesh Component",       "Material Component",   "Light Component",     "Camera Component",
+                                   "Lua Script Component", "Rigidbody Component",
+                                   "BoxCollider Component",
+                                   "SphereCollider Component",
+                                   "CapsuleCollider Component",
+                                   "CylinderCollider Component",
+                                   "PlaneCollider Component",        "MeshCollider Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -796,6 +820,36 @@ namespace Coffee {
                 }
                 //Collider
                 else if (items[item_current] == "BoxCollider Component")
+                {
+                    if (!entity.HasComponent<BoxColliderComponent>())
+                        entity.AddComponent<BoxColliderComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "SphereCollider Component")
+                {
+                    if (!entity.HasComponent<RigidbodyComponent>())
+                        entity.AddComponent<RigidbodyComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "CapsuleCollider Component")
+                {
+                    if (!entity.HasComponent<RigidbodyComponent>())
+                        entity.AddComponent<RigidbodyComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "CylinderCollider Component")
+                {
+                    if (!entity.HasComponent<RigidbodyComponent>())
+                        entity.AddComponent<RigidbodyComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "PlaneCollider Component")
+                {
+                    if (!entity.HasComponent<RigidbodyComponent>())
+                        entity.AddComponent<RigidbodyComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "MeshCollider Component")
                 {
                     if (!entity.HasComponent<RigidbodyComponent>())
                         entity.AddComponent<RigidbodyComponent>();
