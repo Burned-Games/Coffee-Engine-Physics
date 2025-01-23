@@ -644,8 +644,19 @@ namespace Coffee {
                             false; // Opcional: si es estático, se puede desactivar la gravedad
                 }
 
+                if (ImGui::Checkbox("Kinematic", &rigidbodyComponent.IsKinematic))
+                {
+                    // Si el objeto es Kinematic, desactivar la gravedad y otras interacciones físicas si es necesario
+                    if (rigidbodyComponent.IsKinematic)
+                    {
+                        rigidbodyComponent.UseGravity = false; // Desactivar la gravedad si es kinematic
+                        rigidbodyComponent.Velocity =
+                            glm::vec3(0.0f, 0.0f, 0.0f); // Asegurarse que la velocidad se resetea
+                    }
+                }
+
                 // Use Gravity checkbox
-                if (!rigidbodyComponent.IsStatic && !rigidbodyComponent.FreezeY)
+                if (!rigidbodyComponent.IsStatic && !rigidbodyComponent.IsKinematic && !rigidbodyComponent.FreezeY)
                 {
                     ImGui::Checkbox("Use Gravity", &rigidbodyComponent.UseGravity);
                 }
@@ -661,54 +672,26 @@ namespace Coffee {
                 // Acceleration
                 ImGui::Text("Acceleration");
                 ImGui::DragFloat3("##Acceleration", glm::value_ptr(rigidbodyComponent.Acceleration), 0.1f);
-
-                // Friction
-                ImGui::Text("Friction");
-                ImGui::DragFloat("##Friction", &rigidbodyComponent.Friction, 0.01f, 0.0f, 1.0f);
-
-                // Restitution
-                ImGui::Text("Restitution");
-                ImGui::DragFloat("##Restitution", &rigidbodyComponent.Restitution, 0.01f, 0.0f, 1.0f);
-
-                // Shape (with Combo Box for selection)
-                const char* shapeNames[] = {"Box", "Sphere", "Capsule"};
-                const char* currentShapeName = shapeNames[static_cast<int>(rigidbodyComponent.Shape)];
-                if (ImGui::BeginCombo("Shape", currentShapeName))
-                {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        bool selected = (rigidbodyComponent.Shape == static_cast<RigidbodyComponent::ShapeType>(i));
-                        if (ImGui::Selectable(shapeNames[i], selected))
-                        {
-                            rigidbodyComponent.Shape = static_cast<RigidbodyComponent::ShapeType>(i);
-                        }
-
-                        if (selected)
-                            ImGui::SetItemDefaultFocus();
-                    }
-                    ImGui::EndCombo();
-                }
-
-                // Radius (only for Sphere)
-                if (rigidbodyComponent.Shape == RigidbodyComponent::ShapeType::Sphere)
-                {
-                    ImGui::Text("Radius");
-                    ImGui::DragFloat("##Radius", &rigidbodyComponent.Radius, 0.1f, 0.0f, 10.0f);
-                }
-
-                // Extents (only for Box)
-                if (rigidbodyComponent.Shape == RigidbodyComponent::ShapeType::Box)
-                {
-                    ImGui::Text("Extents");
-                    ImGui::DragFloat3("##Extents", glm::value_ptr(rigidbodyComponent.Extents), 0.1f, 0.0f, 10.0f);
-                }
-
+               
                 if (ImGui::CollapsingHeader("Constraints"))
                 {
+                    // Sección para Freeze de posición
+                    ImGui::Text("Position");
+                    ImGui::Indent();
                     ImGui::Checkbox("Freeze X", &rigidbodyComponent.FreezeX);
                     ImGui::Checkbox("Freeze Y", &rigidbodyComponent.FreezeY);
                     ImGui::Checkbox("Freeze Z", &rigidbodyComponent.FreezeZ);
+                    ImGui::Unindent();
+
+                    // Sección para Freeze de rotación
+                    ImGui::Text("Rotation");
+                    ImGui::Indent();
+                    ImGui::Checkbox("Freeze Rotation X", &rigidbodyComponent.FreezeRotationX);
+                    ImGui::Checkbox("Freeze Rotation Y", &rigidbodyComponent.FreezeRotationY);
+                    ImGui::Checkbox("Freeze Rotation Z", &rigidbodyComponent.FreezeRotationZ);
+                    ImGui::Unindent();
                 }
+            
             }
         }
 

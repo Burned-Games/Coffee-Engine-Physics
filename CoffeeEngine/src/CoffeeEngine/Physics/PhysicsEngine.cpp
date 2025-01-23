@@ -10,7 +10,7 @@
 
 namespace Coffee {
 
-    entt::registry PhysicsEngine::m_EntityRegistry;
+    entt::registry PhysicsEngine::m_EntityRegistry; 
     using namespace Coffee;
     
     btDynamicsWorld* PhysicsEngine::m_world = nullptr;
@@ -24,6 +24,7 @@ namespace Coffee {
     std::vector<btCollisionObject*> PhysicsEngine::m_CollisionObjects;
     std::vector<btCollisionShape*> PhysicsEngine::m_CollisionShapes;
     Vehicle vehicle;
+    //std::shared_ptr<Scene> PhysicsEngine::m_ActiveScene = nullptr;
 
     void PhysicsEngine::Init()
     {
@@ -49,32 +50,55 @@ namespace Coffee {
     {
         if (m_world)
         {
-            m_world->stepSimulation(dt, 10); 
+            m_world->stepSimulation(dt, 10);
+
             auto view = m_EntityRegistry.view<RigidbodyComponent>();
-            if (view.empty())
+           /* if (view.empty())
             {
                 COFFEE_CORE_INFO("No entities with RigidbodyComponent found.");
             }
             else
             {
                 COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
-            }
-            
+            }*/
+
             for (auto entity : view)
             {
-                COFFEE_CORE_INFO("ENTERING BUCLE");
                 auto& rigidbody = view.get<RigidbodyComponent>(entity);
-                auto& transform =
-                    m_EntityRegistry.get<TransformComponent>(entity); 
+                auto& transform = m_EntityRegistry.get<TransformComponent>(entity);
 
-                if (rigidbody.UseGravity && !rigidbody.IsStatic)
+                if (rigidbody.UseGravity && !rigidbody.IsStatic && !rigidbody.FreezeY)
                 {
-                    glm::vec3 gravity(0.0f, -9.81f, 0.0f);
-                    rigidbody.Acceleration += gravity; 
+                    glm::vec3 gravity = GetGravity(); //(0.0f, -9.81f, 0.0f);
+                    if (rigidbody.Mass > 0.0f)
+                    {
+                        glm::vec3 gravityAcceleration = gravity / rigidbody.Mass;
+                        rigidbody.Acceleration += gravityAcceleration;
+                        rigidbody.Velocity += rigidbody.Acceleration * dt;
+                        transform.Position += rigidbody.Velocity * dt; 
+                    }
+                }
 
-                    rigidbody.Velocity += rigidbody.Acceleration * dt;
+                // Aplicar restricciones de movimiento
+                if (!rigidbody.FreezeX)
+                    transform.Position.x += rigidbody.Velocity.x * dt;
+                if (!rigidbody.FreezeY)
+                    transform.Position.y += rigidbody.Velocity.y * dt;
+                if (!rigidbody.FreezeZ)
+                    transform.Position.z += rigidbody.Velocity.z * dt;
 
-                    transform.Position += rigidbody.Velocity * dt;
+                // Si el objeto está congelado en alguna rotación, establecemos su velocidad en 0
+                if (rigidbody.FreezeRotationX)
+                    rigidbody.Velocity.x = 0.0f;
+                if (rigidbody.FreezeRotationY)
+                    rigidbody.Velocity.y = 0.0f;
+                if (rigidbody.FreezeRotationZ)
+                    rigidbody.Velocity.z = 0.0f;
+
+                // Si el cuerpo es estático, no se mueve ni se le aplica aceleración
+                if (rigidbody.IsStatic)
+                {
+                    rigidbody.Velocity = glm::vec3(0.0f, 0.0f, 0.0f);
                 }
             }
         }

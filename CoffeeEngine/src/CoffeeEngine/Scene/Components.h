@@ -287,35 +287,30 @@ namespace Coffee {
     struct RigidbodyComponent
     {
         bool IsStatic = false;                       ///< Whether the object is static (non-moving) or dynamic (moving).
+        bool IsKinematic = false;                       ///< Whether the object is static (non-moving) or dynamic (moving).
         bool UseGravity = true;                      ///< Whether the object is affected by gravity.
         float Mass = 1.0f;                           ///< The mass of the rigidbody.
         glm::vec3 Velocity = {0.0f, 0.0f, 0.0f};     ///< The current velocity of the rigidbody.
         glm::vec3 Acceleration = {0.0f, 0.0f, 0.0f}; ///< The current acceleration of the rigidbody.
 
-        float Friction = 0.5f;    ///< The friction coefficient of the rigidbody.
-        float Restitution = 0.5f; ///< The restitution coefficient (elasticity) of the rigidbody.
+        float LinearDrag = 0.1f; ///< The linear drag of the rigidbody.
+        float AngularDrag = 0.1f;
 
         bool FreezeX = false;
         bool FreezeY = false;
         bool FreezeZ = false;
+        bool FreezeRotationX = false;
+        bool FreezeRotationY = false;
+        bool FreezeRotationZ = false;
 
-        enum class ShapeType
-        {
-            Sphere, ///< Sphere shape.
-            Box,    ///< Box shape.
-            Capsule ///< Capsule shape.
-        };
-
-        ShapeType Shape = ShapeType::Box;       ///< The shape of the rigidbody for collision detection.
-        float Radius = 1.0f;                    ///< The radius of the shape (relevant for spheres).
-        glm::vec3 Extents = {1.0f, 1.0f, 1.0f}; ///< The extents (half-sizes) of the box (relevant for box shapes).
 
         RigidbodyComponent() = default;
 
         RigidbodyComponent(bool isStatic, bool useGravity, float mass, const glm::vec3& velocity,
-                           const glm::vec3& acceleration, float friction, float restitution, ShapeType shape)
+                           const glm::vec3& acceleration, float linearDrag,
+                           float angularDrag)
             : IsStatic(isStatic), UseGravity(useGravity), Mass(mass), Velocity(velocity), Acceleration(acceleration),
-              Friction(friction), Restitution(restitution), Shape(shape)
+              LinearDrag(linearDrag), AngularDrag(angularDrag)
         {
         }
 
@@ -328,9 +323,8 @@ namespace Coffee {
         {
             archive(cereal::make_nvp("IsStatic", IsStatic), cereal::make_nvp("UseGravity", UseGravity),
                     cereal::make_nvp("Mass", Mass), cereal::make_nvp("Velocity", Velocity),
-                    cereal::make_nvp("Acceleration", Acceleration), cereal::make_nvp("Friction", Friction),
-                    cereal::make_nvp("Restitution", Restitution), cereal::make_nvp("Shape", Shape),
-                    cereal::make_nvp("Radius", Radius), cereal::make_nvp("Extents", Extents));
+                    cereal::make_nvp("Acceleration", Acceleration), cereal::make_nvp("LinearDrag", LinearDrag),
+                    cereal::make_nvp("AngularDrag", AngularDrag));
         }
 
         /**
@@ -354,6 +348,22 @@ namespace Coffee {
             if (!IsStatic)
             {
                 Velocity += velocityChange;
+            }
+        }
+        void ApplyDrag()
+        {
+            if (!IsStatic)
+            {
+                Velocity *= (1.0f - LinearDrag);
+            }
+        }
+        void ApplyAngularDrag()
+        {
+            if (!IsStatic)
+            {
+                // You would need a separate angular velocity value to apply angular drag, similar to velocity.
+                // For now, this is a placeholder.
+                // AngularVelocity *= (1.0f - AngularDrag);
             }
         }
     };

@@ -9,7 +9,6 @@
 #include "CoffeeEngine/Physics/PhysicsEngine.h"
 #include <entt/entt.hpp>
 
-
 namespace Coffee{
 
     enum class PhysicsType
@@ -40,6 +39,7 @@ namespace Coffee{
     static class PhysicsEngine
     {
     public:
+
         static entt::registry m_EntityRegistry;
 
         static void Init();
