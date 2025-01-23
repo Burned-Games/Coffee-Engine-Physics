@@ -1,0 +1,133 @@
+{
+    "value0": 2,
+    "value1": 2,
+    "value2": 1,
+    "value3": 1048576,
+    "value4": 2,
+    "value5": 1,
+    "value6": {
+        "Tag": "MissingMesh.glb"
+    },
+    "value7": 1048576,
+    "value8": {
+        "Tag": "Camera"
+    },
+    "value9": 2,
+    "value10": 1,
+    "value11": {
+        "Position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value12": 1048576,
+    "value13": {
+        "Position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 12.185712814331055
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value14": 2,
+    "value15": 1,
+    "value16": {
+        "Parent": 4294967295,
+        "First": 4294967295,
+        "Next": 4294967295,
+        "Prev": 4294967295
+    },
+    "value17": 1048576,
+    "value18": {
+        "Parent": 4294967295,
+        "First": 4294967295,
+        "Next": 4294967295,
+        "Prev": 4294967295
+    },
+    "value19": 1,
+    "value20": 1048576,
+    "value21": {
+        "Camera": {
+            "FOV": 45.0,
+            "AspectRatio": 1.7777777910232545,
+            "NearClip": 0.10000000149011612,
+            "FarClip": 1000.0,
+            "ProjectionType": 0,
+            "ViewportWidth": 1280.0,
+            "ViewportHeight": 720.0
+        }
+    },
+    "value22": 2,
+    "value23": 1,
+    "value24": {
+        "Mesh": {
+            "value0": 13824224003300809285
+        }
+    },
+    "value25": 1048576,
+    "value26": {
+        "Mesh": {
+            "value0": 13824224003300809285
+        }
+    },
+    "value27": 2,
+    "value28": 1,
+    "value29": {
+        "Material": {
+            "value0": 10941509451800653470
+        }
+    },
+    "value30": 1048576,
+    "value31": {
+        "Material": {
+            "value0": 10941509451800653470
+        }
+    },
+    "value32": 0,
+    "value33": 1,
+    "value34": 1,
+    "value35": {
+        "IsStatic": false,
+        "UseGravity": true,
+        "Mass": 1.0,
+        "Velocity": {
+            "x": 0.0,
+            "y": 7.099999904632568,
+            "z": 0.0
+        },
+        "Acceleration": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Friction": 0.5,
+        "Restitution": 0.5,
+        "Shape": 1,
+        "Radius": 1.0,
+        "Extents": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    }
+}

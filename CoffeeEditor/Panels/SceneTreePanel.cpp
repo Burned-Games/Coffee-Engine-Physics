@@ -629,6 +629,88 @@ namespace Coffee {
                 }
             }
         }
+        if (entity.HasComponent<RigidbodyComponent>())
+        {
+            auto& rigidbodyComponent = entity.GetComponent<RigidbodyComponent>();
+
+            if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Static checkbox
+                if (ImGui::Checkbox("Static", &rigidbodyComponent.IsStatic))
+                {
+                    // Si el objeto es estático, desactivar la gravedad y otras interacciones físicas si es necesario
+                    if (rigidbodyComponent.IsStatic)
+                        rigidbodyComponent.UseGravity =
+                            false; // Opcional: si es estático, se puede desactivar la gravedad
+                }
+
+                // Use Gravity checkbox
+                if (!rigidbodyComponent.IsStatic && !rigidbodyComponent.FreezeY)
+                {
+                    ImGui::Checkbox("Use Gravity", &rigidbodyComponent.UseGravity);
+                }
+
+                // Mass
+                ImGui::Text("Mass");
+                ImGui::DragFloat("##Mass", &rigidbodyComponent.Mass, 0.1f, 0.0f, 100.0f);
+
+                // Velocity
+                ImGui::Text("Velocity");
+                ImGui::DragFloat3("##Velocity", glm::value_ptr(rigidbodyComponent.Velocity), 0.1f);
+
+                // Acceleration
+                ImGui::Text("Acceleration");
+                ImGui::DragFloat3("##Acceleration", glm::value_ptr(rigidbodyComponent.Acceleration), 0.1f);
+
+                // Friction
+                ImGui::Text("Friction");
+                ImGui::DragFloat("##Friction", &rigidbodyComponent.Friction, 0.01f, 0.0f, 1.0f);
+
+                // Restitution
+                ImGui::Text("Restitution");
+                ImGui::DragFloat("##Restitution", &rigidbodyComponent.Restitution, 0.01f, 0.0f, 1.0f);
+
+                // Shape (with Combo Box for selection)
+                const char* shapeNames[] = {"Box", "Sphere", "Capsule"};
+                const char* currentShapeName = shapeNames[static_cast<int>(rigidbodyComponent.Shape)];
+                if (ImGui::BeginCombo("Shape", currentShapeName))
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        bool selected = (rigidbodyComponent.Shape == static_cast<RigidbodyComponent::ShapeType>(i));
+                        if (ImGui::Selectable(shapeNames[i], selected))
+                        {
+                            rigidbodyComponent.Shape = static_cast<RigidbodyComponent::ShapeType>(i);
+                        }
+
+                        if (selected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+
+                // Radius (only for Sphere)
+                if (rigidbodyComponent.Shape == RigidbodyComponent::ShapeType::Sphere)
+                {
+                    ImGui::Text("Radius");
+                    ImGui::DragFloat("##Radius", &rigidbodyComponent.Radius, 0.1f, 0.0f, 10.0f);
+                }
+
+                // Extents (only for Box)
+                if (rigidbodyComponent.Shape == RigidbodyComponent::ShapeType::Box)
+                {
+                    ImGui::Text("Extents");
+                    ImGui::DragFloat3("##Extents", glm::value_ptr(rigidbodyComponent.Extents), 0.1f, 0.0f, 10.0f);
+                }
+
+                if (ImGui::CollapsingHeader("Constraints"))
+                {
+                    ImGui::Checkbox("Freeze X", &rigidbodyComponent.FreezeX);
+                    ImGui::Checkbox("Freeze Y", &rigidbodyComponent.FreezeY);
+                    ImGui::Checkbox("Freeze Z", &rigidbodyComponent.FreezeZ);
+                }
+            }
+        }
 
         ImGui::Separator();
 
@@ -650,7 +732,9 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component" };
+            std::string items[] = {
+                "Tag Component",   "Transform Component", "Mesh Component",       "Material Component",
+                "Light Component", "Camera Component",    "Lua Script Component", "Rigidbody Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -719,6 +803,12 @@ namespace Coffee {
                     if(!entity.HasComponent<ScriptComponent>())
                         //entity.AddComponent<ScriptComponent>();
                         // TODO add script component
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Rigidbody Component") 
+                {
+                    if (!entity.HasComponent<RigidbodyComponent>())
+                        entity.AddComponent<RigidbodyComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else
