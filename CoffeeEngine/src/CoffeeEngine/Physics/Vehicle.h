@@ -39,19 +39,19 @@ namespace Coffee
 
         
         Entity selectedEntity;
+        SceneTreePanel m_SceneTreePanel;
 
       public:
 
         // 更新方法
         void handleInput(const Uint8* keyState); // 处理键盘输入
-        void update();           // 更新车辆状态
+        void update(float dt);           // 更新车辆状态
 
 
         void OnEvent(Coffee::Event& event);
 
         bool OnKeyPressed(KeyPressedEvent& event);
 
-        SceneTreePanel m_SceneTreePanel;
         // 获取方法
         double getPositionX() const;
         double getPositionY() const;

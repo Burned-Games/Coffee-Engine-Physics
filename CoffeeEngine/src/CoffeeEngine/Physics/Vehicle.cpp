@@ -1,8 +1,6 @@
 #include "Vehicle.h"
 #include <CoffeeEngine/Scene/Components.h>
 
-
-
 namespace Coffee
 {
 
@@ -12,51 +10,8 @@ namespace Coffee
     {
     }
 
-    // 处理键盘输入
-    void Vehicle::handleInput(const Uint8* keyState)
-    {
-        forceX = 0.0; // 重置力
-        forceY = 0.0;
-
-        // 根据按键施加力
-        if (keyState[SDL_SCANCODE_W])
-        {                          // 按下 W 键
-            forceY -= forceAmount; // 向上施加力
-            printf("W");
-
-            selectedEntity.GetComponent<TransformComponent>().Position.x += 1;
-        }
-        if (keyState[SDL_SCANCODE_S])
-        {                          // 按下 S 键
-            forceY += forceAmount; // 向下施加力
-            printf("S");
-        }
-        if (keyState[SDL_SCANCODE_A])
-        {                          // 按下 A 键
-            forceX -= forceAmount; // 向左施加力
-            printf("A");
-        }
-        if (keyState[SDL_SCANCODE_D])
-        {                          // 按下 D 键
-            forceX += forceAmount; // 向右施加力
-            printf("D");
-        }
-
-        // 计算加速度
-        if (mass > 0)
-        {
-            accelerationX = forceX / mass;
-            accelerationY = forceY / mass;
-        }
-        else
-        {
-            accelerationX = 0.0;
-            accelerationY = 0.0;
-        }
-    }
-
     // 更新车辆状态
-    void Vehicle::update()
+    void Vehicle::update(float dt)
     {
         // velocityX += accelerationX * deltaTime; // 更新速度
         // velocityY += accelerationY * deltaTime;
@@ -64,38 +19,13 @@ namespace Coffee
         // positionX += velocityX * deltaTime; // 更新位置
         // positionY += velocityY * deltaTime;
 
-         //printf("a");
-
+         selectedEntity = m_SceneTreePanel.GetSelectedEntity();
         if (selectedEntity)
         {
-            printf("yeess");
+           // m_SceneTreePanel.GetSelectedEntity().GetComponent<TransformComponent>().Position.y = 100;
+            COFFEE_CORE_WARN("Tag: {0}", selectedEntity.GetComponent<TransformComponent>().Position.x);
+            selectedEntity.GetComponent<TransformComponent>().Position.x = 10;
         }
-
-
-        /* SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-
-            if (event.key.scancode, 0){
-            
-            }
-
-            m_ImGuiLayer->ProcessEvents(event);
-            switch (event.type)
-            {
-                if (event.key.repeat)
-                {
-                    KeyPressedEvent e(event.key.scancode, 1);
-
-                }
-                else
-                {
-                    KeyPressedEvent e(event.key.scancode, 0);
-
-                }
-            }
-        }*/
-
     }
 
     void Vehicle::OnEvent(Coffee::Event& event)
@@ -103,24 +33,38 @@ namespace Coffee
 
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<KeyPressedEvent>(COFFEE_BIND_EVENT_FN(Vehicle::OnKeyPressed));
-
     }
 
     bool Vehicle::OnKeyPressed(KeyPressedEvent& event)
     {
-        //if (event.IsRepeat() > 0)
-        //    return false;
+        // if (event.IsRepeat() > 0)
+        //     return false;
 
-        switch (event.GetKeyCode())
+        const float moveSpeed = 1.0f; // 移动速度
+        auto& position = selectedEntity.GetComponent<TransformComponent>().Position;
+
+        if (selectedEntity.GetComponent<TagComponent>().Tag == "FINAL_MODEL_74.fbx")
         {
-        case Coffee::Key::Q:
-
-               printf("sss");
-            break;
+            switch (event.GetKeyCode())
+            {
+            case Coffee::Key::W:
+                position.z += moveSpeed; // 前进
+                break;
+            case Coffee::Key::S:
+                position.z -= moveSpeed; // 后退
+                break;
+            case Coffee::Key::A:
+                position.x += moveSpeed; // 左移
+                break;
+            case Coffee::Key::D:
+                position.x -= moveSpeed; // 右移
+                break;
+            default:
+                return false;
+            }
         }
-        return false;
+        return true;
     }
-
 
     // 获取 X 轴位置
     double Vehicle::getPositionX() const
@@ -149,8 +93,6 @@ namespace Coffee
     void Vehicle::setEntity(Entity entity)
     {
         selectedEntity = entity;
-        update();
-        printf("s");
     }
 
     Entity Vehicle::getEntity()
