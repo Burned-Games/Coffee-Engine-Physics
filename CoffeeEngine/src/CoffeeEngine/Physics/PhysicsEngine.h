@@ -5,6 +5,10 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include "Collider.h"
+#include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Physics/PhysicsEngine.h"
+#include <entt/entt.hpp>
+
 
 namespace Coffee{
 
@@ -36,6 +40,8 @@ namespace Coffee{
     static class PhysicsEngine
     {
     public:
+        static entt::registry m_EntityRegistry;
+
         static void Init();
         static void Update(float dt);
         static void Destroy();
@@ -72,5 +78,4 @@ namespace Coffee{
         static std::vector<btCollisionObject*> m_CollisionObjects;
         static std::vector<btCollisionShape*> m_CollisionShapes;
     };
-
 }

@@ -4,10 +4,13 @@
 
 #include "CoffeeEngine/Core/Log.h"
 #include "Vehicle.h"
+#include "CoffeeEngine/Scene/Components.h"
+
 #include <entt/entity/entity.hpp>
 
 namespace Coffee {
 
+    entt::registry PhysicsEngine::m_EntityRegistry;
     using namespace Coffee;
     
     btDynamicsWorld* PhysicsEngine::m_world = nullptr;
@@ -42,11 +45,38 @@ namespace Coffee {
         SetGravity(glm::vec3(0.0f, -9.81f, 0.0f));
     }
 
-    void PhysicsEngine::Update(float dt)
+   void PhysicsEngine::Update(float dt)
     {
         if (m_world)
         {
-            m_world->stepSimulation(dt, 10);
+            m_world->stepSimulation(dt, 10); 
+            auto view = m_EntityRegistry.view<RigidbodyComponent>();
+            if (view.empty())
+            {
+                COFFEE_CORE_INFO("No entities with RigidbodyComponent found.");
+            }
+            else
+            {
+                COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
+            }
+            
+            for (auto entity : view)
+            {
+                COFFEE_CORE_INFO("ENTERING BUCLE");
+                auto& rigidbody = view.get<RigidbodyComponent>(entity);
+                auto& transform =
+                    m_EntityRegistry.get<TransformComponent>(entity); 
+
+                if (rigidbody.UseGravity && !rigidbody.IsStatic)
+                {
+                    glm::vec3 gravity(0.0f, -9.81f, 0.0f);
+                    rigidbody.Acceleration += gravity; 
+
+                    rigidbody.Velocity += rigidbody.Acceleration * dt;
+
+                    transform.Position += rigidbody.Velocity * dt;
+                }
+            }
         }
 
         //vehicle.update(dt);

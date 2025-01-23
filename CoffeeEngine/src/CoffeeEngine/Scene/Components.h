@@ -284,23 +284,79 @@ namespace Coffee {
             archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
         }
     };
-
-    struct MoveComponent
+    struct RigidbodyComponent
     {
-        std::string Tag; ///< The tag string.
+        bool IsStatic = false;                       ///< Whether the object is static (non-moving) or dynamic (moving).
+        bool UseGravity = true;                      ///< Whether the object is affected by gravity.
+        float Mass = 1.0f;                           ///< The mass of the rigidbody.
+        glm::vec3 Velocity = {0.0f, 0.0f, 0.0f};     ///< The current velocity of the rigidbody.
+        glm::vec3 Acceleration = {0.0f, 0.0f, 0.0f}; ///< The current acceleration of the rigidbody.
 
-        MoveComponent() = default;
-        MoveComponent(const MoveComponent&) = default;
-        MoveComponent(const std::string& tag) : Tag(tag) {}
+        float Friction = 0.5f;    ///< The friction coefficient of the rigidbody.
+        float Restitution = 0.5f; ///< The restitution coefficient (elasticity) of the rigidbody.
+
+        bool FreezeX = false;
+        bool FreezeY = false;
+        bool FreezeZ = false;
+
+        enum class ShapeType
+        {
+            Sphere, ///< Sphere shape.
+            Box,    ///< Box shape.
+            Capsule ///< Capsule shape.
+        };
+
+        ShapeType Shape = ShapeType::Box;       ///< The shape of the rigidbody for collision detection.
+        float Radius = 1.0f;                    ///< The radius of the shape (relevant for spheres).
+        glm::vec3 Extents = {1.0f, 1.0f, 1.0f}; ///< The extents (half-sizes) of the box (relevant for box shapes).
+
+        RigidbodyComponent() = default;
+
+        RigidbodyComponent(bool isStatic, bool useGravity, float mass, const glm::vec3& velocity,
+                           const glm::vec3& acceleration, float friction, float restitution, ShapeType shape)
+            : IsStatic(isStatic), UseGravity(useGravity), Mass(mass), Velocity(velocity), Acceleration(acceleration),
+              Friction(friction), Restitution(restitution), Shape(shape)
+        {
+        }
 
         /**
-         * @brief Serializes the TagComponent.
+         * @brief Serializes the RigidbodyComponent.
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
-        template <class Archive> void serialize(Archive& archive) { archive(cereal::make_nvp("Tag", Tag)); }
-    };
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("IsStatic", IsStatic), cereal::make_nvp("UseGravity", UseGravity),
+                    cereal::make_nvp("Mass", Mass), cereal::make_nvp("Velocity", Velocity),
+                    cereal::make_nvp("Acceleration", Acceleration), cereal::make_nvp("Friction", Friction),
+                    cereal::make_nvp("Restitution", Restitution), cereal::make_nvp("Shape", Shape),
+                    cereal::make_nvp("Radius", Radius), cereal::make_nvp("Extents", Extents));
+        }
 
+        /**
+         * @brief Applies a force to the rigidbody.
+         * @param force The force to apply.
+         */
+        void ApplyForce(const glm::vec3& force)
+        {
+            if (!IsStatic)
+            {
+                Acceleration += force / Mass; // F = ma => a = F / m
+            }
+        }
+
+        /**
+         * @brief Applies a velocity change to the rigidbody.
+         * @param velocityChange The change in velocity.
+         */
+        void ApplyVelocityChange(const glm::vec3& velocityChange)
+        {
+            if (!IsStatic)
+            {
+                Velocity += velocityChange;
+            }
+        }
+    };
 }
 
 /** @} */
