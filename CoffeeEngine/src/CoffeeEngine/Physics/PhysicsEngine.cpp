@@ -52,6 +52,14 @@ namespace Coffee {
         {
             m_world->stepSimulation(dt, 10);
 
+            if (!Scene::m_RigidbodyEntities.empty())
+            {
+                for (auto entity : Scene::m_RigidbodyEntities)
+                {
+                    COFFEE_CORE_INFO("Entities with RigidbodyComponent found - phyisicsEngine.");
+
+                }
+            }
             auto view = m_EntityRegistry.view<RigidbodyComponent>();
            /* if (view.empty())
             {

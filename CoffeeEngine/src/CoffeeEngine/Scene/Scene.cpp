@@ -33,6 +33,8 @@
 
 namespace Coffee {
 
+    std::vector<entt::entity> Scene::m_RigidbodyEntities; 
+
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
@@ -251,6 +253,7 @@ namespace Coffee {
 
             scriptComponent.script.OnUpdate();
         }
+        // Get all entities with RigidbodyComponent
         auto rigidbodyView = m_Registry.view<RigidbodyComponent, TransformComponent>();
 
         // Loop through each entity with the specified components
@@ -260,6 +263,7 @@ namespace Coffee {
             auto& rigidbodyComponent = rigidbodyView.get<RigidbodyComponent>(entity);
             auto& transformComponent = rigidbodyView.get<TransformComponent>(entity);
 
+            m_RigidbodyEntities.push_back(entity);
         }
         Renderer::EndScene();
     }

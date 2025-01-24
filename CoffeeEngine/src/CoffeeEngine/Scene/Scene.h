@@ -10,7 +10,6 @@
 #include <filesystem>
 #include <string>
 
-
 namespace Coffee {
 
     /**
@@ -105,6 +104,9 @@ namespace Coffee {
         static void Save(const std::filesystem::path& path, Ref<Scene> scene);
 
         const std::filesystem::path& GetFilePath() { return m_FilePath; }
+
+        static std::vector<entt::entity> m_RigidbodyEntities; 
+
     private:
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
