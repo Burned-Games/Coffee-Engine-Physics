@@ -350,9 +350,9 @@ namespace Coffee
 
     struct BoxColliderComponent
     {
-        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Åö×²ºÐµÄ´óÐ¡
-        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // Åö×²ºÐµÄÆ«ÒÆ
-        bool IsTrigger = false;                // ÊÇ·ñÊÇ´¥·¢Æ÷
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
+        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
+        bool IsTrigger = false;                // is the collider a trigger
 
         BoxColliderComponent() = default;
         BoxColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
@@ -360,6 +360,67 @@ namespace Coffee
         {
         }
     };
+    struct SphereColliderComponent
+    {
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
+        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
+        bool IsTrigger = false;                // is the collider a trigger
+
+        SphereColliderComponent() = default;
+        SphereColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
+            : Size(size), Offset(offset), IsTrigger(isTrigger)
+        {
+        }
+    };
+    struct CapsuleColliderComponent
+    {
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
+        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
+        bool IsTrigger = false;                // is the collider a trigger
+
+        CapsuleColliderComponent() = default;
+        CapsuleColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
+            : Size(size), Offset(offset), IsTrigger(isTrigger)
+        {
+        }
+    };
+    struct CylinderColliderComponent
+    {
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
+        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
+        bool IsTrigger = false;                // is the collider a trigger
+
+        CylinderColliderComponent() = default;
+        CylinderColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
+            : Size(size), Offset(offset), IsTrigger(isTrigger)
+        {
+        }
+    };
+    struct PlaneColliderComponent
+    {
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
+        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
+        bool IsTrigger = false;                // is the collider a trigger
+
+        PlaneColliderComponent() = default;
+        PlaneColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
+            : Size(size), Offset(offset), IsTrigger(isTrigger)
+        {
+        }
+    };
+    struct MeshColliderComponent
+    {
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
+        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
+        bool IsTrigger = false;                // is the collider a trigger
+
+        MeshColliderComponent() = default;
+        MeshColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
+            : Size(size), Offset(offset), IsTrigger(isTrigger)
+        {
+        }
+    };
+
 
 } // namespace Coffee
 
