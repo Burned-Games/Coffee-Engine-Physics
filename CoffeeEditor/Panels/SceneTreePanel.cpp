@@ -1024,13 +1024,93 @@ namespace Coffee
                 ImGui::DragFloat("##ConnectedMassScale", &springJoint.ConnectedMassScale, 0.1f, 0.0f, 10.0f);
             }
 
-             if (!isCollapsingHeaderOpen)
+            if (!isCollapsingHeaderOpen)
             {
-                 entity.RemoveComponent<SpringJointComponent>();
+                entity.RemoveComponent<SpringJointComponent>();
             }
             ImGui::PopID();
         }
 
+
+        if (entity.HasComponent<DistanceJoint2DComponent>())
+        {
+            auto& distanceJoint = entity.GetComponent<DistanceJoint2DComponent>();
+
+            bool isCollapsingHeaderOpen = true;
+            ImGui::PushID("DistanceJoint2D"); // Unique ID
+            if (ImGui::CollapsingHeader("Distance Joint 2D", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Connected Rigidbody Field
+                ImGui::Text("Connected Rigidbody");
+
+                // Draggable target area
+                if (ImGui::Button(distanceJoint.ConnectedRigidbody[0] != '\0' ? distanceJoint.ConnectedRigidbody
+                                                                              : "None (Rigidbody 2D)",
+                                  ImVec2(200, 20)))
+                {
+                    // Handle button click event (e.g., clear binding)
+                    strcpy(distanceJoint.ConnectedRigidbody, ""); // Clear binding
+                }
+
+                // Accept drag and drop target
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY2D"))
+                    {
+                        const char* droppedObjectName = (const char*)payload->Data;
+                        strncpy(distanceJoint.ConnectedRigidbody, droppedObjectName,
+                                sizeof(distanceJoint.ConnectedRigidbody) - 1);
+                        distanceJoint.ConnectedRigidbody[sizeof(distanceJoint.ConnectedRigidbody) - 1] =
+                            '\0'; // Ensure string is null-terminated
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                // Enable Collision
+                ImGui::Checkbox("Enable Collision", &distanceJoint.EnableCollision);
+
+                // Auto Configure Connected Anchor
+                ImGui::Checkbox("Auto Configure Connected Anchor", &distanceJoint.AutoConfigureConnectedAnchor);
+
+                // Anchor
+                ImGui::Text("Anchor");
+                ImGui::DragFloat2("##Anchor", (float*)&distanceJoint.Anchor, 0.1f);
+
+                // Connected Anchor
+                ImGui::Text("Connected Anchor");
+                ImGui::DragFloat2("##ConnectedAnchor", (float*)&distanceJoint.ConnectedAnchor, 0.1f);
+
+                // Auto Configure Distance
+                ImGui::Checkbox("Auto Configure Distance", &distanceJoint.AutoConfigureDistance);
+
+                // Distance
+                ImGui::Text("Distance");
+                ImGui::DragFloat("##Distance", &distanceJoint.Distance, 0.1f, 0.0f, FLT_MAX);
+
+                // Max Distance Only
+                ImGui::Checkbox("Max Distance Only", &distanceJoint.MaxDistanceOnly);
+
+                // Break Action
+                ImGui::Text("Break Action");
+                // Assuming there are predefined break actions to choose from
+                static const char* breakActions[] = {"None", "Destroy", "Disable"};
+                static int selectedAction = 0; // Default selection
+                ImGui::Combo("##BreakAction", &selectedAction, breakActions, IM_ARRAYSIZE(breakActions));
+                distanceJoint.BreakAction = selectedAction; // Save selected break action
+
+                // Break Force
+                ImGui::Text("Break Force");
+                ImGui::DragFloat("##BreakForce", &distanceJoint.BreakForce, 1.0f, 0.0f, FLT_MAX);
+            }
+
+            // Remove component if header is not open
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<DistanceJoint2DComponent>();
+            }
+
+            ImGui::PopID();
+        }
 
         ImGui::Separator();
 
@@ -1052,22 +1132,27 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = {"Tag Component",
-                                   "Transform Component",
-                                   "Mesh Component",
-                                   "Material Component",
-                                   "Light Component",
-                                   "Camera Component",
-                                   "Lua Script Component",
-                                   "Rigidbody Component",
-                                   "BoxCollider Component",
-                                   "SphereCollider Component",
-                                   "CapsuleCollider Component",
-                                   "CylinderCollider Component",
-                                   "PlaneCollider Component",
-                                   "MeshCollider Component",
-                                   "FixedJoint Component",
-                                   "SpringJoint Component"};
+            std::string items[] = {
+                "Tag Component",
+                "Transform Component",
+                "Mesh Component",
+                "Material Component",
+                "Light Component",
+                "Camera Component",
+                "Lua Script Component",
+                "Rigidbody Component",
+                "BoxCollider Component",
+                "SphereCollider Component",
+                "CapsuleCollider Component",
+                "CylinderCollider Component",
+                "PlaneCollider Component",
+                "MeshCollider Component",
+                "Distance2DJoint Component",
+                "FixedJoint Component",
+                "SpringJoint Component",
+                "SlideJoint Component",
+                "AxisJoint Component",
+                "CustomJoint Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1183,6 +1268,12 @@ namespace Coffee
                         entity.AddComponent<MeshColliderComponent>();
                     ImGui::CloseCurrentPopup();
                 }
+                else if (items[item_current] == "Distance2DJoint Component")
+                {
+                    if (!entity.HasComponent<DistanceJoint2DComponent>())
+                        entity.AddComponent<DistanceJoint2DComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
                 else if (items[item_current] == "FixedJoint Component")
                 {
                     if (!entity.HasComponent<FixedJointComponent>())
@@ -1190,6 +1281,24 @@ namespace Coffee
                     ImGui::CloseCurrentPopup();
                 }
                 else if (items[item_current] == "SpringJoint Component")
+                {
+                    if (!entity.HasComponent<SpringJointComponent>())
+                        entity.AddComponent<SpringJointComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "SlideJoint Component")
+                {
+                    if (!entity.HasComponent<SpringJointComponent>())
+                        entity.AddComponent<SpringJointComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "AxisJoint Component")
+                {
+                    if (!entity.HasComponent<SpringJointComponent>())
+                        entity.AddComponent<SpringJointComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "CustomJoint Component")
                 {
                     if (!entity.HasComponent<SpringJointComponent>())
                         entity.AddComponent<SpringJointComponent>();

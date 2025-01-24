@@ -421,7 +421,7 @@ namespace Coffee
         }
     };
 
-    //joint
+    // joint
     struct FixedJointComponent
     {
         char ConnectedBody[128] = "";    // Identifier for connected body
@@ -437,26 +437,40 @@ namespace Coffee
 
     struct SpringJointComponent
     {
-        char ConnectedBody[128] = "";                      // 连接的刚体
-        glm::vec3 Anchor = {0.0f, 0.0f, 0.0f};                // 锚点位置
-        bool AutoConfigureConnectedAnchor = true;          // 自动配置连接的锚点
-        glm::vec3 ConnectedAnchor = {0.0f, 0.0f, 0.0f}; // 连接的锚点位置
-        float Spring = 0.0f;                               // 弹簧强度
-        float Damper = 0.0f;                               // 阻尼
-        float MinDistance = 0.0f;                          // 最小距离
-        float MaxDistance = 0.0f;                          // 最大距离
-        float Tolerance = 0.025f;                          // 容差
-        float BreakForce = FLT_MAX;                        // 断裂力
-        float BreakTorque = FLT_MAX;                       // 断裂扭矩
-        bool EnableCollision = false;                      // 启用碰撞
-        bool EnablePreprocessing = true;                   // 启用预处理
-        float MassScale = 1.0f;                            // 质量比例
-        float ConnectedMassScale = 1.0f;                   // 连接物体的质量比例
+        char ConnectedBody[128] = "";
+        glm::vec3 Anchor = {0.0f, 0.0f, 0.0f};
+        bool AutoConfigureConnectedAnchor = true;
+        glm::vec3 ConnectedAnchor = {0.0f, 0.0f, 0.0f};
+        float Spring = 0.0f;
+        float Damper = 0.0f;
+        float MinDistance = 0.0f;
+        float MaxDistance = 0.0f;
+        float Tolerance = 0.025f;
+        float BreakForce = FLT_MAX;
+        float BreakTorque = FLT_MAX;
+        bool EnableCollision = false;
+        bool EnablePreprocessing = true;
+        float MassScale = 1.0f;
+        float ConnectedMassScale = 1.0f;
 
         SpringJointComponent() = default;
     };
 
+    struct DistanceJoint2DComponent
+    {
+        char ConnectedRigidbody[128] = "";                 // Identifier for connected rigidbody
+        bool EnableCollision = false;                      // Whether to enable collision
+        bool AutoConfigureConnectedAnchor = true;          // Auto configure the connected anchor
+        glm::vec2 Anchor = glm::vec2(0.0f, 0.0f);          // Anchor position
+        glm::vec2 ConnectedAnchor = glm::vec2(0.0f, 0.0f); // Connected anchor position
+        bool AutoConfigureDistance = true;                 // Auto configure the distance
+        float Distance = 0.0f;                             // The distance between the two anchor points
+        bool MaxDistanceOnly = false;                      // Whether to enforce only the maximum distance
+        int BreakAction = 0;                               // Break action when force/torque exceeds limit
+        float BreakForce = FLT_MAX;                        // Force threshold for breaking the joint
 
-} // namespace Coffee
+        DistanceJoint2DComponent() = default;
+    };
+   } // namespace Coffee
 
-/** @} */
+    /** @} */
