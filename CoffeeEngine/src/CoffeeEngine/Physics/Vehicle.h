@@ -37,7 +37,24 @@ namespace Coffee
 
         const double forceAmount = 500.0; // 每次按键施加的力大小 (N)
 
-        
+        bool moveFront = false;
+        bool moveBack = false;
+        bool moveLeft = false;
+        bool moveRight = false;
+
+        // 物理相关变量
+        float speed = 0.0f;         // 当前速度
+        float maxSpeed = 50.0f;     // 最大速度
+        float acceleration = 10.0f; // 加速度
+        float deceleration = 5.0f;  // 减速度
+        float maxTurnSpeed = 45.0f; // 最大转向速度（角度/秒），低速时生效
+        float drag = 2.0f;          // 阻力
+        float rotation = 0.0f;      // 当前方向角（朝向，以角度表示）
+
+        // 转向相关
+        float turnInput = 0.0f;        // 当前转向输入 (-1 左转, 1 右转)
+        float currentTurnSpeed = 0.0f; // 当前实际转向速度
+
         Entity selectedEntity;
         SceneTreePanel m_SceneTreePanel;
 
@@ -51,6 +68,8 @@ namespace Coffee
         void OnEvent(Coffee::Event& event);
 
         bool OnKeyPressed(KeyPressedEvent& event);
+
+        bool OnKeyRelease(KeyReleasedEvent& event);
 
         // 获取方法
         double getPositionX() const;

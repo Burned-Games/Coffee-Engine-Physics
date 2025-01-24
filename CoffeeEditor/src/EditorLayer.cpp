@@ -72,6 +72,7 @@ namespace Coffee {
             case SceneState::Edit:
                 m_EditorCamera.OnUpdate(dt);
                 m_ActiveScene->OnUpdateEditor(m_EditorCamera, dt);
+                vehicle.update(dt);
                 OnOverlayRender();
             break;
             case SceneState::Play:

@@ -13,18 +13,78 @@ namespace Coffee
     // 更新车辆状态
     void Vehicle::update(float dt)
     {
-        // velocityX += accelerationX * deltaTime; // 更新速度
-        // velocityY += accelerationY * deltaTime;
 
-        // positionX += velocityX * deltaTime; // 更新位置
-        // positionY += velocityY * deltaTime;
+       // 根据按键设置转向输入
+        if (moveLeft)
+        {
+            turnInput = 1.0f;
+        }
+        else if (moveRight)
+        {
+            turnInput = -1.0f;
+        }
+        else
+        {
+            turnInput = 0.0f; // 无输入时回正
+        }
 
-        selectedEntity = m_SceneTreePanel.GetSelectedEntity();
+        // 计算转向速度
+        float turnFactor = glm::clamp(speed / maxSpeed, 0.2f, 1.0f); // 速度对转向的影响（最低 10% 转向能力）
+        currentTurnSpeed = maxTurnSpeed * turnFactor * turnInput;
+
+        // 更新方向角（仅当车辆移动时）
+        if (glm::abs(speed) > 0.1f)
+        { // 添加一个速度阈值，避免静止时转向
+            rotation += currentTurnSpeed * dt;
+        }
+
+        // 处理加速和减速
+        if (moveFront)
+        {
+            speed += acceleration * dt;
+            if (speed > maxSpeed)
+            {
+                speed = maxSpeed; // 限制最大速度
+            }
+        }
+        else if (moveBack)
+        {
+            speed -= acceleration * dt;
+            if (speed < -maxSpeed / 2.0f)
+            { // 倒车速度限制为最大速度的一半
+                speed = -maxSpeed / 2.0f;
+            }
+        }
+        else
+        {
+            // 如果没有按键，应用阻力（速度慢慢减为 0）
+            if (speed > 0)
+            {
+                speed -= drag * dt;
+                if (speed < 0)
+                    speed = 0;
+            }
+            else if (speed < 0)
+            {
+                speed += drag * dt;
+                if (speed > 0)
+                    speed = 0;
+            }
+        }
+
+        // 计算速度向量
+        float radians = glm::radians(rotation); // 将角度转为弧度
+        glm::vec3 velocity = glm::vec3(std::sin(radians), 0.0f, std::cos(radians)) * speed;
+
         if (selectedEntity)
         {
-            // m_SceneTreePanel.GetSelectedEntity().GetComponent<TransformComponent>().Position.y = 100;
-            COFFEE_CORE_WARN("Tag: {0}", selectedEntity.GetComponent<TransformComponent>().Position.x);
-            selectedEntity.GetComponent<TransformComponent>().Position.x = 10;
+            auto& transform = selectedEntity.GetComponent<TransformComponent>();
+            // 更新实体的位置
+            transform.Position += velocity * dt;
+            if (glm::abs(speed) > 0.1f)
+            { // 避免静止时改变旋转
+                transform.Rotation.y = rotation;
+            }
         }
     }
 
@@ -33,36 +93,77 @@ namespace Coffee
 
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<KeyPressedEvent>(COFFEE_BIND_EVENT_FN(Vehicle::OnKeyPressed));
+        dispatcher.Dispatch<KeyReleasedEvent>(COFFEE_BIND_EVENT_FN(Vehicle::OnKeyRelease));
     }
 
     bool Vehicle::OnKeyPressed(KeyPressedEvent& event)
     {
-        /*if (event.IsRepeat() > 0)
-            return false;*/
+        if (event.IsRepeat() > 0)
+            return false;
 
         if (selectedEntity)
         {
-             const float moveSpeed = 1.0f; // 移动速度
-             auto& position = selectedEntity.GetComponent<TransformComponent>().Position;
+            const float moveSpeed = 1.0f; // 移动速度
+            auto& position = selectedEntity.GetComponent<TransformComponent>().Position;
 
             if (selectedEntity.GetComponent<TagComponent>().Tag == "FINAL_MODEL_74.fbx")
             {
+
+                if (event.GetKeyCode() == Coffee::Key::W)
+                {
+                    moveFront = true;
+                }
+
                 switch (event.GetKeyCode())
                 {
                 case Coffee::Key::W:
-                    position.z += moveSpeed; // 前进
+                    moveFront = true;
                     break;
                 case Coffee::Key::S:
-                     position.z -= moveSpeed; // 后退
+                    moveBack = true;
                     break;
                 case Coffee::Key::A:
-                     position.x += moveSpeed; // 左移
+                    moveLeft = true;
                     break;
                 case Coffee::Key::D:
-                     position.x -= moveSpeed; // 右移
+                    moveRight = true;
                     break;
                 default:
                     return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    bool Vehicle::OnKeyRelease(KeyReleasedEvent& event)
+    {
+        std::string key = event.ToString();
+        printf("\n%s", key.c_str());
+
+        if (selectedEntity)
+        {
+            const float moveSpeed = 1.0f; // 移动速度
+            auto& position = selectedEntity.GetComponent<TransformComponent>().Position;
+
+            if (selectedEntity.GetComponent<TagComponent>().Tag == "FINAL_MODEL_74.fbx")
+            {
+
+                if (key == "KeyReleasedEvent: 26")
+                {
+                    moveFront = false;
+                }
+                if (key == "KeyReleasedEvent: 22")
+                {
+                    moveBack = false;
+                }
+                if (key == "KeyReleasedEvent: 7")
+                {
+                    moveRight = false;
+                }
+                if (key == "KeyReleasedEvent: 4")
+                {
+                    moveLeft = false;
                 }
             }
         }
