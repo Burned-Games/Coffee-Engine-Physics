@@ -19,6 +19,7 @@
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
 #include <CoffeeEngine/Physics/Vehicle.h>
+#include "CoffeeEngine/Physics/PhysicsEngine.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -262,8 +263,10 @@ namespace Coffee {
             COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
             auto& rigidbodyComponent = rigidbodyView.get<RigidbodyComponent>(entity);
             auto& transformComponent = rigidbodyView.get<TransformComponent>(entity);
-
-            m_RigidbodyEntities.push_back(entity);
+            
+            m_RigidbodyEntities.push_back(entity); 
+            PhysicsEngine::ApplyRigidbody(rigidbodyComponent, transformComponent);
+            
         }
         Renderer::EndScene();
     }

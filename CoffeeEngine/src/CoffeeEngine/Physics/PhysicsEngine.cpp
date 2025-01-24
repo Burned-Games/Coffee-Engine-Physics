@@ -114,6 +114,29 @@ namespace Coffee {
         //vehicle.update(dt);
     }
 
+   void PhysicsEngine::ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transfromComponent)
+    { 
+       if (!Scene::m_RigidbodyEntities.empty())
+       {
+           for (auto entity : Scene::m_RigidbodyEntities)
+           {
+               COFFEE_CORE_INFO("Entities with RigidbodyComponent found - phyisicsEngine - applyrigidbody");
+
+               if (rigidbodyComponent.UseGravity && !rigidbodyComponent.IsStatic && !rigidbodyComponent.FreezeY) 
+               {
+                   glm::vec3 gravity = GetGravity(); //(0.0f, -9.81f, 0.0f);
+                   if (rigidbodyComponent.Mass > 0.0f)
+                   {
+                       //falta aplicar el dt...
+                       glm::vec3 gravityAcceleration = gravity / rigidbodyComponent.Mass; 
+                       rigidbodyComponent.Acceleration += gravityAcceleration; 
+                       rigidbodyComponent.Velocity += rigidbodyComponent.Acceleration; 
+                       transfromComponent.Position += rigidbodyComponent.Velocity;  
+                   }
+               }
+           }
+       }
+   }
     void PhysicsEngine::Destroy()
     {
         for (auto* obj : m_CollisionObjects)

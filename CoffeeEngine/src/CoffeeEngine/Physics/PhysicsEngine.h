@@ -7,6 +7,7 @@
 #include "Collider.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Physics/PhysicsEngine.h"
+#include "CoffeeEngine/Scene/Components.h"
 #include <entt/entt.hpp>
 
 namespace Coffee{
@@ -45,6 +46,7 @@ namespace Coffee{
         static void Init();
         static void Update(float dt);
         static void Destroy();
+        static void ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transfromComponent);
 
         static btDynamicsWorld* GetWorld() { return m_world; }
 
