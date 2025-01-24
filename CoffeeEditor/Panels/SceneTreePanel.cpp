@@ -936,6 +936,102 @@ namespace Coffee
             ImGui::PopID(); // End Unique ID
         }
 
+        if (entity.HasComponent<SpringJointComponent>())
+        {
+            auto& springJoint = entity.GetComponent<SpringJointComponent>();
+            bool isCollapsingHeaderOpen = true;
+            ImGui::PushID("SpringJoint"); // Unique ID
+            if (ImGui::CollapsingHeader("Spring Joint", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Connected Body Field
+                ImGui::Text("Connected Body");
+
+                // 可拖拽目标区域
+                if (ImGui::Button(springJoint.ConnectedBody[0] != '\0' ? springJoint.ConnectedBody : "None (Rigidbody)",
+                                  ImVec2(200, 20)))
+                {
+                    // 处理按钮点击事件（例如清除绑定）
+                    strcpy(springJoint.ConnectedBody, ""); // 清空绑定
+                }
+
+                // 接收拖拽目标
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY"))
+                    {
+                        const char* droppedObjectName = (const char*)payload->Data;
+                        strncpy(springJoint.ConnectedBody, droppedObjectName, sizeof(springJoint.ConnectedBody) - 1);
+                        springJoint.ConnectedBody[sizeof(springJoint.ConnectedBody) - 1] =
+                            '\0'; // 确保字符串以 null 结尾
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                // Anchor
+                ImGui::Text("Anchor");
+                ImGui::DragFloat3("##Anchor", (float*)&springJoint.Anchor, 0.1f);
+
+                // Auto Configure Connected Anchor
+                ImGui::Checkbox("Auto Configure Connected Anchor", &springJoint.AutoConfigureConnectedAnchor);
+
+                // Connected Anchor
+                if (!springJoint.AutoConfigureConnectedAnchor)
+                {
+                    ImGui::Text("Connected Anchor");
+                    ImGui::DragFloat3("##ConnectedAnchor", (float*)&springJoint.ConnectedAnchor, 0.1f);
+                }
+
+                // Spring
+                ImGui::Text("Spring");
+                ImGui::DragFloat("##Spring", &springJoint.Spring, 1.0f, 0.0f, FLT_MAX);
+
+                // Damper
+                ImGui::Text("Damper");
+                ImGui::DragFloat("##Damper", &springJoint.Damper, 1.0f, 0.0f, FLT_MAX);
+
+                // Min Distance
+                ImGui::Text("Min Distance");
+                ImGui::DragFloat("##MinDistance", &springJoint.MinDistance, 0.1f, 0.0f, FLT_MAX);
+
+                // Max Distance
+                ImGui::Text("Max Distance");
+                ImGui::DragFloat("##MaxDistance", &springJoint.MaxDistance, 0.1f, 0.0f, FLT_MAX);
+
+                // Tolerance
+                ImGui::Text("Tolerance");
+                ImGui::DragFloat("##Tolerance", &springJoint.Tolerance, 0.001f, 0.0f, 1.0f);
+
+                // Break Force
+                ImGui::Text("Break Force");
+                ImGui::DragFloat("##BreakForce", &springJoint.BreakForce, 1.0f, 0.0f, FLT_MAX);
+
+                // Break Torque
+                ImGui::Text("Break Torque");
+                ImGui::DragFloat("##BreakTorque", &springJoint.BreakTorque, 1.0f, 0.0f, FLT_MAX);
+
+                // Enable Collision
+                ImGui::Checkbox("Enable Collision", &springJoint.EnableCollision);
+
+                // Enable Preprocessing
+                ImGui::Checkbox("Enable Preprocessing", &springJoint.EnablePreprocessing);
+
+                // Mass Scale
+                ImGui::Text("Mass Scale");
+                ImGui::DragFloat("##MassScale", &springJoint.MassScale, 0.1f, 0.0f, 10.0f);
+
+                // Connected Mass Scale
+                ImGui::Text("Connected Mass Scale");
+                ImGui::DragFloat("##ConnectedMassScale", &springJoint.ConnectedMassScale, 0.1f, 0.0f, 10.0f);
+            }
+
+             if (!isCollapsingHeaderOpen)
+            {
+                 entity.RemoveComponent<SpringJointComponent>();
+            }
+            ImGui::PopID();
+        }
+
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -970,7 +1066,8 @@ namespace Coffee
                                    "CylinderCollider Component",
                                    "PlaneCollider Component",
                                    "MeshCollider Component",
-                                   "FixedJoint Component"};
+                                   "FixedJoint Component",
+                                   "SpringJoint Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1090,6 +1187,12 @@ namespace Coffee
                 {
                     if (!entity.HasComponent<FixedJointComponent>())
                         entity.AddComponent<FixedJointComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "SpringJoint Component")
+                {
+                    if (!entity.HasComponent<SpringJointComponent>())
+                        entity.AddComponent<SpringJointComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else

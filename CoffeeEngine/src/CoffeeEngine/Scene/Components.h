@@ -435,6 +435,27 @@ namespace Coffee
         FixedJointComponent() = default;
     };
 
+    struct SpringJointComponent
+    {
+        char ConnectedBody[128] = "";                      // 连接的刚体
+        glm::vec3 Anchor = {0.0f, 0.0f, 0.0f};                // 锚点位置
+        bool AutoConfigureConnectedAnchor = true;          // 自动配置连接的锚点
+        glm::vec3 ConnectedAnchor = {0.0f, 0.0f, 0.0f}; // 连接的锚点位置
+        float Spring = 0.0f;                               // 弹簧强度
+        float Damper = 0.0f;                               // 阻尼
+        float MinDistance = 0.0f;                          // 最小距离
+        float MaxDistance = 0.0f;                          // 最大距离
+        float Tolerance = 0.025f;                          // 容差
+        float BreakForce = FLT_MAX;                        // 断裂力
+        float BreakTorque = FLT_MAX;                       // 断裂扭矩
+        bool EnableCollision = false;                      // 启用碰撞
+        bool EnablePreprocessing = true;                   // 启用预处理
+        float MassScale = 1.0f;                            // 质量比例
+        float ConnectedMassScale = 1.0f;                   // 连接物体的质量比例
+
+        SpringJointComponent() = default;
+    };
+
 
 } // namespace Coffee
 
