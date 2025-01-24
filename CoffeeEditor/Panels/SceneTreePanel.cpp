@@ -697,8 +697,9 @@ namespace Coffee {
         if (entity.HasComponent<BoxColliderComponent>())
         {
             auto& boxCollider = entity.GetComponent<BoxColliderComponent>();
+            bool isCollapsingHeaderOpen = true;
 
-            if (ImGui::CollapsingHeader("Box Collider", ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Box Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 // 显示 BoxCollider 的大小
                 ImGui::Text("Size");
@@ -710,6 +711,11 @@ namespace Coffee {
 
                 // 是否是 Trigger
                 ImGui::Checkbox("Is Trigger", &boxCollider.IsTrigger);
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<BoxColliderComponent>();
             }
         }
 
