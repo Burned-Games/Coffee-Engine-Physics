@@ -51,88 +51,54 @@ namespace Coffee {
         if (m_world)
         {
             m_world->stepSimulation(dt, 10);
-
-            if (!Scene::m_RigidbodyEntities.empty())
-            {
-                for (auto entity : Scene::m_RigidbodyEntities)
-                {
-                    COFFEE_CORE_INFO("Entities with RigidbodyComponent found - phyisicsEngine.");
-
-                }
-            }
-            auto view = m_EntityRegistry.view<RigidbodyComponent>();
-           /* if (view.empty())
-            {
-                COFFEE_CORE_INFO("No entities with RigidbodyComponent found.");
-            }
-            else
-            {
-                COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
-            }*/
-
-            for (auto entity : view)
-            {
-                auto& rigidbody = view.get<RigidbodyComponent>(entity);
-                auto& transform = m_EntityRegistry.get<TransformComponent>(entity);
-
-                if (rigidbody.UseGravity && !rigidbody.IsStatic && !rigidbody.FreezeY)
-                {
-                    glm::vec3 gravity = GetGravity(); //(0.0f, -9.81f, 0.0f);
-                    if (rigidbody.Mass > 0.0f)
-                    {
-                        glm::vec3 gravityAcceleration = gravity / rigidbody.Mass;
-                        rigidbody.Acceleration += gravityAcceleration;
-                        rigidbody.Velocity += rigidbody.Acceleration * dt;
-                        transform.Position += rigidbody.Velocity * dt; 
-                    }
-                }
-
-                // Aplicar restricciones de movimiento
-                if (!rigidbody.FreezeX)
-                    transform.Position.x += rigidbody.Velocity.x * dt;
-                if (!rigidbody.FreezeY)
-                    transform.Position.y += rigidbody.Velocity.y * dt;
-                if (!rigidbody.FreezeZ)
-                    transform.Position.z += rigidbody.Velocity.z * dt;
-
-                // Si el objeto está congelado en alguna rotación, establecemos su velocidad en 0
-                if (rigidbody.FreezeRotationX)
-                    rigidbody.Velocity.x = 0.0f;
-                if (rigidbody.FreezeRotationY)
-                    rigidbody.Velocity.y = 0.0f;
-                if (rigidbody.FreezeRotationZ)
-                    rigidbody.Velocity.z = 0.0f;
-
-                // Si el cuerpo es estático, no se mueve ni se le aplica aceleración
-                if (rigidbody.IsStatic)
-                {
-                    rigidbody.Velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-                }
-            }
         }
 
         //vehicle.update(dt);
     }
 
-   void PhysicsEngine::ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transfromComponent)
+   void PhysicsEngine::ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent, float dt)
     { 
        if (!Scene::m_RigidbodyEntities.empty())
        {
+           //COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
            for (auto entity : Scene::m_RigidbodyEntities)
            {
-               COFFEE_CORE_INFO("Entities with RigidbodyComponent found - phyisicsEngine - applyrigidbody");
+               if (rigidbodyComponent.IsStatic)
+                   continue;
 
                if (rigidbodyComponent.UseGravity && !rigidbodyComponent.IsStatic && !rigidbodyComponent.FreezeY) 
                {
                    glm::vec3 gravity = GetGravity(); //(0.0f, -9.81f, 0.0f);
+                   gravity *= 0.1f; 
                    if (rigidbodyComponent.Mass > 0.0f)
                    {
-                       //falta aplicar el dt...
-                       glm::vec3 gravityAcceleration = gravity / rigidbodyComponent.Mass; 
-                       rigidbodyComponent.Acceleration += gravityAcceleration; 
-                       rigidbodyComponent.Velocity += rigidbodyComponent.Acceleration; 
-                       transfromComponent.Position += rigidbodyComponent.Velocity;  
+                       rigidbodyComponent.Acceleration += gravity;   
+
+                       rigidbodyComponent.ApplyDrag(); 
                    }
+                   if (rigidbodyComponent.IsKinematic)
+                   {
+                       transformComponent.Position += rigidbodyComponent.Velocity * dt;
+                       return;
+                   }
+                   rigidbodyComponent.Velocity +=
+                       rigidbodyComponent.Acceleration * dt; // Update velocity with acceleration
+                   transformComponent.Position += rigidbodyComponent.Velocity * dt; 
+
+                   if (!rigidbodyComponent.FreezeX)
+                       transformComponent.Position.x += rigidbodyComponent.Velocity.x * dt;
+                   if (!rigidbodyComponent.FreezeY)
+                       transformComponent.Position.y += rigidbodyComponent.Velocity.y * dt;
+                   if (!rigidbodyComponent.FreezeZ)
+                       transformComponent.Position.z += rigidbodyComponent.Velocity.z * dt;
+                   if (rigidbodyComponent.FreezeRotationX)
+                       rigidbodyComponent.Velocity.x = 0.0f;
+                   if (rigidbodyComponent.FreezeRotationY)
+                       rigidbodyComponent.Velocity.y = 0.0f;
+                   if (rigidbodyComponent.FreezeRotationZ)
+                       rigidbodyComponent.Velocity.z = 0.0f;
+                  
+                   rigidbodyComponent.ApplyAngularDrag(); 
                }
            }
        }

@@ -260,12 +260,11 @@ namespace Coffee {
         // Loop through each entity with the specified components
         for (auto& entity : rigidbodyView)
         {
-            COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
             auto& rigidbodyComponent = rigidbodyView.get<RigidbodyComponent>(entity);
             auto& transformComponent = rigidbodyView.get<TransformComponent>(entity);
             
             m_RigidbodyEntities.push_back(entity); 
-            PhysicsEngine::ApplyRigidbody(rigidbodyComponent, transformComponent);
+            PhysicsEngine::ApplyRigidbody(rigidbodyComponent, transformComponent, dt);
             
         }
         Renderer::EndScene();

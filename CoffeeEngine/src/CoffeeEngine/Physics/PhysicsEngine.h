@@ -46,7 +46,7 @@ namespace Coffee{
         static void Init();
         static void Update(float dt);
         static void Destroy();
-        static void ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transfromComponent);
+        static void ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent, float dt);
 
         static btDynamicsWorld* GetWorld() { return m_world; }
 

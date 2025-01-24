@@ -687,12 +687,21 @@ namespace Coffee
 
                 // Mass
                 ImGui::Text("Mass");
-                ImGui::DragFloat("##Mass", &rigidbodyComponent.Mass, 0.1f, 0.0f, 100.0f);
+                ImGui::DragFloat("##Mass", &rigidbodyComponent.Mass, 0.1f, 0.001f, 0.0f);
+                // Drag
+                ImGui::Text("Linear Drag");
+                ImGui::DragFloat("##Linear Drag", &rigidbodyComponent.LinearDrag, 0.1f, 0.001f, 10.0f,
+                                 "Linear Drag: %.3f");
+                // Modify Angular Drag
+                ImGui::Text("Angular Drag");
+                ImGui::DragFloat("##Angular Drag", &rigidbodyComponent.AngularDrag, 0.1f, 0.001f, 10.0f,
+                                 "Angular Drag: %.3f");
 
                 // Velocity
                 ImGui::Text("Velocity");
                 ImGui::DragFloat3("##Velocity", glm::value_ptr(rigidbodyComponent.Velocity), 0.1f);
-
+                COFFEE_CORE_INFO("Velocity: (%f, %f, %f)", rigidbodyComponent.Velocity.x, rigidbodyComponent.Velocity.y,
+                                 rigidbodyComponent.Velocity.z); 
                 // Acceleration
                 ImGui::Text("Acceleration");
                 ImGui::DragFloat3("##Acceleration", glm::value_ptr(rigidbodyComponent.Acceleration), 0.1f);
