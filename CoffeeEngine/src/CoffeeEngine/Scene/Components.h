@@ -421,6 +421,20 @@ namespace Coffee
         }
     };
 
+    //joint
+    struct FixedJointComponent
+    {
+        char ConnectedBody[128] = "";    // Identifier for connected body
+        float BreakForce = FLT_MAX;      // Force threshold for breaking the joint
+        float BreakTorque = FLT_MAX;     // Torque threshold for breaking the joint
+        bool EnableCollision = false;    // Whether to enable collision
+        bool EnablePreprocessing = true; // Whether to enable preprocessing
+        float MassScale = 1.0f;          // Scale for this object's mass
+        float ConnectedMassScale = 1.0f; // Scale for the connected body's mass
+
+        FixedJointComponent() = default;
+    };
+
 
 } // namespace Coffee
 

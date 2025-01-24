@@ -725,15 +725,15 @@ namespace Coffee
             ImGui::PushID("BoxCollider"); // Unic ID
             if (ImGui::CollapsingHeader("Box Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // 显示 BoxCollider 的大小
+                // size
                 ImGui::Text("Size");
                 ImGui::DragFloat3("##BoxSize", glm::value_ptr(boxCollider.Size), 0.1f, 0.0f, 100.0f);
 
-                // 显示 BoxCollider 的偏移
+                // offset
                 ImGui::Text("Offset");
                 ImGui::DragFloat3("##BoxOffset", glm::value_ptr(boxCollider.Offset), 0.1f);
 
-                // 是否是 Trigger
+                // is trigger
                 ImGui::Checkbox("Is Trigger", &boxCollider.IsTrigger);
             }
 
@@ -751,15 +751,15 @@ namespace Coffee
             ImGui::PushID("SphereCollider"); // Unic ID
             if (ImGui::CollapsingHeader("Sphere Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // 显示 BoxCollider 的大小
+                // size
                 ImGui::Text("Size");
                 ImGui::DragFloat3("##SphereSize", glm::value_ptr(sphereCollider.Size), 0.1f, 0.0f, 100.0f);
 
-                // 显示 BoxCollider 的偏移
+                // offset
                 ImGui::Text("Offset");
                 ImGui::DragFloat3("##SphereOffset", glm::value_ptr(sphereCollider.Offset), 0.1f);
 
-                // 是否是 Trigger
+                // is trigger
                 ImGui::Checkbox("Is Trigger", &sphereCollider.IsTrigger);
             }
 
@@ -777,15 +777,15 @@ namespace Coffee
             ImGui::PushID("CapsuleCollider"); // Unic ID
             if (ImGui::CollapsingHeader("Capsule Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // 显示 BoxCollider 的大小
+                // size
                 ImGui::Text("Size");
                 ImGui::DragFloat3("##CapsuleSize", glm::value_ptr(capsuleCollider.Size), 0.1f, 0.0f, 100.0f);
 
-                // 显示 BoxCollider 的偏移
+                // offset
                 ImGui::Text("Offset");
                 ImGui::DragFloat3("##CapsuleOffset", glm::value_ptr(capsuleCollider.Offset), 0.1f);
 
-                // 是否是 Trigger
+                // is trigger
                 ImGui::Checkbox("Is Trigger", &capsuleCollider.IsTrigger);
             }
 
@@ -803,15 +803,15 @@ namespace Coffee
             ImGui::PushID("CylinderCollider"); // Unic ID
             if (ImGui::CollapsingHeader("Cylinder Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // 显示 BoxCollider 的大小
+                // size
                 ImGui::Text("Size");
                 ImGui::DragFloat3("##CylinderSize", glm::value_ptr(cylinderCollider.Size), 0.1f, 0.0f, 100.0f);
 
-                // 显示 BoxCollider 的偏移
+                // offset
                 ImGui::Text("Offset");
                 ImGui::DragFloat3("##CylinderOffset", glm::value_ptr(cylinderCollider.Offset), 0.1f);
 
-                // 是否是 Trigger
+                // is trigger
                 ImGui::Checkbox("Is Trigger", &cylinderCollider.IsTrigger);
             }
 
@@ -829,15 +829,15 @@ namespace Coffee
             ImGui::PushID("PlaneCollider"); // Unic ID
             if (ImGui::CollapsingHeader("Plane Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // 显示 BoxCollider 的大小
+                // size
                 ImGui::Text("Size");
                 ImGui::DragFloat3("##PlaneSize", glm::value_ptr(planeCollider.Size), 0.1f, 0.0f, 100.0f);
 
-                // 显示 BoxCollider 的偏移
+                // offset
                 ImGui::Text("Offset");
                 ImGui::DragFloat3("##PlaneOffset", glm::value_ptr(planeCollider.Offset), 0.1f);
 
-                // 是否是 Trigger
+                // is trigger
                 ImGui::Checkbox("Is Trigger", &planeCollider.IsTrigger);
             }
 
@@ -855,15 +855,15 @@ namespace Coffee
             ImGui::PushID("MeshCollider"); // Unic ID
             if (ImGui::CollapsingHeader("Mesh Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // 显示 BoxCollider 的大小
+                // size
                 ImGui::Text("Size");
                 ImGui::DragFloat3("##MeshSize", glm::value_ptr(meshCollider.Size), 0.1f, 0.0f, 100.0f);
 
-                // 显示 BoxCollider 的偏移
+                // offset
                 ImGui::Text("Offset");
                 ImGui::DragFloat3("##MeshOffset", glm::value_ptr(meshCollider.Offset), 0.1f);
 
-                // 是否是 Trigger
+                // is trigger
                 ImGui::Checkbox("Is Trigger", &meshCollider.IsTrigger);
             }
 
@@ -872,6 +872,68 @@ namespace Coffee
                 entity.RemoveComponent<MeshColliderComponent>();
             }
             ImGui::PopID(); // end Unic ID
+        }
+
+        // Joint
+        if (entity.HasComponent<FixedJointComponent>())
+        {
+            auto& fixedJoint = entity.GetComponent<FixedJointComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("FixedJoint"); // Unique ID
+            if (ImGui::CollapsingHeader("Fixed Joint", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Connected Body Field
+                ImGui::Text("Connected Body");
+
+                // 可拖拽目标区域
+                if (ImGui::Button(fixedJoint.ConnectedBody[0] != '\0' ? fixedJoint.ConnectedBody : "None (Rigidbody)",
+                                  ImVec2(200, 20)))
+                {
+                    // 处理按钮点击事件（例如清除绑定）
+                    strcpy(fixedJoint.ConnectedBody, ""); // 清空绑定
+                }
+
+                // 接收拖拽目标
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY"))
+                    {
+                        const char* droppedObjectName = (const char*)payload->Data;
+                        strncpy(fixedJoint.ConnectedBody, droppedObjectName, sizeof(fixedJoint.ConnectedBody) - 1);
+                        fixedJoint.ConnectedBody[sizeof(fixedJoint.ConnectedBody) - 1] = '\0'; // 确保字符串以 null 结尾
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                // Break Force
+                ImGui::Text("Break Force");
+                ImGui::DragFloat("##BreakForce", &fixedJoint.BreakForce, 1.0f, 0.0f, FLT_MAX);
+
+                // Break Torque
+                ImGui::Text("Break Torque");
+                ImGui::DragFloat("##BreakTorque", &fixedJoint.BreakTorque, 1.0f, 0.0f, FLT_MAX);
+
+                // Enable Collision
+                ImGui::Checkbox("Enable Collision", &fixedJoint.EnableCollision);
+
+                // Enable Preprocessing
+                ImGui::Checkbox("Enable Preprocessing", &fixedJoint.EnablePreprocessing);
+
+                // Mass Scale
+                ImGui::Text("Mass Scale");
+                ImGui::DragFloat("##MassScale", &fixedJoint.MassScale, 0.1f, 0.0f, 10.0f);
+
+                // Connected Mass Scale
+                ImGui::Text("Connected Mass Scale");
+                ImGui::DragFloat("##ConnectedMassScale", &fixedJoint.ConnectedMassScale, 0.1f, 0.0f, 10.0f);
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<FixedJointComponent>();
+            }
+            ImGui::PopID(); // End Unique ID
         }
 
         ImGui::Separator();
@@ -907,7 +969,8 @@ namespace Coffee
                                    "CapsuleCollider Component",
                                    "CylinderCollider Component",
                                    "PlaneCollider Component",
-                                   "MeshCollider Component"};
+                                   "MeshCollider Component",
+                                   "FixedJoint Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1021,6 +1084,12 @@ namespace Coffee
                 {
                     if (!entity.HasComponent<MeshColliderComponent>())
                         entity.AddComponent<MeshColliderComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "FixedJoint Component")
+                {
+                    if (!entity.HasComponent<FixedJointComponent>())
+                        entity.AddComponent<FixedJointComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else
