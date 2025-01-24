@@ -471,6 +471,27 @@ namespace Coffee
 
         DistanceJoint2DComponent() = default;
     };
+
+    struct SliderJoint2DComponent
+    {
+        char ConnectedRigidbody[128] = "";                 // Identifier for connected rigidbody
+        bool EnableCollision = false;                      // Whether to enable collision
+        glm::vec2 Anchor = glm::vec2(0.0f, 0.0f);          // Anchor position
+        glm::vec2 ConnectedAnchor = glm::vec2(0.0f, 0.0f); // Connected anchor position
+        float Angle = 0.0f;                                // Angle of the slider joint
+        bool UseMotor = false;                             // Whether to use motor
+        float MotorSpeed = 0.0f;                           // Motor speed
+        float MaxMotorForce = 0.0f;                        // Maximum motor force
+        bool UseLimits = false;                            // Whether to use translation limits
+        float MinTranslation = 0.0f;                       // Minimum translation limit
+        float MaxTranslation = 0.0f;                       // Maximum translation limit
+        int BreakAction = 0;                               // Break action when force/torque exceeds limit
+        float BreakForce = FLT_MAX;                        // Force threshold for breaking the joint
+        float BreakTorque = FLT_MAX;                       // Torque threshold for breaking the joint
+
+        SliderJoint2DComponent() = default;
+    };
+
    } // namespace Coffee
 
     /** @} */

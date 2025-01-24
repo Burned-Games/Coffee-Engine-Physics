@@ -1112,6 +1112,112 @@ namespace Coffee
             ImGui::PopID();
         }
 
+
+        if (entity.HasComponent<SliderJoint2DComponent>())
+        {
+            auto& sliderJoint = entity.GetComponent<SliderJoint2DComponent>();
+
+            bool isCollapsingHeaderOpen = true;
+            ImGui::PushID("SliderJoint2D"); // Unique ID
+            if (ImGui::CollapsingHeader("Slider Joint 2D", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Connected Rigidbody Field
+                ImGui::Text("Connected Rigidbody");
+
+                // Draggable target area
+                if (ImGui::Button(sliderJoint.ConnectedRigidbody[0] != '\0' ? sliderJoint.ConnectedRigidbody
+                                                                            : "None (Rigidbody 2D)",
+                                  ImVec2(200, 20)))
+                {
+                    // Handle button click event (e.g., clear binding)
+                    strcpy(sliderJoint.ConnectedRigidbody, ""); // Clear binding
+                }
+
+                // Accept drag and drop target
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY2D"))
+                    {
+                        const char* droppedObjectName = (const char*)payload->Data;
+                        strncpy(sliderJoint.ConnectedRigidbody, droppedObjectName,
+                                sizeof(sliderJoint.ConnectedRigidbody) - 1);
+                        sliderJoint.ConnectedRigidbody[sizeof(sliderJoint.ConnectedRigidbody) - 1] =
+                            '\0'; // Ensure string is null-terminated
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                // Enable Collision
+                ImGui::Checkbox("Enable Collision", &sliderJoint.EnableCollision);
+
+                // Anchor
+                ImGui::Text("Anchor");
+                ImGui::DragFloat2("##Anchor", (float*)&sliderJoint.Anchor, 0.1f);
+
+                // Connected Anchor
+                ImGui::Text("Connected Anchor");
+                ImGui::DragFloat2("##ConnectedAnchor", (float*)&sliderJoint.ConnectedAnchor, 0.1f);
+
+                // Angle
+                ImGui::Text("Angle");
+                ImGui::DragFloat("##Angle", &sliderJoint.Angle, 0.1f, -360.0f, 360.0f);
+
+                // Use Motor
+                ImGui::Checkbox("Use Motor", &sliderJoint.UseMotor);
+
+                if (sliderJoint.UseMotor)
+                {
+                    // Motor Speed
+                    ImGui::Text("Motor Speed");
+                    ImGui::DragFloat("##MotorSpeed", &sliderJoint.MotorSpeed, 0.1f, -FLT_MAX, FLT_MAX);
+
+                    // Max Motor Force
+                    ImGui::Text("Max Motor Force");
+                    ImGui::DragFloat("##MaxMotorForce", &sliderJoint.MaxMotorForce, 0.1f, 0.0f, FLT_MAX);
+                }
+
+                // Use Limits
+                ImGui::Checkbox("Use Limits", &sliderJoint.UseLimits);
+
+                if (sliderJoint.UseLimits)
+                {
+                    // Min Translation
+                    ImGui::Text("Min Translation");
+                    ImGui::DragFloat("##MinTranslation", &sliderJoint.MinTranslation, 0.1f, -FLT_MAX, FLT_MAX);
+
+                    // Max Translation
+                    ImGui::Text("Max Translation");
+                    ImGui::DragFloat("##MaxTranslation", &sliderJoint.MaxTranslation, 0.1f, -FLT_MAX, FLT_MAX);
+                }
+
+                // Break Action
+                ImGui::Text("Break Action");
+                static const char* breakActions[] = {"None", "Destroy", "Disable"};
+                static int selectedAction = 0; // Default selection
+                ImGui::Combo("##BreakAction", &selectedAction, breakActions, IM_ARRAYSIZE(breakActions));
+                sliderJoint.BreakAction = selectedAction; // Save selected break action
+
+                // Break Force
+                ImGui::Text("Break Force");
+                ImGui::DragFloat("##BreakForce", &sliderJoint.BreakForce, 1.0f, 0.0f, FLT_MAX);
+
+                // Break Torque
+                ImGui::Text("Break Torque");
+                ImGui::DragFloat("##BreakTorque", &sliderJoint.BreakTorque, 1.0f, 0.0f, FLT_MAX);
+            }
+
+            // Remove component if header is not open
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<SliderJoint2DComponent>();
+            }
+
+            ImGui::PopID();
+        }
+
+
+
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -1288,8 +1394,8 @@ namespace Coffee
                 }
                 else if (items[item_current] == "SlideJoint Component")
                 {
-                    if (!entity.HasComponent<SpringJointComponent>())
-                        entity.AddComponent<SpringJointComponent>();
+                    if (!entity.HasComponent<SliderJoint2DComponent>())
+                        entity.AddComponent<SliderJoint2DComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else if (items[item_current] == "AxisJoint Component")
