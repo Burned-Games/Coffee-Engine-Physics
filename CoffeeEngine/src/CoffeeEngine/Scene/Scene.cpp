@@ -251,7 +251,16 @@ namespace Coffee {
 
             scriptComponent.script.OnUpdate();
         }
+        auto rigidbodyView = m_Registry.view<RigidbodyComponent, TransformComponent>();
 
+        // Loop through each entity with the specified components
+        for (auto& entity : rigidbodyView)
+        {
+            COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
+            auto& rigidbodyComponent = rigidbodyView.get<RigidbodyComponent>(entity);
+            auto& transformComponent = rigidbodyView.get<TransformComponent>(entity);
+
+        }
         Renderer::EndScene();
     }
 
