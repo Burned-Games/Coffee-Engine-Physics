@@ -323,6 +323,28 @@ namespace Coffee {
         object->setWorldTransform(transform);
     }
 
+    btRigidBody* PhysicsEngine::CreateRigidBody(CollisionCallbacks* colCallbacks, const RigidBodyConfig& config)
+    {
+        auto shape = CreateCollisionShape(config.shapeConfig);
 
+        btVector3 localInertia(0, 0, 0);
+        if (!config.IsStatic)
+            shape->calculateLocalInertia(config.Mass, localInertia);
 
-}
+        btDefaultMotionState* motionState =
+            new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
+
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(config.Mass, motionState, shape, localInertia);
+
+        btRigidBody* body = new btRigidBody(rbInfo);
+        body->setUserPointer(colCallbacks);
+        m_world->addRigidBody(body);
+
+        return body;
+    }
+    void PhysicsEngine::RemoveRigidBody(btRigidBody* rigidBody)
+    {
+        m_world->removeRigidBody(rigidBody);
+    }
+
+} // namespace Coffee

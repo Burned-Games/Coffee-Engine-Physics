@@ -6,8 +6,8 @@
 #include <vector>
 #include "Collider.h"
 #include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/Physics/PhysicsEngine.h"
 #include "CoffeeEngine/Scene/Components.h"
+#include "CollisionCallbacks.h"
 #include <entt/entt.hpp>
 
 namespace Coffee{
@@ -35,6 +35,27 @@ namespace Coffee{
         bool isTrigger = false;
         float mass = 1.0f;
         bool isStatic = false;
+    };
+
+    struct RigidBodyConfig
+    {
+        CollisionShapeConfig shapeConfig;
+        bool IsStatic = false;                       ///< Whether the object is static (non-moving) or dynamic (moving).
+        bool IsKinematic = false;                    ///< Whether the object is static (non-moving) or dynamic (moving).
+        bool UseGravity = true;                      ///< Whether the object is affected by gravity.
+        float Mass = 1.0f;                           ///< The mass of the rigidbody. 0 means the rigidbody is kinematic
+        glm::vec3 Velocity = {0.0f, 0.0f, 0.0f};     ///< The current velocity of the rigidbody.
+        glm::vec3 Acceleration = {0.0f, 0.0f, 0.0f}; ///< The current acceleration of the rigidbody.
+
+        float LinearDrag = 0.1f; ///< The linear drag of the rigidbody.
+        float AngularDrag = 0.1f;
+
+        bool FreezeX = false;
+        bool FreezeY = false;
+        bool FreezeZ = false;
+        bool FreezeRotationX = false;
+        bool FreezeRotationY = false;
+        bool FreezeRotationZ = false;
     };
 
     static class PhysicsEngine
@@ -66,6 +87,9 @@ namespace Coffee{
         
         static btCollisionShape* CreateCollisionShape(const CollisionShapeConfig& config);
 
+        static btRigidBody* CreateRigidBody(CollisionCallbacks* colCallbacks, const RigidBodyConfig& config);
+        static void RemoveRigidBody(btRigidBody* rigidBody);
+
     private:
 
         static btDynamicsWorld* m_world;
@@ -79,5 +103,6 @@ namespace Coffee{
 
         static std::vector<btCollisionObject*> m_CollisionObjects;
         static std::vector<btCollisionShape*> m_CollisionShapes;
+
     };
 }
