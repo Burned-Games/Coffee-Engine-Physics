@@ -6,7 +6,7 @@
 namespace Coffee {
 
     using namespace Coffee;
-    DebugDrawer::DebugDrawer() : mode(DBG_DrawWireframe)
+    DebugDrawer::DebugDrawer() : m_DebugDrawModes(DBG_DrawAabb | DBG_DrawConstraints | DBG_DrawWireframe | DBG_DrawContactPoints)
     {
         
     }
@@ -33,12 +33,12 @@ namespace Coffee {
     
     void DebugDrawer::setDebugMode(int debugMode)
     {
-        mode = (DebugDrawModes) debugMode;
+        m_DebugDrawModes = (DebugDrawModes) debugMode;
     }
     
     int DebugDrawer::getDebugMode() const
     {
-        return mode;
+        return m_DebugDrawModes;
     }
     
 

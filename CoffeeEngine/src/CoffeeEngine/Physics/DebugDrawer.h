@@ -15,7 +15,7 @@ public:
     void setDebugMode(int debugMode) override;
     int getDebugMode() const override;
 
-    DebugDrawModes mode;    
+    int m_DebugDrawModes;    
     
 };
 

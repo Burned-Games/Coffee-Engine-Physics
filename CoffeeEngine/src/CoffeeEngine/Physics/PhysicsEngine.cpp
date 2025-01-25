@@ -51,6 +51,7 @@ namespace Coffee {
         if (m_world)
         {
             m_world->stepSimulation(dt, 10);
+            m_world->debugDrawWorld();
         }
 
         //vehicle.update(dt);
