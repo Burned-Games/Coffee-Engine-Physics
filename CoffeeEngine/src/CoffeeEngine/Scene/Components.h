@@ -327,13 +327,13 @@ namespace Coffee
             //// TODO Use RigidBodyConfig to serialize (read from rigidbody when serializing, create rigidbody from config when deserializing)
             //// Esto actualmente explota al intentar cargar un objeto serializado con el codigo anterior. No se como evitar el crash
             //RigidBodyConfig cfg;
-            //if (Archive::is_loading::value && m_RigidBody)
+            //if (Archive::is_saving::value && m_RigidBody)
             //{
             //    // Read values from RigidBody
             //    m_RigidBody->GetConfig(cfg);
             //}
             //archive(cfg);
-            //if (Archive::is_saving::value && !m_RigidBody)
+            //if (Archive::is_loading::value && !m_RigidBody)
             //{
             //    // Create RigidBody
             //    m_RigidBody = new RigidBody(cfg);
