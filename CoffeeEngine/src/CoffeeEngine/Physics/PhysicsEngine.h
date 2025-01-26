@@ -20,43 +20,7 @@ namespace Coffee{
         CONTINUOUS
     };
 
-    // collision shape types
-    enum class CollisionShapeType {
-        BOX,
-        SPHERE,
-        CAPSULE,
-        CYLINDER,
-        MESH
-    };
-
-    struct CollisionShapeConfig {
-        CollisionShapeType type = CollisionShapeType::BOX;
-        glm::vec3 size = glm::vec3(1.0f);  // size of the shape
-        bool isTrigger = false;
-        float mass = 1.0f;
-        bool isStatic = false;
-    };
-
-    struct RigidBodyConfig
-    {
-        CollisionShapeConfig shapeConfig;
-        bool IsStatic = false;                       ///< Whether the object is static (non-moving) or dynamic (moving).
-        bool IsKinematic = false;                    ///< Whether the object is static (non-moving) or dynamic (moving).
-        bool UseGravity = true;                      ///< Whether the object is affected by gravity.
-        float Mass = 1.0f;                           ///< The mass of the rigidbody. 0 means the rigidbody is kinematic
-        glm::vec3 Velocity = {0.0f, 0.0f, 0.0f};     ///< The current velocity of the rigidbody.
-        glm::vec3 Acceleration = {0.0f, 0.0f, 0.0f}; ///< The current acceleration of the rigidbody.
-
-        float LinearDrag = 0.1f; ///< The linear drag of the rigidbody.
-        float AngularDrag = 0.1f;
-
-        bool FreezeX = false;
-        bool FreezeY = false;
-        bool FreezeZ = false;
-        bool FreezeRotationX = false;
-        bool FreezeRotationY = false;
-        bool FreezeRotationZ = false;
-    };
+    
 
     static class PhysicsEngine
     {
@@ -78,8 +42,7 @@ namespace Coffee{
         static void ProcessTriggerEvents();
 
         static void SetPosition(btCollisionObject* object, const glm::vec3& position);
-
-        
+        static int GetRigidbodyFlags(const RigidBodyConfig& config);
 
         // Create + Destroy collision objects
         static btCollisionObject* CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position);

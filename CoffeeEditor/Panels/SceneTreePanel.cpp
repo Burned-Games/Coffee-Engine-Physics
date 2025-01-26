@@ -1343,7 +1343,10 @@ namespace Coffee
                 else if (items[item_current] == "Rigidbody Component")
                 {
                     if (!entity.HasComponent<RigidbodyComponent>())
-                        entity.AddComponent<RigidbodyComponent>();
+                    {
+                        auto& t = entity.GetComponent<TransformComponent>();
+                        entity.AddComponent<RigidbodyComponent>(t);
+                    }
                     ImGui::CloseCurrentPopup();
                 }
                 // Collider

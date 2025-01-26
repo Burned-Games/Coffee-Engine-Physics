@@ -323,20 +323,36 @@ namespace Coffee {
         object->setWorldTransform(transform);
     }
 
+    int PhysicsEngine::GetRigidbodyFlags(const RigidBodyConfig& config)
+    {
+        int flags = 0;
+        if (config.IsKinematic)
+            flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
+        else if (config.shapeConfig.mass == 0)
+            flags |= btCollisionObject::CF_STATIC_OBJECT;
+        else
+            flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
+
+        return flags;
+    }
     btRigidBody* PhysicsEngine::CreateRigidBody(CollisionCallbacks* colCallbacks, const RigidBodyConfig& config)
     {
         auto shape = CreateCollisionShape(config.shapeConfig);
 
         btVector3 localInertia(0, 0, 0);
-        if (!config.IsStatic)
-            shape->calculateLocalInertia(config.Mass, localInertia);
+            shape->calculateLocalInertia(config.shapeConfig.mass, localInertia);
 
         btDefaultMotionState* motionState =
             new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
 
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(config.Mass, motionState, shape, localInertia);
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(config.shapeConfig.mass, motionState, shape, localInertia);
 
         btRigidBody* body = new btRigidBody(rbInfo);
+
+        // Set object type
+        body->setFlags(body->getFlags() | GetRigidbodyFlags(config));
+
+        
         body->setUserPointer(colCallbacks);
         m_world->addRigidBody(body);
 
