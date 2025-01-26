@@ -384,42 +384,37 @@ namespace Coffee
         }
     };
 
-    struct BoxColliderComponent
+   
+struct BoxColliderComponent
     {
         glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
         glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
         bool IsTrigger = false;                // is the collider a trigger
+        int MaterialIndex = 0;                 // index for the material dropdown
+
+        // You could add more properties related to the collider
+        // For example: material properties, friction, restitution, etc.
 
         BoxColliderComponent() = default;
-        BoxColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
-            : Size(size), Offset(offset), IsTrigger(isTrigger)
+        BoxColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger, int materialIndex = 0)
+            : Size(size), Offset(offset), IsTrigger(isTrigger), MaterialIndex(materialIndex)
         {
         }
     };
     struct SphereColliderComponent
     {
-        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
-        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
+        glm::vec3 Center = {0.0f, 0.0f, 0.0f}; // center of the collider
+        float Radius = 0.5f;                   // radius of the collider
         bool IsTrigger = false;                // is the collider a trigger
+        bool ProvidesContacts = false;         // provides contacts
+        int MaterialIndex = 0;                 // index for the material dropdown
 
         SphereColliderComponent() = default;
-        SphereColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
-            : Size(size), Offset(offset), IsTrigger(isTrigger)
+        SphereColliderComponent(const glm::vec3& center, float radius, bool isTrigger, bool providesContacts,
+                                int materialIndex = 0)
+            : Center(center), Radius(radius), IsTrigger(isTrigger), ProvidesContacts(providesContacts),
+              MaterialIndex(materialIndex)
         {
-            // Crear un SphereCollider con radio 1.0, posici�n (0, 5, 0), est�tico y no un trigger
-            Coffee::SphereCollider sphere(1.0f, glm::vec3(0.0f, 5.0f, 0.0f), true, false);
-
-            // Cambiar el radio din�micamente
-            sphere.SetRadius(2.0f);
-
-            // Obtener la posici�n actual
-            glm::vec3 position = sphere.GetPosition();
-
-            // Mover la esfera
-            sphere.SetPosition(glm::vec3(0.0f, 10.0f, 0.0f));
-
-            // Habilitar o deshabilitar colisiones
-            sphere.SetEnabled(false);
         }
     };
     struct CapsuleColliderComponent

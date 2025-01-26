@@ -744,6 +744,19 @@ namespace Coffee
 
                 // is trigger
                 ImGui::Checkbox("Is Trigger", &boxCollider.IsTrigger);
+
+                // material
+                ImGui::Text("Material");
+                // Here you could add more properties related to the collider's material
+                // For example: material properties, friction, restitution, etc.
+                ImGui::Combo("Material", &boxCollider.MaterialIndex, "None\0Physic Material\0\0");
+
+                // Layer Overrides
+                if (ImGui::TreeNode("Layer Overrides"))
+                {
+                    // Add properties for layer overrides here
+                    ImGui::TreePop();
+                }
             }
 
             if (!isCollapsingHeaderOpen)
@@ -760,16 +773,23 @@ namespace Coffee
             ImGui::PushID("SphereCollider"); // Unic ID
             if (ImGui::CollapsingHeader("Sphere Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // size
-                ImGui::Text("Size");
-                ImGui::DragFloat3("##SphereSize", glm::value_ptr(sphereCollider.Size), 0.1f, 0.0f, 100.0f);
+                // center
+                ImGui::Text("Center");
+                ImGui::DragFloat3("##SphereCenter", glm::value_ptr(sphereCollider.Center), 0.1f, 0.0f, 100.0f);
 
-                // offset
-                ImGui::Text("Offset");
-                ImGui::DragFloat3("##SphereOffset", glm::value_ptr(sphereCollider.Offset), 0.1f);
+                // radius
+                ImGui::Text("Radius");
+                ImGui::DragFloat("##SphereRadius", &sphereCollider.Radius, 0.1f, 0.0f, 100.0f);
 
                 // is trigger
                 ImGui::Checkbox("Is Trigger", &sphereCollider.IsTrigger);
+
+                // provides contacts
+                ImGui::Checkbox("Provides Contacts", &sphereCollider.ProvidesContacts);
+
+                // material
+                ImGui::Text("Material");
+                ImGui::Combo("Material", &sphereCollider.MaterialIndex, "None\0Physic Material\0\0");
             }
 
             if (!isCollapsingHeaderOpen)
