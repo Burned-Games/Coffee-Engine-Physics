@@ -478,24 +478,17 @@ struct BoxColliderComponent
         glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
         glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
         bool IsTrigger = false;                // is the collider a trigger
+        bool ProvidesContacts = false;         // provides contacts
+        int CookingOptionsIndex = 1;           // index for the cooking options dropdown
+        int MaterialIndex = 0;                 // index for the material dropdown
+        int MeshIndex = 0;                     // index for the mesh dropdown
 
         MeshColliderComponent() = default;
-        MeshColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
-            : Size(size), Offset(offset), IsTrigger(isTrigger)
+        MeshColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger, bool providesContacts,
+                              int cookingOptionsIndex = 1, int materialIndex = 0, int meshIndex = 0)
+            : Size(size), Offset(offset), IsTrigger(isTrigger), ProvidesContacts(providesContacts),
+              CookingOptionsIndex(cookingOptionsIndex), MaterialIndex(materialIndex), MeshIndex(meshIndex)
         {
-            // Crear un PlaneCollider con normal (0, 1, 0), constante 0.0 y posici�n inicial en el origen
-            Coffee::PlaneCollider plane(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-
-            // Cambiar la normal y el constante del plano
-            plane.SetNormal(glm::vec3(1.0f, 0.0f, 0.0f));
-            plane.SetConstant(5.0f);
-
-            // Obtener propiedades del plano
-            glm::vec3 normal = plane.GetNormal();
-            float constant = plane.GetConstant();
-
-            // Cambiar la posici�n del plano
-            plane.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
         }
     };
 

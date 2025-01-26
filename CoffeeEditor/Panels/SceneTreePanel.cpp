@@ -916,6 +916,28 @@ namespace Coffee
 
                 // is trigger
                 ImGui::Checkbox("Is Trigger", &meshCollider.IsTrigger);
+
+                // provides contacts
+                ImGui::Checkbox("Provides Contacts", &meshCollider.ProvidesContacts);
+
+                // cooking options
+                ImGui::Text("Cooking Options");
+                ImGui::Combo("##CookingOptions", &meshCollider.CookingOptionsIndex, "None\0Everything\0\0");
+
+                // material
+                ImGui::Text("Material");
+                ImGui::Combo("Material", &meshCollider.MaterialIndex, "None\0Physic Material\0\0");
+
+                // mesh
+                ImGui::Text("Mesh");
+                ImGui::Combo("Mesh", &meshCollider.MeshIndex, "None\0Mesh1\0Mesh2\0\0");
+
+                // Layer Overrides
+                if (ImGui::TreeNode("Layer Overrides"))
+                {
+                    // Add properties for layer overrides here
+                    ImGui::TreePop();
+                }
             }
 
             if (!isCollapsingHeaderOpen)
