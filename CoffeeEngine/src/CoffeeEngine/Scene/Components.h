@@ -14,6 +14,11 @@
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "src/CoffeeEngine/IO/Serialization/BulletSerialization.h"
+#include "src/CoffeeEngine/Physics/BoxCollider.h"
+#include "src/CoffeeEngine/Physics/SphereCollider.h"
+#include "src/CoffeeEngine/Physics/CapsuleCollider.h"
+#include "src/CoffeeEngine/Physics/CylinderCollider.h"
+#include "src/CoffeeEngine/Physics/PlaneCollider.h"
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/string.hpp>
@@ -401,6 +406,20 @@ namespace Coffee
         SphereColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
             : Size(size), Offset(offset), IsTrigger(isTrigger)
         {
+            // Crear un SphereCollider con radio 1.0, posici�n (0, 5, 0), est�tico y no un trigger
+            Coffee::SphereCollider sphere(1.0f, glm::vec3(0.0f, 5.0f, 0.0f), true, false);
+
+            // Cambiar el radio din�micamente
+            sphere.SetRadius(2.0f);
+
+            // Obtener la posici�n actual
+            glm::vec3 position = sphere.GetPosition();
+
+            // Mover la esfera
+            sphere.SetPosition(glm::vec3(0.0f, 10.0f, 0.0f));
+
+            // Habilitar o deshabilitar colisiones
+            sphere.SetEnabled(false);
         }
     };
     struct CapsuleColliderComponent
@@ -413,6 +432,21 @@ namespace Coffee
         CapsuleColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
             : Size(size), Offset(offset), IsTrigger(isTrigger)
         {
+            // Crear un CapsuleCollider con radio 0.5, altura 2.0, posici�n (0, 5, 0), din�mico y no un trigger
+            Coffee::CapsuleCollider capsule(0.5f, 2.0f, glm::vec3(0.0f, 5.0f, 0.0f), false, false);
+
+            // Cambiar el radio y la altura din�micamente
+            capsule.SetRadius(1.0f);
+            capsule.SetHeight(3.0f);
+
+            // Obtener la posici�n actual
+            glm::vec3 position = capsule.GetPosition();
+
+            // Mover la c�psula
+            capsule.SetPosition(glm::vec3(0.0f, 10.0f, 0.0f));
+
+            // Habilitar o deshabilitar colisiones
+            capsule.SetEnabled(true);
         }
     };
     struct CylinderColliderComponent
@@ -425,6 +459,20 @@ namespace Coffee
         CylinderColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
             : Size(size), Offset(offset), IsTrigger(isTrigger)
         {
+            // Crear un CylinderCollider con dimensiones (1.0, 2.0, 1.0), posici�n (0, 5, 0), est�tico y no un trigger
+            Coffee::CylinderCollider cylinder(glm::vec3(1.0f, 2.0f, 1.0f), glm::vec3(0.0f, 5.0f, 0.0f), true, false);
+
+            // Cambiar las dimensiones din�micamente
+            cylinder.SetDimensions(glm::vec3(2.0f, 3.0f, 2.0f));
+
+            // Obtener las dimensiones actuales
+            glm::vec3 dimensions = cylinder.GetDimensions();
+
+            // Mover el cilindro
+            cylinder.SetPosition(glm::vec3(0.0f, 10.0f, 0.0f));
+
+            // Habilitar o deshabilitar colisiones
+            cylinder.SetEnabled(false);
         }
     };
     struct PlaneColliderComponent
@@ -449,6 +497,19 @@ namespace Coffee
         MeshColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
             : Size(size), Offset(offset), IsTrigger(isTrigger)
         {
+            // Crear un PlaneCollider con normal (0, 1, 0), constante 0.0 y posici�n inicial en el origen
+            Coffee::PlaneCollider plane(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+
+            // Cambiar la normal y el constante del plano
+            plane.SetNormal(glm::vec3(1.0f, 0.0f, 0.0f));
+            plane.SetConstant(5.0f);
+
+            // Obtener propiedades del plano
+            glm::vec3 normal = plane.GetNormal();
+            float constant = plane.GetConstant();
+
+            // Cambiar la posici�n del plano
+            plane.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
         }
     };
 
