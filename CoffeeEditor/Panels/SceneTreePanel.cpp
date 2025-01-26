@@ -806,16 +806,38 @@ namespace Coffee
             ImGui::PushID("CapsuleCollider"); // Unic ID
             if (ImGui::CollapsingHeader("Capsule Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // size
-                ImGui::Text("Size");
-                ImGui::DragFloat3("##CapsuleSize", glm::value_ptr(capsuleCollider.Size), 0.1f, 0.0f, 100.0f);
+                // center
+                ImGui::Text("Center");
+                ImGui::DragFloat3("##CapsuleCenter", glm::value_ptr(capsuleCollider.Center), 0.1f, 0.0f, 100.0f);
 
-                // offset
-                ImGui::Text("Offset");
-                ImGui::DragFloat3("##CapsuleOffset", glm::value_ptr(capsuleCollider.Offset), 0.1f);
+                // radius
+                ImGui::Text("Radius");
+                ImGui::DragFloat("##CapsuleRadius", &capsuleCollider.Radius, 0.1f, 0.0f, 100.0f);
+
+                // height
+                ImGui::Text("Height");
+                ImGui::DragFloat("##CapsuleHeight", &capsuleCollider.Height, 0.1f, 0.0f, 100.0f);
+
+                // direction
+                ImGui::Text("Direction");
+                ImGui::Combo("##CapsuleDirection", &capsuleCollider.DirectionIndex, "X-Axis\0Y-Axis\0Z-Axis\0\0");
 
                 // is trigger
                 ImGui::Checkbox("Is Trigger", &capsuleCollider.IsTrigger);
+
+                // provides contacts
+                ImGui::Checkbox("Provides Contacts", &capsuleCollider.ProvidesContacts);
+
+                // material
+                ImGui::Text("Material");
+                ImGui::Combo("Material", &capsuleCollider.MaterialIndex, "None\0Physic Material\0\0");
+
+                // Layer Overrides
+                if (ImGui::TreeNode("Layer Overrides"))
+                {
+                    // Add properties for layer overrides here
+                    ImGui::TreePop();
+                }
             }
 
             if (!isCollapsingHeaderOpen)

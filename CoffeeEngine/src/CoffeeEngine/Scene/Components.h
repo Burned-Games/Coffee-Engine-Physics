@@ -419,29 +419,20 @@ struct BoxColliderComponent
     };
     struct CapsuleColliderComponent
     {
-        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
-        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
+        glm::vec3 Center = {0.0f, 0.0f, 0.0f}; // center of the collider
+        float Radius = 0.5f;                   // radius of the collider
+        float Height = 1.0f;                   // height of the collider
+        int DirectionIndex = 1;                // direction index for the collider (0: X-Axis, 1: Y-Axis, 2: Z-Axis)
         bool IsTrigger = false;                // is the collider a trigger
+        bool ProvidesContacts = false;         // provides contacts
+        int MaterialIndex = 0;                 // index for the material dropdown
 
         CapsuleColliderComponent() = default;
-        CapsuleColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger)
-            : Size(size), Offset(offset), IsTrigger(isTrigger)
+        CapsuleColliderComponent(const glm::vec3& center, float radius, float height, int directionIndex,
+                                 bool isTrigger, bool providesContacts, int materialIndex = 0)
+            : Center(center), Radius(radius), Height(height), DirectionIndex(directionIndex), IsTrigger(isTrigger),
+              ProvidesContacts(providesContacts), MaterialIndex(materialIndex)
         {
-            // Crear un CapsuleCollider con radio 0.5, altura 2.0, posici�n (0, 5, 0), din�mico y no un trigger
-            Coffee::CapsuleCollider capsule(0.5f, 2.0f, glm::vec3(0.0f, 5.0f, 0.0f), false, false);
-
-            // Cambiar el radio y la altura din�micamente
-            capsule.SetRadius(1.0f);
-            capsule.SetHeight(3.0f);
-
-            // Obtener la posici�n actual
-            glm::vec3 position = capsule.GetPosition();
-
-            // Mover la c�psula
-            capsule.SetPosition(glm::vec3(0.0f, 10.0f, 0.0f));
-
-            // Habilitar o deshabilitar colisiones
-            capsule.SetEnabled(true);
         }
     };
     struct CylinderColliderComponent
