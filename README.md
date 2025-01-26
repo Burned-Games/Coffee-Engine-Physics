@@ -7,6 +7,26 @@
 
 **Coffee Engine is a Beautiful and Cross-platform 3D Game Engine written in C++ using OpenGL and SDL3.** </br> 
 
+# Members Physics Release
+
+- Martí Sabaté: msabate00 -> https://github.com/msabate00
+- Aleix Botella: aleix3 -> https://github.com/aleix3
+- Jia Jie Lin: https://github.com/Linjiajie2002
+- Alejandro Ibañez: AlejandroIR -> https://github.com/AlejandroIR
+- Roger Puchol: Ropuce -> https://github.com/Ropuce
+- Eduard García: https://github.com/Eduuuuuuuuuuuu
+- Maria Perarnau: MariaPerarnau -> https://github.com/MariaPerarnau
+- Guillem Montes: https://github.com/Guillem257
+- Raül Sánchez: Galycon -> https://github.com/Galycon
+
+# Comments about the Release
+
+Steps to see the work:
+
+1. Open the project "DemoFisica.TeaProject".
+2. Open the scene "CityScene.TeaProject".
+3. Enjoy ;)
+
 > [!IMPORTANT]
 > This is a university project for learning how to make a 3D game engine.
 
