@@ -14,7 +14,7 @@ namespace Coffee
 
     SphereCollider::~SphereCollider()
     {
-        // La lógica de limpieza está en la clase base
+        // La lógica de limpieza est?en la clase base
     }
 
     void SphereCollider::SetRadius(float radius)

@@ -15,7 +15,7 @@ namespace Coffee
 
     BoxCollider::~BoxCollider()
     {
-        // La lógica de limpieza está en la clase base
+        // La lógica de limpieza est?en la clase base
     }
 
     void BoxCollider::UpdateCollisionShape()
