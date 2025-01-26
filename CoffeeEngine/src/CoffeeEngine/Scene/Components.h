@@ -325,6 +325,7 @@ namespace Coffee
         template <class Archive> void serialize(Archive& archive)
         {
             //// TODO Use RigidBodyConfig to serialize (read from rigidbody when serializing, create rigidbody from config when deserializing)
+            //// Esto actualmente explota al intentar cargar un objeto serializado con el codigo anterior. No se como evitar el crash
             //RigidBodyConfig cfg;
             //if (Archive::is_loading::value && m_RigidBody)
             //{
