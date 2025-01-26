@@ -313,6 +313,23 @@ namespace Coffee
                     }
                 }
 
+                ImGui::Text("Sphere Collider");
+
+                if (entity.HasComponent<SphereColliderComponent>())
+                {
+                    if (ImGui::Button("Remove Sphere Collider"))
+                    {
+                        entity.RemoveComponent<SphereColliderComponent>();
+                    }
+                }
+                else
+                {
+                    if (ImGui::Button("Add Sphere Collider"))
+                    {
+                        entity.AddComponent<SphereColliderComponent>();
+                    }
+                }
+
                 if (!isCollapsingHeaderOpen)
                 {
                     entity.RemoveComponent<CameraComponent>();
