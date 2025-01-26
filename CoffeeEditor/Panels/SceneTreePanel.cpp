@@ -677,68 +677,68 @@ namespace Coffee
             if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 // Static checkbox
-                if (ImGui::Checkbox("Static", &rigidbodyComponent.IsStatic))
+                if (ImGui::Checkbox("Static", &rigidbodyComponent.cfg.IsStatic))
                 {
                     // Si el objeto es estático, desactivar la gravedad y otras interacciones físicas si es necesario
-                    if (rigidbodyComponent.IsStatic)
-                        rigidbodyComponent.UseGravity =
+                    if (rigidbodyComponent.cfg.IsStatic)
+                        rigidbodyComponent.cfg.UseGravity =
                             false; // Opcional: si es estático, se puede desactivar la gravedad
                 }
 
-                if (ImGui::Checkbox("Kinematic", &rigidbodyComponent.IsKinematic))
+                if (ImGui::Checkbox("Kinematic", &rigidbodyComponent.cfg.IsKinematic))
                 {
                     // Si el objeto es Kinematic, desactivar la gravedad y otras interacciones físicas si es necesario
-                    if (rigidbodyComponent.IsKinematic)
+                    if (rigidbodyComponent.cfg.IsKinematic)
                     {
-                        rigidbodyComponent.UseGravity = false; // Desactivar la gravedad si es kinematic
-                        rigidbodyComponent.Velocity =
+                        rigidbodyComponent.cfg.UseGravity = false; // Desactivar la gravedad si es kinematic
+                        rigidbodyComponent.cfg.Velocity =
                             glm::vec3(0.0f, 0.0f, 0.0f); // Asegurarse que la velocidad se resetea
                     }
                 }
 
                 // Use Gravity checkbox
-                if (!rigidbodyComponent.IsStatic && !rigidbodyComponent.IsKinematic && !rigidbodyComponent.FreezeY)
+                if (!rigidbodyComponent.cfg.IsStatic && !rigidbodyComponent.cfg.IsKinematic && !rigidbodyComponent.cfg.FreezeY)
                 {
-                    ImGui::Checkbox("Use Gravity", &rigidbodyComponent.UseGravity);
+                    ImGui::Checkbox("Use Gravity", &rigidbodyComponent.cfg.UseGravity);
                 }
 
                 // Mass
                 ImGui::Text("Mass");
-                ImGui::DragFloat("##Mass", &rigidbodyComponent.Mass, 0.1f, 0.001f, 0.0f);
+                ImGui::DragFloat("##Mass", &rigidbodyComponent.cfg.shapeConfig.mass, 0.1f, 0.001f, 0.0f);
                 // Drag
                 ImGui::Text("Linear Drag");
-                ImGui::DragFloat("##Linear Drag", &rigidbodyComponent.LinearDrag, 0.1f, 0.001f, 10.0f,
+                ImGui::DragFloat("##Linear Drag", &rigidbodyComponent.cfg.LinearDrag, 0.1f, 0.001f, 10.0f,
                                  "Linear Drag: %.3f");
                 // Modify Angular Drag
                 ImGui::Text("Angular Drag");
-                ImGui::DragFloat("##Angular Drag", &rigidbodyComponent.AngularDrag, 0.1f, 0.001f, 10.0f,
+                ImGui::DragFloat("##Angular Drag", &rigidbodyComponent.cfg.AngularDrag, 0.1f, 0.001f, 10.0f,
                                  "Angular Drag: %.3f");
 
                 // Velocity
                 ImGui::Text("Velocity");
-                ImGui::DragFloat3("##Velocity", glm::value_ptr(rigidbodyComponent.Velocity), 0.1f);
-                COFFEE_CORE_INFO("Velocity: (%f, %f, %f)", rigidbodyComponent.Velocity.x, rigidbodyComponent.Velocity.y,
-                                 rigidbodyComponent.Velocity.z); 
+                ImGui::DragFloat3("##Velocity", glm::value_ptr(rigidbodyComponent.cfg.Velocity), 0.1f);
+                COFFEE_CORE_INFO("Velocity: (%f, %f, %f)", rigidbodyComponent.cfg.Velocity.x, rigidbodyComponent.cfg.Velocity.y,
+                                 rigidbodyComponent.cfg.Velocity.z); 
                 // Acceleration
                 ImGui::Text("Acceleration");
-                ImGui::DragFloat3("##Acceleration", glm::value_ptr(rigidbodyComponent.Acceleration), 0.1f);
+                ImGui::DragFloat3("##Acceleration", glm::value_ptr(rigidbodyComponent.cfg.Acceleration), 0.1f);
 
                 if (ImGui::CollapsingHeader("Constraints"))
                 {
                     // Sección para Freeze de posición
                     ImGui::Text("Position");
                     ImGui::Indent();
-                    ImGui::Checkbox("Freeze X", &rigidbodyComponent.FreezeX);
-                    ImGui::Checkbox("Freeze Y", &rigidbodyComponent.FreezeY);
-                    ImGui::Checkbox("Freeze Z", &rigidbodyComponent.FreezeZ);
+                    ImGui::Checkbox("Freeze X", &rigidbodyComponent.cfg.FreezeX);
+                    ImGui::Checkbox("Freeze Y", &rigidbodyComponent.cfg.FreezeY);
+                    ImGui::Checkbox("Freeze Z", &rigidbodyComponent.cfg.FreezeZ);
                     ImGui::Unindent();
 
                     // Sección para Freeze de rotación
                     ImGui::Text("Rotation");
                     ImGui::Indent();
-                    ImGui::Checkbox("Freeze Rotation X", &rigidbodyComponent.FreezeRotationX);
-                    ImGui::Checkbox("Freeze Rotation Y", &rigidbodyComponent.FreezeRotationY);
-                    ImGui::Checkbox("Freeze Rotation Z", &rigidbodyComponent.FreezeRotationZ);
+                    ImGui::Checkbox("Freeze Rotation X", &rigidbodyComponent.cfg.FreezeRotX);
+                    ImGui::Checkbox("Freeze Rotation Y", &rigidbodyComponent.cfg.FreezeRotY);
+                    ImGui::Checkbox("Freeze Rotation Z", &rigidbodyComponent.cfg.FreezeRotZ);
                     ImGui::Unindent();
                 }
             }

@@ -58,45 +58,46 @@ namespace Coffee {
     }
 
    void PhysicsEngine::ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent, float dt)
-    { 
+    {
        if (!Scene::m_RigidbodyEntities.empty())
        {
            //COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
            for (auto entity : Scene::m_RigidbodyEntities)
            {
-               if (rigidbodyComponent.IsStatic)
+               if (rigidbodyComponent.cfg.IsStatic)
                    continue;
 
-               if (rigidbodyComponent.UseGravity && !rigidbodyComponent.IsStatic && !rigidbodyComponent.FreezeY) 
+               rigidbodyComponent.m_RigidBody->GetConfig(rigidbodyComponent.cfg);
+               if (rigidbodyComponent.cfg.UseGravity && !rigidbodyComponent.cfg.IsStatic && !rigidbodyComponent.cfg.FreezeY) 
                {
                    glm::vec3 gravity = GetGravity(); //(0.0f, -9.81f, 0.0f);
                    gravity *= 0.1f; 
-                   if (rigidbodyComponent.Mass > 0.0f)
+                   if (rigidbodyComponent.cfg.shapeConfig.mass > 0.0f)
                    {
-                       rigidbodyComponent.Acceleration += gravity;   
+                       rigidbodyComponent.cfg.Acceleration += gravity;   
 
                        rigidbodyComponent.ApplyDrag(); 
                    }
-                   if (rigidbodyComponent.IsKinematic)
+                   if (rigidbodyComponent.cfg.IsKinematic)
                    {
-                       transformComponent.Position += rigidbodyComponent.Velocity * dt;
+                       transformComponent.Position += rigidbodyComponent.cfg.Velocity * dt;
                        return;
                    }
-                   rigidbodyComponent.Velocity +=
-                       rigidbodyComponent.Acceleration * dt; // Update velocity with acceleration
-                   transformComponent.Position += rigidbodyComponent.Velocity * dt; 
+                   rigidbodyComponent.cfg.Velocity +=
+                       rigidbodyComponent.cfg.Acceleration * dt; // Update velocity with acceleration
+                   transformComponent.Position += rigidbodyComponent.cfg.Velocity * dt; 
 
-                   if (!rigidbodyComponent.FreezeX)
-                       transformComponent.Position.x += rigidbodyComponent.Velocity.x * dt;
-                   if (!rigidbodyComponent.FreezeY)
-                       transformComponent.Position.y += rigidbodyComponent.Velocity.y * dt;
-                   if (!rigidbodyComponent.FreezeZ)
-                       transformComponent.Position.z += rigidbodyComponent.Velocity.z * dt;
-                   if (rigidbodyComponent.FreezeRotationX)
-                       rigidbodyComponent.Velocity.x = 0.0f;
-                   if (rigidbodyComponent.FreezeRotationY)
+                   if (!rigidbodyComponent.cfg.FreezeX)
+                       transformComponent.Position.x += rigidbodyComponent.cfg.Velocity.x * dt;
+                   if (!rigidbodyComponent.cfg.FreezeY)
+                       transformComponent.Position.y += rigidbodyComponent.cfg.Velocity.y * dt;
+                   if (!rigidbodyComponent.cfg.FreezeZ)
+                       transformComponent.Position.z += rigidbodyComponent.cfg.Velocity.z * dt;
+                   if (rigidbodyComponent.cfg.FreezeRotX)
+                       rigidbodyComponent.cfg.Velocity.x = 0.0f;
+                   if (rigidbodyComponent.cfg.FreezeRotY)
                        rigidbodyComponent.Velocity.y = 0.0f;
-                   if (rigidbodyComponent.FreezeRotationZ)
+                   if (rigidbodyComponent.cfg.FreezeRotZ)
                        rigidbodyComponent.Velocity.z = 0.0f;
                   
                    rigidbodyComponent.ApplyAngularDrag(); 
@@ -360,7 +361,8 @@ namespace Coffee {
     }
     void PhysicsEngine::RemoveRigidBody(btRigidBody* rigidBody)
     {
-        m_world->removeRigidBody(rigidBody);
+        if (m_world)
+            m_world->removeRigidBody(rigidBody);
     }
 
 } // namespace Coffee

@@ -7,6 +7,7 @@ namespace Coffee {
     struct RigidBodyConfig
     {
         CollisionShapeConfig shapeConfig;
+        bool IsStatic = false;
         bool IsKinematic = false;                    ///< Whether the object is static (non-moving) or dynamic (moving).
         bool UseGravity = true;                      ///< Whether the object is affected by gravity.
         glm::mat4 transform = glm::mat4(1.0f);
@@ -28,7 +29,7 @@ namespace Coffee {
     
     class RigidBody {
     public:
-        explicit RigidBody(const RigidBodyConfig& config);
+        explicit RigidBody(RigidBodyConfig& config);
         ~RigidBody();
 
         void GetConfig(RigidBodyConfig& config);

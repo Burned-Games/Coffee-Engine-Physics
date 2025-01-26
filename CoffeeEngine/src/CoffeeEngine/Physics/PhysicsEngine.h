@@ -67,5 +67,7 @@ namespace Coffee{
         static std::vector<btCollisionObject*> m_CollisionObjects;
         static std::vector<btCollisionShape*> m_CollisionShapes;
 
+        static std::vector<RigidBody*> m_Rigidbodies;
+        friend class RigidBody;
     };
 }

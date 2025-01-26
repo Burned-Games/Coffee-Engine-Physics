@@ -6,9 +6,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Coffee {
-    RigidBody::RigidBody(const RigidBodyConfig& config)
+    RigidBody::RigidBody(RigidBodyConfig& config)
     {
         m_Callbacks.rigidBody = this;
+        config.shapeConfig.type = CollisionShapeType::SPHERE;
         this->m_RigidBody = PhysicsEngine::CreateRigidBody(&m_Callbacks, config);
     }
     
@@ -16,7 +17,6 @@ namespace Coffee {
     {
         PhysicsEngine::RemoveRigidBody(m_RigidBody);
         delete m_RigidBody->getMotionState();
-        delete m_RigidBody->getCollisionShape();
         delete m_RigidBody;
     }
     void RigidBody::GetConfig(RigidBodyConfig& config)

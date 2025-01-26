@@ -107,12 +107,12 @@
     "value33": 1,
     "value34": 1,
     "value35": {
-        "IsStatic": true,
-        "UseGravity": false,
-        "Mass": 0.0,
+        "IsStatic": false,
+        "UseGravity": true,
+        "Mass": 1.0,
         "Velocity": {
             "x": 0.0,
-            "y": 0.0,
+            "y": 10.0,
             "z": 0.0
         },
         "Acceleration": {
@@ -120,7 +120,7 @@
             "y": 0.0,
             "z": 0.0
         },
-        "LinearDrag": 0.10000000149011612,
-        "AngularDrag": 0.10000000149011612
+        "LinearDrag": 0.0,
+        "AngularDrag": 0.0
     }
 }
