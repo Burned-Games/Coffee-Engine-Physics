@@ -435,6 +435,17 @@ namespace Coffee {
             "angle", &LightComponent::Angle,
             "type", &LightComponent::type
         );
+       /* luaState.new_usertype<RigidbodyComponent>(
+            "rigidbody_component",
+            sol::constructors<RigidbodyComponent(),
+                              RigidbodyComponent(float)>(), 
+            "use_gravity", &RigidbodyComponent::UseGravity, 
+            "is_static", &RigidbodyComponent::IsStatic, 
+            "velocity", &RigidbodyComponent::Velocity,        
+            "acceleration", &RigidbodyComponent::Acceleration, 
+            "mass", &RigidbodyComponent::Mass                
+        );*/
+
         # pragma endregion
 
     }
