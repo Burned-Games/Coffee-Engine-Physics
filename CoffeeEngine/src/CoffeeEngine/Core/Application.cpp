@@ -3,6 +3,8 @@
 #include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Physics/PhysicsEngine.h"
+#include "CoffeeEngine/Physics/PhysicsJoints.h"
 
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL.h>
@@ -23,6 +25,7 @@ namespace Coffee
         SetEventCallback(COFFEE_BIND_EVENT_FN(OnEvent));
 
         Renderer::Init();
+        PhysicsEngine::Init();
 
         m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -30,6 +33,7 @@ namespace Coffee
 
     Application::~Application()
     {
+        PhysicsEngine::Destroy();
     }
 
     void Application::PushLayer(Layer* layer)
@@ -87,6 +91,12 @@ namespace Coffee
 
             //Poll and handle events
             ProcessEvents();
+
+            // Physics Update
+            {
+                ZoneScopedN("Physics Update");
+                PhysicsEngine::Update(deltaTime);
+            }
 
             //Update and render
             {

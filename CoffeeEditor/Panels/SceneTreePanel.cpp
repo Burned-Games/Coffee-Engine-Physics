@@ -28,7 +28,8 @@
 #include <imgui.h>
 #include <string>
 
-namespace Coffee {
+namespace Coffee
+{
 
     SceneTreePanel::SceneTreePanel(const Ref<Scene>& scene)
     {
@@ -42,19 +43,20 @@ namespace Coffee {
 
     void SceneTreePanel::OnImGuiRender()
     {
-        if (!m_Visible) return;
+        if (!m_Visible)
+            return;
 
         ImGui::Begin("Scene Tree");
 
-        //delete node and all children if supr is pressed and the node is selected
-        if(ImGui::IsKeyPressed(ImGuiKey_Delete) && m_SelectionContext)
+        // delete node and all children if supr is pressed and the node is selected
+        if (ImGui::IsKeyPressed(ImGuiKey_Delete) && m_SelectionContext)
         {
             m_Context->DestroyEntity(m_SelectionContext);
             m_SelectionContext = {};
         }
 
-        //Button for adding entities to the scene tree
-        if(ImGui::Button(ICON_LC_PLUS, {24,24}))
+        // Button for adding entities to the scene tree
+        if (ImGui::Button(ICON_LC_PLUS, {24, 24}))
         {
             ImGui::OpenPopup("Add Entity...");
         }
@@ -62,46 +64,46 @@ namespace Coffee {
         ImGui::SameLine();
 
         static std::array<char, 256> searchBuffer;
-        ImGui::InputTextWithHint("##searchbar", ICON_LC_SEARCH " Search by name:", searchBuffer.data(), searchBuffer.size());
+        ImGui::InputTextWithHint("##searchbar", ICON_LC_SEARCH " Search by name:", searchBuffer.data(),
+                                 searchBuffer.size());
 
-        ImGui::BeginChild("entity tree", {0,0}, ImGuiChildFlags_Border);
+        ImGui::BeginChild("entity tree", {0, 0}, ImGuiChildFlags_Border);
 
         auto view = m_Context->m_Registry.view<entt::entity>();
-        for(auto entityID: view)
+        for (auto entityID : view)
         {
-            Entity entity{ entityID, m_Context.get()};
+            Entity entity{entityID, m_Context.get()};
             auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
 
-            if(hierarchyComponent.m_Parent == entt::null)
+            if (hierarchyComponent.m_Parent == entt::null)
             {
                 DrawEntityNode(entity);
             }
         }
 
         ImGui::EndChild();
-        
+
         // Entity Tree Drag and Drop functionality
-        if(ImGui::BeginDragDropTarget())
+        if (ImGui::BeginDragDropTarget())
         {
-            if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
             {
                 const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
-                switch(resource->GetType())
+                switch (resource->GetType())
                 {
-                    case ResourceType::Model:
-                    {
-                        const Ref<Model>& model = std::static_pointer_cast<Model>(resource);
-                        AddModelToTheSceneTree(m_Context.get(), model);
-                        break;
-                    }
-                    default:
-                        break;
+                case ResourceType::Model: {
+                    const Ref<Model>& model = std::static_pointer_cast<Model>(resource);
+                    AddModelToTheSceneTree(m_Context.get(), model);
+                    break;
+                }
+                default:
+                    break;
                 }
             }
             ImGui::EndDragDropTarget();
         }
 
-        if(ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+        if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
         {
             m_SelectionContext = {};
         }
@@ -109,7 +111,7 @@ namespace Coffee {
         ImGui::End();
 
         ImGui::Begin("Inspector");
-        if(m_SelectionContext)
+        if (m_SelectionContext)
         {
             DrawComponents(m_SelectionContext);
         }
@@ -125,16 +127,17 @@ namespace Coffee {
 
         ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
                                    ((hierarchyComponent.m_First == entt::null) ? ImGuiTreeNodeFlags_Leaf : 0) |
-                                   ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
+                                   ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding |
+                                   ImGuiTreeNodeFlags_SpanAvailWidth;
 
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityNameTag.c_str());
 
-        if(ImGui::IsItemClicked())
+        if (ImGui::IsItemClicked())
         {
             m_SelectionContext = entity;
         }
 
-        //Code of Double clicking the item for changing the name (WIP)
+        // Code of Double clicking the item for changing the name (WIP)
 
         ImVec2 itemSize = ImGui::GetItemRectSize();
 
@@ -148,7 +151,7 @@ namespace Coffee {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-        if (ImGui::BeginPopup("EntityPopup"/*, ImGuiWindowFlags_NoBackground*/))
+        if (ImGui::BeginPopup("EntityPopup" /*, ImGuiWindowFlags_NoBackground*/))
         {
             auto buff = entity.GetComponent<TagComponent>().Tag.c_str();
             ImGui::SetNextItemWidth(itemSize.x - ImGui::GetStyle().IndentSpacing);
@@ -160,7 +163,8 @@ namespace Coffee {
 
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
         {
-            ImGui::SetDragDropPayload("ENTITY_NODE", &entity, sizeof(Entity)); // Use the entity ID or a pointer as payload
+            ImGui::SetDragDropPayload("ENTITY_NODE", &entity,
+                                      sizeof(Entity)); // Use the entity ID or a pointer as payload
             ImGui::Text("%s", entityNameTag.c_str());
             ImGui::EndDragDropSource();
         }
@@ -173,22 +177,24 @@ namespace Coffee {
                 Entity payloadEntity = *(const Entity*)payload->Data;
                 // Process the drop, e.g., reparenting the entity in the hierarchy
                 // This is where you would update the ECS or scene graph
-                HierarchyComponent::Reparent(m_Context->m_Registry, (entt::entity)payloadEntity, entity); //I think is not necessary do the casting, it does it automatically;
+                HierarchyComponent::Reparent(
+                    m_Context->m_Registry, (entt::entity)payloadEntity,
+                    entity); // I think is not necessary do the casting, it does it automatically;
             }
             ImGui::EndDragDropTarget();
         }
 
-        if(opened)
+        if (opened)
         {
-            if(hierarchyComponent.m_First != entt::null)
+            if (hierarchyComponent.m_First != entt::null)
             {
                 // Recursively draw all children
-                Entity childEntity{ hierarchyComponent.m_First, m_Context.get()};
-                while((entt::entity)childEntity != entt::null)
+                Entity childEntity{hierarchyComponent.m_First, m_Context.get()};
+                while ((entt::entity)childEntity != entt::null)
                 {
                     DrawEntityNode(childEntity);
                     auto& childHierarchyComponent = childEntity.GetComponent<HierarchyComponent>();
-                    childEntity = Entity{ childHierarchyComponent.m_Next, m_Context.get() };
+                    childEntity = Entity{childHierarchyComponent.m_Next, m_Context.get()};
                 }
             }
             ImGui::TreePop();
@@ -197,7 +203,7 @@ namespace Coffee {
 
     void SceneTreePanel::DrawComponents(Entity entity)
     {
-        if(entity.HasComponent<TagComponent>())
+        if (entity.HasComponent<TagComponent>())
         {
             auto& entityNameTag = entity.GetComponent<TagComponent>().Tag;
 
@@ -208,7 +214,7 @@ namespace Coffee {
             memset(buffer, 0, sizeof(buffer));
             strcpy(buffer, entityNameTag.c_str());
 
-            if(ImGui::InputText("##", buffer, sizeof(buffer)))
+            if (ImGui::InputText("##", buffer, sizeof(buffer)))
             {
                 entityNameTag = std::string(buffer);
             }
@@ -216,45 +222,50 @@ namespace Coffee {
             ImGui::Separator();
         }
 
-        if(entity.HasComponent<TransformComponent>())
+        if (entity.HasComponent<TransformComponent>())
         {
             auto& transformComponent = entity.GetComponent<TransformComponent>();
 
-            if(ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Text("Position");
                 ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.Position), 0.1f);
 
                 ImGui::Text("Rotation");
-                ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.Rotation),  0.1f);
+                ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.Rotation), 0.1f);
 
                 ImGui::Text("Scale");
-                ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale),  0.1f);
+                ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale), 0.1f);
             }
         }
 
-        if(entity.HasComponent<CameraComponent>())
+        if (entity.HasComponent<CameraComponent>())
         {
             auto& cameraComponent = entity.GetComponent<CameraComponent>();
             SceneCamera& sceneCamera = cameraComponent.Camera;
             bool isCollapsingHeaderOpen = true;
-            if(ImGui::CollapsingHeader("Camera", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Camera", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Text("Projection Type");
-                if(ImGui::BeginCombo("##Projection Type", sceneCamera.GetProjectionType() == Camera::ProjectionType::PERSPECTIVE ? "Perspective" : "Orthographic"))
+                if (ImGui::BeginCombo("##Projection Type",
+                                      sceneCamera.GetProjectionType() == Camera::ProjectionType::PERSPECTIVE
+                                          ? "Perspective"
+                                          : "Orthographic"))
                 {
-                    if(ImGui::Selectable("Perspective", sceneCamera.GetProjectionType() == Camera::ProjectionType::PERSPECTIVE))
+                    if (ImGui::Selectable("Perspective",
+                                          sceneCamera.GetProjectionType() == Camera::ProjectionType::PERSPECTIVE))
                     {
                         sceneCamera.SetProjectionType(Camera::ProjectionType::PERSPECTIVE);
                     }
-                    if(ImGui::Selectable("Orthographic", sceneCamera.GetProjectionType() == Camera::ProjectionType::ORTHOGRAPHIC))
+                    if (ImGui::Selectable("Orthographic",
+                                          sceneCamera.GetProjectionType() == Camera::ProjectionType::ORTHOGRAPHIC))
                     {
                         sceneCamera.SetProjectionType(Camera::ProjectionType::ORTHOGRAPHIC);
                     }
                     ImGui::EndCombo();
                 }
 
-                if(sceneCamera.GetProjectionType() == Camera::ProjectionType::PERSPECTIVE)
+                if (sceneCamera.GetProjectionType() == Camera::ProjectionType::PERSPECTIVE)
                 {
                     ImGui::Text("Field of View");
                     float fov = sceneCamera.GetFOV();
@@ -278,7 +289,7 @@ namespace Coffee {
                     }
                 }
 
-                if(sceneCamera.GetProjectionType() == Camera::ProjectionType::ORTHOGRAPHIC)
+                if (sceneCamera.GetProjectionType() == Camera::ProjectionType::ORTHOGRAPHIC)
                 {
                     ImGui::Text("Orthographic Size");
                     float orthoSize = sceneCamera.GetFOV();
@@ -302,18 +313,35 @@ namespace Coffee {
                     }
                 }
 
-                if(!isCollapsingHeaderOpen)
+                ImGui::Text("Sphere Collider");
+
+                if (entity.HasComponent<SphereColliderComponent>())
+                {
+                    if (ImGui::Button("Remove Sphere Collider"))
+                    {
+                        entity.RemoveComponent<SphereColliderComponent>();
+                    }
+                }
+                else
+                {
+                    if (ImGui::Button("Add Sphere Collider"))
+                    {
+                        entity.AddComponent<SphereColliderComponent>();
+                    }
+                }
+
+                if (!isCollapsingHeaderOpen)
                 {
                     entity.RemoveComponent<CameraComponent>();
                 }
             }
         }
 
-        if(entity.HasComponent<LightComponent>())
+        if (entity.HasComponent<LightComponent>())
         {
             auto& lightComponent = entity.GetComponent<LightComponent>();
             bool isCollapsingHeaderOpen = true;
-            if(ImGui::CollapsingHeader("Light", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Light", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Text("Light Type");
                 ImGui::Combo("##Light Type", (int*)&lightComponent.type, "Directional\0Point\0Spot\0");
@@ -324,71 +352,72 @@ namespace Coffee {
                 ImGui::Text("Intensity");
                 ImGui::DragFloat("##Intensity", &lightComponent.Intensity, 0.1f);
 
-                if(lightComponent.type == LightComponent::Type::PointLight || lightComponent.type == LightComponent::Type::SpotLight)
+                if (lightComponent.type == LightComponent::Type::PointLight ||
+                    lightComponent.type == LightComponent::Type::SpotLight)
                 {
                     ImGui::Text("Range");
                     ImGui::DragFloat("##Range", &lightComponent.Range, 0.1f);
                 }
 
-                if(lightComponent.type == LightComponent::Type::PointLight)
+                if (lightComponent.type == LightComponent::Type::PointLight)
                 {
                     ImGui::Text("Attenuation");
                     ImGui::DragFloat("##Attenuation", &lightComponent.Attenuation, 0.1f);
                 }
-                if(!isCollapsingHeaderOpen)
+                if (!isCollapsingHeaderOpen)
                 {
                     entity.RemoveComponent<LightComponent>();
                 }
             }
         }
 
-        if(entity.HasComponent<MeshComponent>())
+        if (entity.HasComponent<MeshComponent>())
         {
             auto& meshComponent = entity.GetComponent<MeshComponent>();
             bool isCollapsingHeaderOpen = true;
-            if(ImGui::CollapsingHeader("Mesh", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Mesh", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Text("Mesh");
                 ImGui::SameLine();
-                if(ImGui::Button(meshComponent.GetMesh()->GetName().c_str(), {64, 32}))
+                if (ImGui::Button(meshComponent.GetMesh()->GetName().c_str(), {64, 32}))
                 {
                     ImGui::OpenPopup("MeshPopup");
                 }
-                if(ImGui::BeginPopup("MeshPopup"))
+                if (ImGui::BeginPopup("MeshPopup"))
                 {
-                    if(ImGui::MenuItem("Quad"))
+                    if (ImGui::MenuItem("Quad"))
                     {
                         meshComponent.mesh = PrimitiveMesh::CreateQuad();
                     }
-                    if(ImGui::MenuItem("Cube"))
+                    if (ImGui::MenuItem("Cube"))
                     {
                         meshComponent.mesh = PrimitiveMesh::CreateCube();
                     }
-                    if(ImGui::MenuItem("Sphere"))
+                    if (ImGui::MenuItem("Sphere"))
                     {
                         meshComponent.mesh = PrimitiveMesh::CreateSphere();
                     }
-                    if(ImGui::MenuItem("Plane"))
+                    if (ImGui::MenuItem("Plane"))
                     {
                         meshComponent.mesh = PrimitiveMesh::CreatePlane();
                     }
-                    if(ImGui::MenuItem("Cylinder"))
+                    if (ImGui::MenuItem("Cylinder"))
                     {
                         meshComponent.mesh = PrimitiveMesh::CreateCylinder();
                     }
-                    if(ImGui::MenuItem("Cone"))
+                    if (ImGui::MenuItem("Cone"))
                     {
                         meshComponent.mesh = PrimitiveMesh::CreateCone();
                     }
-                    if(ImGui::MenuItem("Torus"))
+                    if (ImGui::MenuItem("Torus"))
                     {
                         meshComponent.mesh = PrimitiveMesh::CreateTorus();
                     }
-                    if(ImGui::MenuItem("Capsule"))
+                    if (ImGui::MenuItem("Capsule"))
                     {
                         meshComponent.mesh = PrimitiveMesh::CreateCapsule();
                     }
-                    if(ImGui::MenuItem("Save Mesh"))
+                    if (ImGui::MenuItem("Save Mesh"))
                     {
                         COFFEE_ERROR("Save Mesh not implemented yet!");
                     }
@@ -396,18 +425,17 @@ namespace Coffee {
                 }
                 ImGui::Checkbox("Draw AABB", &meshComponent.drawAABB);
 
-                if(!isCollapsingHeaderOpen)
+                if (!isCollapsingHeaderOpen)
                 {
                     entity.RemoveComponent<MeshComponent>();
                 }
             }
         }
 
-        if(entity.HasComponent<MaterialComponent>())
+        if (entity.HasComponent<MaterialComponent>())
         {
             // Move this function to another site
-            auto DrawTextureWidget = [&](const std::string& label, Ref<Texture2D>& texture)
-            {
+            auto DrawTextureWidget = [&](const std::string& label, Ref<Texture2D>& texture) {
                 auto& materialComponent = entity.GetComponent<MaterialComponent>();
                 uint32_t textureID = texture ? texture->GetID() : 0;
                 ImGui::ImageButton(label.c_str(), (ImTextureID)textureID, {64, 64});
@@ -415,33 +443,37 @@ namespace Coffee {
                 auto textureImageFormat = [](ImageFormat format) -> std::string {
                     switch (format)
                     {
-                        case ImageFormat::R8: return "R8";
-                        case ImageFormat::RGB8: return "RGB8";
-                        case ImageFormat::RGBA8: return "RGBA8";
-                        case ImageFormat::SRGB8: return "SRGB8";
-                        case ImageFormat::SRGBA8: return "SRGBA8";
-                        case ImageFormat::RGBA32F: return "RGBA32F";
-                        case ImageFormat::DEPTH24STENCIL8: return "DEPTH24STENCIL8";
+                    case ImageFormat::R8:
+                        return "R8";
+                    case ImageFormat::RGB8:
+                        return "RGB8";
+                    case ImageFormat::RGBA8:
+                        return "RGBA8";
+                    case ImageFormat::SRGB8:
+                        return "SRGB8";
+                    case ImageFormat::SRGBA8:
+                        return "SRGBA8";
+                    case ImageFormat::RGBA32F:
+                        return "RGBA32F";
+                    case ImageFormat::DEPTH24STENCIL8:
+                        return "DEPTH24STENCIL8";
                     }
                 };
 
                 if (ImGui::IsItemHovered() and texture)
                 {
-                    ImGui::SetTooltip("Name: %s\nSize: %d x %d\nPath: %s",
-                      texture->GetName().c_str(),
-                      texture->GetWidth(),
-                      texture->GetHeight(),
-                      textureImageFormat(texture->GetImageFormat()).c_str(),
-                      texture->GetPath().c_str()
-                      );
+                    ImGui::SetTooltip("Name: %s\nSize: %d x %d\nPath: %s", texture->GetName().c_str(),
+                                      texture->GetWidth(), texture->GetHeight(),
+                                      textureImageFormat(texture->GetImageFormat()).c_str(),
+                                      texture->GetPath().c_str());
                 }
 
-                if(ImGui::BeginDragDropTarget())
+                if (ImGui::BeginDragDropTarget())
                 {
-                    if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
                     {
                         const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
-                        if(resource->GetType() == ResourceType::Texture2D)
+                        if (resource->GetType() == ResourceType::Texture2D)
                         {
                             const Ref<Texture2D>& t = std::static_pointer_cast<Texture2D>(resource);
                             texture = t;
@@ -449,18 +481,18 @@ namespace Coffee {
                     }
                     ImGui::EndDragDropTarget();
                 }
-                
+
                 ImGui::SameLine();
-                if(ImGui::BeginCombo((label + "texture").c_str(), "", ImGuiComboFlags_NoPreview))
+                if (ImGui::BeginCombo((label + "texture").c_str(), "", ImGuiComboFlags_NoPreview))
                 {
-                    if(ImGui::Selectable("Clear"))
+                    if (ImGui::Selectable("Clear"))
                     {
                         texture = nullptr;
                     }
-                    if(ImGui::Selectable("Open"))
+                    if (ImGui::Selectable("Open"))
                     {
                         std::string path = FileDialog::OpenFile({}).string();
-                        if(!path.empty())
+                        if (!path.empty())
                         {
                             Ref<Texture2D> t = Texture2D::Load(path);
                             texture = t;
@@ -469,31 +501,34 @@ namespace Coffee {
                     ImGui::EndCombo();
                 }
             };
-            auto DrawCustomColorEdit4 = [&](const std::string& label, glm::vec4& color, const glm::vec2& size = {100, 32})
-            {
-                //ImGui::ColorEdit4("##Albedo Color", glm::value_ptr(materialProperties.color), ImGuiColorEditFlags_NoInputs);
-                if(ImGui::ColorButton(label.c_str(), ImVec4(color.r, color.g, color.b, color.a), NULL, {size.x, size.y}))
+            auto DrawCustomColorEdit4 = [&](const std::string& label, glm::vec4& color,
+                                            const glm::vec2& size = {100, 32}) {
+                // ImGui::ColorEdit4("##Albedo Color", glm::value_ptr(materialProperties.color),
+                // ImGuiColorEditFlags_NoInputs);
+                if (ImGui::ColorButton(label.c_str(), ImVec4(color.r, color.g, color.b, color.a), NULL,
+                                       {size.x, size.y}))
                 {
                     ImGui::OpenPopup("AlbedoColorPopup");
                 }
-                if(ImGui::BeginPopup("AlbedoColorPopup"))
+                if (ImGui::BeginPopup("AlbedoColorPopup"))
                 {
-                    ImGui::ColorPicker4((label + "Picker").c_str(), glm::value_ptr(color), ImGuiColorEditFlags_NoInputs);
+                    ImGui::ColorPicker4((label + "Picker").c_str(), glm::value_ptr(color),
+                                        ImGuiColorEditFlags_NoInputs);
                     ImGui::EndPopup();
                 }
             };
 
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
             bool isCollapsingHeaderOpen = true;
-            if(ImGui::CollapsingHeader("Material", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Material", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
                 MaterialProperties& materialProperties = materialComponent.material->GetMaterialProperties();
 
-                if(ImGui::TreeNode("Albedo"))
+                if (ImGui::TreeNode("Albedo"))
                 {
                     ImGui::BeginChild("##Albedo Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    
+
                     ImGui::Text("Color");
                     DrawCustomColorEdit4("##Albedo Color", materialProperties.color);
 
@@ -503,9 +538,10 @@ namespace Coffee {
                     ImGui::EndChild();
                     ImGui::TreePop();
                 }
-                if(ImGui::TreeNode("Metallic"))
+                if (ImGui::TreeNode("Metallic"))
                 {
-                    ImGui::BeginChild("##Metallic Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                    ImGui::BeginChild("##Metallic Child", {0, 0},
+                                      ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
                     ImGui::Text("Metallic");
                     ImGui::SliderFloat("##Metallic Slider", &materialProperties.metallic, 0.0f, 1.0f);
                     ImGui::Text("Texture");
@@ -513,9 +549,10 @@ namespace Coffee {
                     ImGui::EndChild();
                     ImGui::TreePop();
                 }
-                if(ImGui::TreeNode("Roughness"))
+                if (ImGui::TreeNode("Roughness"))
                 {
-                    ImGui::BeginChild("##Roughness Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                    ImGui::BeginChild("##Roughness Child", {0, 0},
+                                      ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
                     ImGui::Text("Roughness");
                     ImGui::SliderFloat("##Roughness Slider", &materialProperties.roughness, 0.1f, 1.0f);
                     ImGui::Text("Texture");
@@ -523,10 +560,11 @@ namespace Coffee {
                     ImGui::EndChild();
                     ImGui::TreePop();
                 }
-                if(ImGui::TreeNode("Emission"))
+                if (ImGui::TreeNode("Emission"))
                 {
-                    ImGui::BeginChild("##Emission Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    //FIXME: Emissive color variable is local and do not affect the materialProperties.emissive!!
+                    ImGui::BeginChild("##Emission Child", {0, 0},
+                                      ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                    // FIXME: Emissive color variable is local and do not affect the materialProperties.emissive!!
                     glm::vec4& emissiveColor = reinterpret_cast<glm::vec4&>(materialProperties.emissive);
                     emissiveColor.a = 1.0f;
                     DrawCustomColorEdit4("Color", emissiveColor);
@@ -535,7 +573,7 @@ namespace Coffee {
                     ImGui::EndChild();
                     ImGui::TreePop();
                 }
-                if(ImGui::TreeNode("Normal Map"))
+                if (ImGui::TreeNode("Normal Map"))
                 {
                     ImGui::BeginChild("##Normal Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
                     ImGui::Text("Texture");
@@ -543,7 +581,7 @@ namespace Coffee {
                     ImGui::EndChild();
                     ImGui::TreePop();
                 }
-                if(ImGui::TreeNode("Ambient Occlusion"))
+                if (ImGui::TreeNode("Ambient Occlusion"))
                 {
                     ImGui::BeginChild("##AO Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
                     ImGui::Text("AO");
@@ -553,8 +591,8 @@ namespace Coffee {
                     ImGui::EndChild();
                     ImGui::TreePop();
                 }
-            
-                if(!isCollapsingHeaderOpen)
+
+                if (!isCollapsingHeaderOpen)
                 {
                     entity.RemoveComponent<MaterialComponent>();
                 }
@@ -576,14 +614,17 @@ namespace Coffee {
                 */
 
                 // Get the exposed variables
-                std::vector<LuaVariable> exposedVariables = LuaBackend::MapVariables(scriptComponent.script.GetPath().string());
+                std::vector<LuaVariable> exposedVariables =
+                    LuaBackend::MapVariables(scriptComponent.script.GetPath().string());
 
                 // print the exposed variables
                 for (auto& variable : exposedVariables)
                 {
                     auto it = LuaBackend::scriptEnvironments.find(scriptComponent.script.GetPath().string());
-                    if (it == LuaBackend::scriptEnvironments.end()) {
-                        COFFEE_CORE_ERROR("Script environment for {0} not found", scriptComponent.script.GetPath().string());
+                    if (it == LuaBackend::scriptEnvironments.end())
+                    {
+                        COFFEE_CORE_ERROR("Script environment for {0} not found",
+                                          scriptComponent.script.GetPath().string());
                         continue;
                     }
 
@@ -629,6 +670,665 @@ namespace Coffee {
                 }
             }
         }
+        if (entity.HasComponent<RigidbodyComponent>())
+        {
+            auto& rigidbodyComponent = entity.GetComponent<RigidbodyComponent>();
+
+            if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Static checkbox
+                if (ImGui::Checkbox("Static", &rigidbodyComponent.cfg.IsStatic))
+                {
+                    // Si el objeto es est醫ico, desactivar la gravedad y otras interacciones f韘icas si es necesario
+                    if (rigidbodyComponent.cfg.IsStatic)
+                        rigidbodyComponent.cfg.UseGravity =
+                            false; // Opcional: si es est醫ico, se puede desactivar la gravedad
+                }
+
+                if (ImGui::Checkbox("Kinematic", &rigidbodyComponent.cfg.IsKinematic))
+                {
+                    // Si el objeto es Kinematic, desactivar la gravedad y otras interacciones f韘icas si es necesario
+                    if (rigidbodyComponent.cfg.IsKinematic)
+                    {
+                        rigidbodyComponent.cfg.UseGravity = false; // Desactivar la gravedad si es kinematic
+                        rigidbodyComponent.cfg.Velocity =
+                            glm::vec3(0.0f, 0.0f, 0.0f); // Asegurarse que la velocidad se resetea
+                    }
+                }
+
+                // Use Gravity checkbox
+                if (!rigidbodyComponent.cfg.IsStatic && !rigidbodyComponent.cfg.IsKinematic && !rigidbodyComponent.cfg.FreezeY)
+                {
+                    ImGui::Checkbox("Use Gravity", &rigidbodyComponent.cfg.UseGravity);
+                }
+
+                // Mass
+                ImGui::Text("Mass");
+                ImGui::DragFloat("##Mass", &rigidbodyComponent.cfg.shapeConfig.mass, 0.1f, 0.001f, 0.0f);
+                // Drag
+                ImGui::Text("Linear Drag");
+                ImGui::DragFloat("##Linear Drag", &rigidbodyComponent.cfg.LinearDrag, 0.1f, 0.001f, 10.0f,
+                                 "Linear Drag: %.3f");
+                // Modify Angular Drag
+                ImGui::Text("Angular Drag");
+                ImGui::DragFloat("##Angular Drag", &rigidbodyComponent.cfg.AngularDrag, 0.1f, 0.001f, 10.0f,
+                                 "Angular Drag: %.3f");
+
+                // Velocity
+                ImGui::Text("Velocity");
+                ImGui::DragFloat3("##Velocity", glm::value_ptr(rigidbodyComponent.cfg.Velocity), 0.1f);
+                COFFEE_CORE_INFO("Velocity: (%f, %f, %f)", rigidbodyComponent.cfg.Velocity.x, rigidbodyComponent.cfg.Velocity.y,
+                                 rigidbodyComponent.cfg.Velocity.z); 
+                // Acceleration
+                ImGui::Text("Acceleration");
+                ImGui::DragFloat3("##Acceleration", glm::value_ptr(rigidbodyComponent.cfg.Acceleration), 0.1f);
+
+                if (ImGui::CollapsingHeader("Constraints"))
+                {
+                    // Secci髇 para Freeze de posici髇
+                    ImGui::Text("Position");
+                    ImGui::Indent();
+                    ImGui::Checkbox("Freeze X", &rigidbodyComponent.cfg.FreezeX);
+                    ImGui::Checkbox("Freeze Y", &rigidbodyComponent.cfg.FreezeY);
+                    ImGui::Checkbox("Freeze Z", &rigidbodyComponent.cfg.FreezeZ);
+                    ImGui::Unindent();
+
+                    // Secci髇 para Freeze de rotaci髇
+                    ImGui::Text("Rotation");
+                    ImGui::Indent();
+                    ImGui::Checkbox("Freeze Rotation X", &rigidbodyComponent.cfg.FreezeRotX);
+                    ImGui::Checkbox("Freeze Rotation Y", &rigidbodyComponent.cfg.FreezeRotY);
+                    ImGui::Checkbox("Freeze Rotation Z", &rigidbodyComponent.cfg.FreezeRotZ);
+                    ImGui::Unindent();
+                }
+            }
+        }
+        if (entity.HasComponent<BoxColliderComponent>())
+        {
+            auto& boxCollider = entity.GetComponent<BoxColliderComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("BoxCollider"); // Unic ID
+            if (ImGui::CollapsingHeader("Box Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // size
+                ImGui::Text("Size");
+                ImGui::DragFloat3("##BoxSize", glm::value_ptr(boxCollider.Size), 0.1f, 0.0f, 100.0f);
+
+                // offset
+                ImGui::Text("Offset");
+                ImGui::DragFloat3("##BoxOffset", glm::value_ptr(boxCollider.Offset), 0.1f);
+
+                // is trigger
+                ImGui::Checkbox("Is Trigger", &boxCollider.IsTrigger);
+
+                // material
+                ImGui::Text("Material");
+                // Here you could add more properties related to the collider's material
+                // For example: material properties, friction, restitution, etc.
+                ImGui::Combo("Material", &boxCollider.MaterialIndex, "None\0Physic Material\0\0");
+
+                // Layer Overrides
+                if (ImGui::TreeNode("Layer Overrides"))
+                {
+                    // Add properties for layer overrides here
+                    ImGui::TreePop();
+                }
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<BoxColliderComponent>();
+            }
+            ImGui::PopID(); // end Unic ID
+        }
+        if (entity.HasComponent<SphereColliderComponent>())
+        {
+            auto& sphereCollider = entity.GetComponent<SphereColliderComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("SphereCollider"); // Unic ID
+            if (ImGui::CollapsingHeader("Sphere Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // center
+                ImGui::Text("Center");
+                ImGui::DragFloat3("##SphereCenter", glm::value_ptr(sphereCollider.Center), 0.1f, 0.0f, 100.0f);
+
+                // radius
+                ImGui::Text("Radius");
+                ImGui::DragFloat("##SphereRadius", &sphereCollider.Radius, 0.1f, 0.0f, 100.0f);
+
+                // is trigger
+                ImGui::Checkbox("Is Trigger", &sphereCollider.IsTrigger);
+
+                // provides contacts
+                ImGui::Checkbox("Provides Contacts", &sphereCollider.ProvidesContacts);
+
+                // material
+                ImGui::Text("Material");
+                ImGui::Combo("Material", &sphereCollider.MaterialIndex, "None\0Physic Material\0\0");
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<SphereColliderComponent>();
+            }
+            ImGui::PopID(); // end Unic ID
+        }
+        if (entity.HasComponent<CapsuleColliderComponent>())
+        {
+            auto& capsuleCollider = entity.GetComponent<CapsuleColliderComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("CapsuleCollider"); // Unic ID
+            if (ImGui::CollapsingHeader("Capsule Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // center
+                ImGui::Text("Center");
+                ImGui::DragFloat3("##CapsuleCenter", glm::value_ptr(capsuleCollider.Center), 0.1f, 0.0f, 100.0f);
+
+                // radius
+                ImGui::Text("Radius");
+                ImGui::DragFloat("##CapsuleRadius", &capsuleCollider.Radius, 0.1f, 0.0f, 100.0f);
+
+                // height
+                ImGui::Text("Height");
+                ImGui::DragFloat("##CapsuleHeight", &capsuleCollider.Height, 0.1f, 0.0f, 100.0f);
+
+                // direction
+                ImGui::Text("Direction");
+                ImGui::Combo("##CapsuleDirection", &capsuleCollider.DirectionIndex, "X-Axis\0Y-Axis\0Z-Axis\0\0");
+
+                // is trigger
+                ImGui::Checkbox("Is Trigger", &capsuleCollider.IsTrigger);
+
+                // provides contacts
+                ImGui::Checkbox("Provides Contacts", &capsuleCollider.ProvidesContacts);
+
+                // material
+                ImGui::Text("Material");
+                ImGui::Combo("Material", &capsuleCollider.MaterialIndex, "None\0Physic Material\0\0");
+
+                // Layer Overrides
+                if (ImGui::TreeNode("Layer Overrides"))
+                {
+                    // Add properties for layer overrides here
+                    ImGui::TreePop();
+                }
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<CapsuleColliderComponent>();
+            }
+            ImGui::PopID(); // end Unic ID
+        }
+        if (entity.HasComponent<CylinderColliderComponent>())
+        {
+            auto& cylinderCollider = entity.GetComponent<CylinderColliderComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("CylinderCollider"); // Unic ID
+            if (ImGui::CollapsingHeader("Cylinder Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // center
+                ImGui::Text("Center");
+                ImGui::DragFloat3("##CylinderCenter", glm::value_ptr(cylinderCollider.Center), 0.1f, 0.0f, 100.0f);
+
+                // radius
+                ImGui::Text("Radius");
+                ImGui::DragFloat("##CylinderRadius", &cylinderCollider.Radius, 0.1f, 0.0f, 100.0f);
+
+                // height
+                ImGui::Text("Height");
+                ImGui::DragFloat("##CylinderHeight", &cylinderCollider.Height, 0.1f, 0.0f, 100.0f);
+
+                // direction
+                ImGui::Text("Direction");
+                ImGui::Combo("##CylinderDirection", &cylinderCollider.DirectionIndex, "X-Axis\0Y-Axis\0Z-Axis\0\0");
+
+                // is trigger
+                ImGui::Checkbox("Is Trigger", &cylinderCollider.IsTrigger);
+
+                // provides contacts
+                ImGui::Checkbox("Provides Contacts", &cylinderCollider.ProvidesContacts);
+
+                // material
+                ImGui::Text("Material");
+                ImGui::Combo("Material", &cylinderCollider.MaterialIndex, "None\0Physic Material\0\0");
+
+                // Layer Overrides
+                if (ImGui::TreeNode("Layer Overrides"))
+                {
+                    // Add properties for layer overrides here
+                    ImGui::TreePop();
+                }
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<CylinderColliderComponent>();
+            }
+            ImGui::PopID(); // end Unic ID
+        }
+        if (entity.HasComponent<PlaneColliderComponent>())
+        {
+            auto& planeCollider = entity.GetComponent<PlaneColliderComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("PlaneCollider"); // Unic ID
+            if (ImGui::CollapsingHeader("Plane Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // size
+                ImGui::Text("Size");
+                ImGui::DragFloat3("##PlaneSize", glm::value_ptr(planeCollider.Size), 0.1f, 0.0f, 100.0f);
+
+                // offset
+                ImGui::Text("Offset");
+                ImGui::DragFloat3("##PlaneOffset", glm::value_ptr(planeCollider.Offset), 0.1f);
+
+                // is trigger
+                ImGui::Checkbox("Is Trigger", &planeCollider.IsTrigger);
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<PlaneColliderComponent>();
+            }
+            ImGui::PopID(); // end Unic ID
+        }
+        if (entity.HasComponent<MeshColliderComponent>())
+        {
+            auto& meshCollider = entity.GetComponent<MeshColliderComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("MeshCollider"); // Unic ID
+            if (ImGui::CollapsingHeader("Mesh Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // size
+                ImGui::Text("Size");
+                ImGui::DragFloat3("##MeshSize", glm::value_ptr(meshCollider.Size), 0.1f, 0.0f, 100.0f);
+
+                // offset
+                ImGui::Text("Offset");
+                ImGui::DragFloat3("##MeshOffset", glm::value_ptr(meshCollider.Offset), 0.1f);
+
+                // is trigger
+                ImGui::Checkbox("Is Trigger", &meshCollider.IsTrigger);
+
+                // provides contacts
+                ImGui::Checkbox("Provides Contacts", &meshCollider.ProvidesContacts);
+
+                // cooking options
+                ImGui::Text("Cooking Options");
+                ImGui::Combo("##CookingOptions", &meshCollider.CookingOptionsIndex, "None\0Everything\0\0");
+
+                // material
+                ImGui::Text("Material");
+                ImGui::Combo("Material", &meshCollider.MaterialIndex, "None\0Physic Material\0\0");
+
+                // mesh
+                ImGui::Text("Mesh");
+                ImGui::Combo("Mesh", &meshCollider.MeshIndex, "None\0Mesh1\0Mesh2\0\0");
+
+                // Layer Overrides
+                if (ImGui::TreeNode("Layer Overrides"))
+                {
+                    // Add properties for layer overrides here
+                    ImGui::TreePop();
+                }
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<MeshColliderComponent>();
+            }
+            ImGui::PopID(); // end Unic ID
+        }
+
+        // Joint
+        if (entity.HasComponent<FixedJointComponent>())
+        {
+            auto& fixedJoint = entity.GetComponent<FixedJointComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("FixedJoint"); // Unique ID
+            if (ImGui::CollapsingHeader("Fixed Joint", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Connected Body Field
+                ImGui::Text("Connected Body");
+
+                // 可拖拽目标区域
+                if (ImGui::Button(fixedJoint.ConnectedBody[0] != '\0' ? fixedJoint.ConnectedBody : "None (Rigidbody)",
+                                  ImVec2(200, 20)))
+                {
+                    // 处理按钮点击事件（例如清除绑定）
+                    strcpy(fixedJoint.ConnectedBody, ""); // 清空绑定
+                }
+
+                // 接收拖拽目标
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY"))
+                    {
+                        const char* droppedObjectName = (const char*)payload->Data;
+                        strncpy(fixedJoint.ConnectedBody, droppedObjectName, sizeof(fixedJoint.ConnectedBody) - 1);
+                        fixedJoint.ConnectedBody[sizeof(fixedJoint.ConnectedBody) - 1] = '\0'; // 确保字符串以 null 结尾
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                // Break Force
+                ImGui::Text("Break Force");
+                ImGui::DragFloat("##BreakForce", &fixedJoint.BreakForce, 1.0f, 0.0f, FLT_MAX);
+
+                // Break Torque
+                ImGui::Text("Break Torque");
+                ImGui::DragFloat("##BreakTorque", &fixedJoint.BreakTorque, 1.0f, 0.0f, FLT_MAX);
+
+                // Enable Collision
+                ImGui::Checkbox("Enable Collision", &fixedJoint.EnableCollision);
+
+                // Enable Preprocessing
+                ImGui::Checkbox("Enable Preprocessing", &fixedJoint.EnablePreprocessing);
+
+                // Mass Scale
+                ImGui::Text("Mass Scale");
+                ImGui::DragFloat("##MassScale", &fixedJoint.MassScale, 0.1f, 0.0f, 10.0f);
+
+                // Connected Mass Scale
+                ImGui::Text("Connected Mass Scale");
+                ImGui::DragFloat("##ConnectedMassScale", &fixedJoint.ConnectedMassScale, 0.1f, 0.0f, 10.0f);
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<FixedJointComponent>();
+            }
+            ImGui::PopID(); // End Unique ID
+        }
+
+        if (entity.HasComponent<SpringJointComponent>())
+        {
+            auto& springJoint = entity.GetComponent<SpringJointComponent>();
+            bool isCollapsingHeaderOpen = true;
+            ImGui::PushID("SpringJoint"); // Unique ID
+            if (ImGui::CollapsingHeader("Spring Joint", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Connected Body Field
+                ImGui::Text("Connected Body");
+
+                // 可拖拽目标区域
+                if (ImGui::Button(springJoint.ConnectedBody[0] != '\0' ? springJoint.ConnectedBody : "None (Rigidbody)",
+                                  ImVec2(200, 20)))
+                {
+                    // 处理按钮点击事件（例如清除绑定）
+                    strcpy(springJoint.ConnectedBody, ""); // 清空绑定
+                }
+
+                // 接收拖拽目标
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY"))
+                    {
+                        const char* droppedObjectName = (const char*)payload->Data;
+                        strncpy(springJoint.ConnectedBody, droppedObjectName, sizeof(springJoint.ConnectedBody) - 1);
+                        springJoint.ConnectedBody[sizeof(springJoint.ConnectedBody) - 1] =
+                            '\0'; // 确保字符串以 null 结尾
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                // Anchor
+                ImGui::Text("Anchor");
+                ImGui::DragFloat3("##Anchor", (float*)&springJoint.Anchor, 0.1f);
+
+                // Auto Configure Connected Anchor
+                ImGui::Checkbox("Auto Configure Connected Anchor", &springJoint.AutoConfigureConnectedAnchor);
+
+                // Connected Anchor
+                if (!springJoint.AutoConfigureConnectedAnchor)
+                {
+                    ImGui::Text("Connected Anchor");
+                    ImGui::DragFloat3("##ConnectedAnchor", (float*)&springJoint.ConnectedAnchor, 0.1f);
+                }
+
+                // Spring
+                ImGui::Text("Spring");
+                ImGui::DragFloat("##Spring", &springJoint.Spring, 1.0f, 0.0f, FLT_MAX);
+
+                // Damper
+                ImGui::Text("Damper");
+                ImGui::DragFloat("##Damper", &springJoint.Damper, 1.0f, 0.0f, FLT_MAX);
+
+                // Min Distance
+                ImGui::Text("Min Distance");
+                ImGui::DragFloat("##MinDistance", &springJoint.MinDistance, 0.1f, 0.0f, FLT_MAX);
+
+                // Max Distance
+                ImGui::Text("Max Distance");
+                ImGui::DragFloat("##MaxDistance", &springJoint.MaxDistance, 0.1f, 0.0f, FLT_MAX);
+
+                // Tolerance
+                ImGui::Text("Tolerance");
+                ImGui::DragFloat("##Tolerance", &springJoint.Tolerance, 0.001f, 0.0f, 1.0f);
+
+                // Break Force
+                ImGui::Text("Break Force");
+                ImGui::DragFloat("##BreakForce", &springJoint.BreakForce, 1.0f, 0.0f, FLT_MAX);
+
+                // Break Torque
+                ImGui::Text("Break Torque");
+                ImGui::DragFloat("##BreakTorque", &springJoint.BreakTorque, 1.0f, 0.0f, FLT_MAX);
+
+                // Enable Collision
+                ImGui::Checkbox("Enable Collision", &springJoint.EnableCollision);
+
+                // Enable Preprocessing
+                ImGui::Checkbox("Enable Preprocessing", &springJoint.EnablePreprocessing);
+
+                // Mass Scale
+                ImGui::Text("Mass Scale");
+                ImGui::DragFloat("##MassScale", &springJoint.MassScale, 0.1f, 0.0f, 10.0f);
+
+                // Connected Mass Scale
+                ImGui::Text("Connected Mass Scale");
+                ImGui::DragFloat("##ConnectedMassScale", &springJoint.ConnectedMassScale, 0.1f, 0.0f, 10.0f);
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<SpringJointComponent>();
+            }
+            ImGui::PopID();
+        }
+
+
+        if (entity.HasComponent<DistanceJoint2DComponent>())
+        {
+            auto& distanceJoint = entity.GetComponent<DistanceJoint2DComponent>();
+
+            bool isCollapsingHeaderOpen = true;
+            ImGui::PushID("DistanceJoint2D"); // Unique ID
+            if (ImGui::CollapsingHeader("Distance Joint 2D", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Connected Rigidbody Field
+                ImGui::Text("Connected Rigidbody");
+
+                // Draggable target area
+                if (ImGui::Button(distanceJoint.ConnectedRigidbody[0] != '\0' ? distanceJoint.ConnectedRigidbody
+                                                                              : "None (Rigidbody 2D)",
+                                  ImVec2(200, 20)))
+                {
+                    // Handle button click event (e.g., clear binding)
+                    strcpy(distanceJoint.ConnectedRigidbody, ""); // Clear binding
+                }
+
+                // Accept drag and drop target
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY2D"))
+                    {
+                        const char* droppedObjectName = (const char*)payload->Data;
+                        strncpy(distanceJoint.ConnectedRigidbody, droppedObjectName,
+                                sizeof(distanceJoint.ConnectedRigidbody) - 1);
+                        distanceJoint.ConnectedRigidbody[sizeof(distanceJoint.ConnectedRigidbody) - 1] =
+                            '\0'; // Ensure string is null-terminated
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                // Enable Collision
+                ImGui::Checkbox("Enable Collision", &distanceJoint.EnableCollision);
+
+                // Auto Configure Connected Anchor
+                ImGui::Checkbox("Auto Configure Connected Anchor", &distanceJoint.AutoConfigureConnectedAnchor);
+
+                // Anchor
+                ImGui::Text("Anchor");
+                ImGui::DragFloat2("##Anchor", (float*)&distanceJoint.Anchor, 0.1f);
+
+                // Connected Anchor
+                ImGui::Text("Connected Anchor");
+                ImGui::DragFloat2("##ConnectedAnchor", (float*)&distanceJoint.ConnectedAnchor, 0.1f);
+
+                // Auto Configure Distance
+                ImGui::Checkbox("Auto Configure Distance", &distanceJoint.AutoConfigureDistance);
+
+                // Distance
+                ImGui::Text("Distance");
+                ImGui::DragFloat("##Distance", &distanceJoint.Distance, 0.1f, 0.0f, FLT_MAX);
+
+                // Max Distance Only
+                ImGui::Checkbox("Max Distance Only", &distanceJoint.MaxDistanceOnly);
+
+                // Break Action
+                ImGui::Text("Break Action");
+                // Assuming there are predefined break actions to choose from
+                static const char* breakActions[] = {"None", "Destroy", "Disable"};
+                static int selectedAction = 0; // Default selection
+                ImGui::Combo("##BreakAction", &selectedAction, breakActions, IM_ARRAYSIZE(breakActions));
+                distanceJoint.BreakAction = selectedAction; // Save selected break action
+
+                // Break Force
+                ImGui::Text("Break Force");
+                ImGui::DragFloat("##BreakForce", &distanceJoint.BreakForce, 1.0f, 0.0f, FLT_MAX);
+            }
+
+            // Remove component if header is not open
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<DistanceJoint2DComponent>();
+            }
+
+            ImGui::PopID();
+        }
+
+
+        if (entity.HasComponent<SliderJoint2DComponent>())
+        {
+            auto& sliderJoint = entity.GetComponent<SliderJoint2DComponent>();
+
+            bool isCollapsingHeaderOpen = true;
+            ImGui::PushID("SliderJoint2D"); // Unique ID
+            if (ImGui::CollapsingHeader("Slider Joint 2D", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Connected Rigidbody Field
+                ImGui::Text("Connected Rigidbody");
+
+                // Draggable target area
+                if (ImGui::Button(sliderJoint.ConnectedRigidbody[0] != '\0' ? sliderJoint.ConnectedRigidbody
+                                                                            : "None (Rigidbody 2D)",
+                                  ImVec2(200, 20)))
+                {
+                    // Handle button click event (e.g., clear binding)
+                    strcpy(sliderJoint.ConnectedRigidbody, ""); // Clear binding
+                }
+
+                // Accept drag and drop target
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY2D"))
+                    {
+                        const char* droppedObjectName = (const char*)payload->Data;
+                        strncpy(sliderJoint.ConnectedRigidbody, droppedObjectName,
+                                sizeof(sliderJoint.ConnectedRigidbody) - 1);
+                        sliderJoint.ConnectedRigidbody[sizeof(sliderJoint.ConnectedRigidbody) - 1] =
+                            '\0'; // Ensure string is null-terminated
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                // Enable Collision
+                ImGui::Checkbox("Enable Collision", &sliderJoint.EnableCollision);
+
+                // Anchor
+                ImGui::Text("Anchor");
+                ImGui::DragFloat2("##Anchor", (float*)&sliderJoint.Anchor, 0.1f);
+
+                // Connected Anchor
+                ImGui::Text("Connected Anchor");
+                ImGui::DragFloat2("##ConnectedAnchor", (float*)&sliderJoint.ConnectedAnchor, 0.1f);
+
+                // Angle
+                ImGui::Text("Angle");
+                ImGui::DragFloat("##Angle", &sliderJoint.Angle, 0.1f, -360.0f, 360.0f);
+
+                // Use Motor
+                ImGui::Checkbox("Use Motor", &sliderJoint.UseMotor);
+
+                if (sliderJoint.UseMotor)
+                {
+                    // Motor Speed
+                    ImGui::Text("Motor Speed");
+                    ImGui::DragFloat("##MotorSpeed", &sliderJoint.MotorSpeed, 0.1f, -FLT_MAX, FLT_MAX);
+
+                    // Max Motor Force
+                    ImGui::Text("Max Motor Force");
+                    ImGui::DragFloat("##MaxMotorForce", &sliderJoint.MaxMotorForce, 0.1f, 0.0f, FLT_MAX);
+                }
+
+                // Use Limits
+                ImGui::Checkbox("Use Limits", &sliderJoint.UseLimits);
+
+                if (sliderJoint.UseLimits)
+                {
+                    // Min Translation
+                    ImGui::Text("Min Translation");
+                    ImGui::DragFloat("##MinTranslation", &sliderJoint.MinTranslation, 0.1f, -FLT_MAX, FLT_MAX);
+
+                    // Max Translation
+                    ImGui::Text("Max Translation");
+                    ImGui::DragFloat("##MaxTranslation", &sliderJoint.MaxTranslation, 0.1f, -FLT_MAX, FLT_MAX);
+                }
+
+                // Break Action
+                ImGui::Text("Break Action");
+                static const char* breakActions[] = {"None", "Destroy", "Disable"};
+                static int selectedAction = 0; // Default selection
+                ImGui::Combo("##BreakAction", &selectedAction, breakActions, IM_ARRAYSIZE(breakActions));
+                sliderJoint.BreakAction = selectedAction; // Save selected break action
+
+                // Break Force
+                ImGui::Text("Break Force");
+                ImGui::DragFloat("##BreakForce", &sliderJoint.BreakForce, 1.0f, 0.0f, FLT_MAX);
+
+                // Break Torque
+                ImGui::Text("Break Torque");
+                ImGui::DragFloat("##BreakTorque", &sliderJoint.BreakTorque, 1.0f, 0.0f, FLT_MAX);
+            }
+
+            // Remove component if header is not open
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<SliderJoint2DComponent>();
+            }
+
+            ImGui::PopID();
+        }
+
+
+
 
         ImGui::Separator();
 
@@ -640,17 +1340,37 @@ namespace Coffee {
         float cursorPosX = (availableWidth - buttonWidth) * 0.5f;
         ImGui::SetCursorPosX(cursorPosX);
 
-        if(ImGui::Button("Add Component", {buttonWidth, buttonHeight}))
+        if (ImGui::Button("Add Component", {buttonWidth, buttonHeight}))
         {
             ImGui::OpenPopup("Add Component...");
         }
 
-        if(ImGui::BeginPopupModal("Add Component..."))
+        if (ImGui::BeginPopupModal("Add Component..."))
         {
             static char buffer[256] = "";
-            ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
+            ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component" };
+            std::string items[] = {
+                "Tag Component",
+                "Transform Component",
+                "Mesh Component",
+                "Material Component",
+                "Light Component",
+                "Camera Component",
+                "Lua Script Component",
+                "Rigidbody Component",
+                "BoxCollider Component",
+                "SphereCollider Component",
+                "CapsuleCollider Component",
+                "CylinderCollider Component",
+                "PlaneCollider Component",
+                "MeshCollider Component",
+                "Distance2DJoint Component",
+                "FixedJoint Component",
+                "SpringJoint Component",
+                "SlideJoint Component",
+                "AxisJoint Component",
+                "CustomJoint Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -669,56 +1389,140 @@ namespace Coffee {
             }
 
             ImGui::Text("Description");
-            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur.");
+            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer "
+                               "scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi "
+                               "lacinia elit ornare, eu semper risus consectetur.");
 
             if (ImGui::Button("Cancel"))
             {
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
-            if(ImGui::Button("Add Component"))
+            if (ImGui::Button("Add Component"))
             {
-                if(items[item_current] == "Tag Component")
+                if (items[item_current] == "Tag Component")
                 {
-                    if(!entity.HasComponent<TagComponent>())
+                    if (!entity.HasComponent<TagComponent>())
                         entity.AddComponent<TagComponent>();
                     ImGui::CloseCurrentPopup();
                 }
-                else if(items[item_current] == "Transform Component")
+                else if (items[item_current] == "Transform Component")
                 {
-                    if(!entity.HasComponent<TransformComponent>())
+                    if (!entity.HasComponent<TransformComponent>())
                         entity.AddComponent<TransformComponent>();
                     ImGui::CloseCurrentPopup();
                 }
-                else if(items[item_current] == "Mesh Component")
+                else if (items[item_current] == "Mesh Component")
                 {
-                    if(!entity.HasComponent<MeshComponent>())
+                    if (!entity.HasComponent<MeshComponent>())
                         entity.AddComponent<MeshComponent>();
                     ImGui::CloseCurrentPopup();
                 }
-                else if(items[item_current] == "Material Component")
+                else if (items[item_current] == "Material Component")
                 {
-                    if(!entity.HasComponent<MaterialComponent>())
+                    if (!entity.HasComponent<MaterialComponent>())
                         entity.AddComponent<MaterialComponent>();
                     ImGui::CloseCurrentPopup();
                 }
-                else if(items[item_current] == "Light Component")
+                else if (items[item_current] == "Light Component")
                 {
-                    if(!entity.HasComponent<LightComponent>())
+                    if (!entity.HasComponent<LightComponent>())
                         entity.AddComponent<LightComponent>();
                     ImGui::CloseCurrentPopup();
                 }
-                else if(items[item_current] == "Camera Component")
+                else if (items[item_current] == "Camera Component")
                 {
-                    if(!entity.HasComponent<CameraComponent>())
+                    if (!entity.HasComponent<CameraComponent>())
                         entity.AddComponent<CameraComponent>();
                     ImGui::CloseCurrentPopup();
                 }
-                else if(items[item_current] == "Script Component")
+                else if (items[item_current] == "Script Component")
                 {
-                    if(!entity.HasComponent<ScriptComponent>())
-                        //entity.AddComponent<ScriptComponent>();
-                        // TODO add script component
+                    if (!entity.HasComponent<ScriptComponent>())
+                        // entity.AddComponent<ScriptComponent>();
+                        //  TODO add script component
+                        ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Rigidbody Component")
+                {
+                    if (!entity.HasComponent<RigidbodyComponent>())
+                    {
+                        auto& t = entity.GetComponent<TransformComponent>();
+                        entity.AddComponent<RigidbodyComponent>(t);
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                // Collider
+                else if (items[item_current] == "BoxCollider Component")
+                {
+                    if (!entity.HasComponent<BoxColliderComponent>())
+                        entity.AddComponent<BoxColliderComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "SphereCollider Component")
+                {
+                    if (!entity.HasComponent<SphereColliderComponent>())
+                        entity.AddComponent<SphereColliderComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "CapsuleCollider Component")
+                {
+                    if (!entity.HasComponent<CapsuleColliderComponent>())
+                        entity.AddComponent<CapsuleColliderComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "CylinderCollider Component")
+                {
+                    if (!entity.HasComponent<CylinderColliderComponent>())
+                        entity.AddComponent<CylinderColliderComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "PlaneCollider Component")
+                {
+                    if (!entity.HasComponent<PlaneColliderComponent>())
+                        entity.AddComponent<PlaneColliderComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "MeshCollider Component")
+                {
+                    if (!entity.HasComponent<MeshColliderComponent>())
+                        entity.AddComponent<MeshColliderComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Distance2DJoint Component")
+                {
+                    if (!entity.HasComponent<DistanceJoint2DComponent>())
+                        entity.AddComponent<DistanceJoint2DComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "FixedJoint Component")
+                {
+                    if (!entity.HasComponent<FixedJointComponent>())
+                        entity.AddComponent<FixedJointComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "SpringJoint Component")
+                {
+                    if (!entity.HasComponent<SpringJointComponent>())
+                        entity.AddComponent<SpringJointComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "SlideJoint Component")
+                {
+                    if (!entity.HasComponent<SliderJoint2DComponent>())
+                        entity.AddComponent<SliderJoint2DComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "AxisJoint Component")
+                {
+                    if (!entity.HasComponent<SpringJointComponent>())
+                        entity.AddComponent<SpringJointComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "CustomJoint Component")
+                {
+                    if (!entity.HasComponent<SpringJointComponent>())
+                        entity.AddComponent<SpringJointComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else
@@ -730,7 +1534,6 @@ namespace Coffee {
             ImGui::EndPopup();
         }
     }
-
 
     // UI functions for scenetree menus
     void SceneTreePanel::ShowCreateEntityMenu()
@@ -808,4 +1611,4 @@ namespace Coffee {
         }
     }
 
-}
+} // namespace Coffee

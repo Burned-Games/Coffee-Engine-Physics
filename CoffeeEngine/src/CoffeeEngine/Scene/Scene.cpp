@@ -18,6 +18,8 @@
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
+#include <CoffeeEngine/Physics/Vehicle.h>
+#include "CoffeeEngine/Physics/PhysicsEngine.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -31,6 +33,8 @@
 #include <fstream>
 
 namespace Coffee {
+
+    std::vector<entt::entity> Scene::m_RigidbodyEntities; 
 
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
@@ -162,6 +166,8 @@ namespace Coffee {
         ZoneScoped;
 
         m_SceneTree->Update();
+     /*   Vehicle vehicle;
+        vehicle.update(dt);*/
 
         Camera* camera = nullptr;
         glm::mat4 cameraTransform;
@@ -248,7 +254,19 @@ namespace Coffee {
 
             scriptComponent.script.OnUpdate();
         }
+        // Get all entities with RigidbodyComponent
+        auto rigidbodyView = m_Registry.view<RigidbodyComponent, TransformComponent>();
 
+        // Loop through each entity with the specified components
+        for (auto& entity : rigidbodyView)
+        {
+            auto& rigidbodyComponent = rigidbodyView.get<RigidbodyComponent>(entity);
+            auto& transformComponent = rigidbodyView.get<TransformComponent>(entity);
+            
+            m_RigidbodyEntities.push_back(entity); 
+            PhysicsEngine::ApplyRigidbody(rigidbodyComponent, transformComponent, dt);
+            
+        }
         Renderer::EndScene();
     }
 
@@ -284,7 +302,8 @@ namespace Coffee {
             .get<CameraComponent>(archive)
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive);
+            .get<LightComponent>(archive)
+            .get<RigidbodyComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -318,7 +337,8 @@ namespace Coffee {
             .get<CameraComponent>(archive)
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive);
+            .get<LightComponent>(archive)
+            .get<RigidbodyComponent>(archive);
         
         scene->m_FilePath = path;
 

@@ -37,6 +37,7 @@
 
 #include <IconsLucide.h>
 
+
 namespace Coffee {
 
     static RendererStats s_RendererData;
@@ -71,10 +72,12 @@ namespace Coffee {
             case SceneState::Edit:
                 m_EditorCamera.OnUpdate(dt);
                 m_ActiveScene->OnUpdateEditor(m_EditorCamera, dt);
+                vehicle.update(dt);
                 OnOverlayRender();
             break;
             case SceneState::Play:
                 m_ActiveScene->OnUpdateRuntime(dt);
+                //vehicle.update(dt);
             break;
 
         }
@@ -87,6 +90,9 @@ namespace Coffee {
         m_EditorCamera.OnEvent(event);
 
         m_ActiveScene->OnEvent(event);
+
+
+        vehicle.OnEvent(event); 
 
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<KeyPressedEvent>(COFFEE_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
@@ -548,6 +554,7 @@ namespace Coffee {
 
         if(selectedEntity)
         {
+            vehicle.setEntity(selectedEntity); 
             auto& transformComponent = selectedEntity.GetComponent<TransformComponent>();
             if (selectedEntity.HasComponent<MeshComponent>()) {
                 auto& meshComponent = selectedEntity.GetComponent<MeshComponent>();
