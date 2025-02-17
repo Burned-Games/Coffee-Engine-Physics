@@ -1,0 +1,126 @@
+{
+    "value0": 2,
+    "value1": 2,
+    "value2": 0,
+    "value3": 1,
+    "value4": 2,
+    "value5": 0,
+    "value6": {
+        "Tag": "Camera"
+    },
+    "value7": 1,
+    "value8": {
+        "Tag": "MissingMesh.glb"
+    },
+    "value9": 2,
+    "value10": 0,
+    "value11": {
+        "Position": {
+            "x": -2.9802322387695315e-8,
+            "y": 7.6298508644104,
+            "z": 23.750593185424806
+        },
+        "Rotation": {
+            "x": -24.234899520874025,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value12": 1,
+    "value13": {
+        "Position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value14": 2,
+    "value15": 0,
+    "value16": {
+        "Parent": 4294967295,
+        "First": 4294967295,
+        "Next": 4294967295,
+        "Prev": 4294967295
+    },
+    "value17": 1,
+    "value18": {
+        "Parent": 4294967295,
+        "First": 4294967295,
+        "Next": 4294967295,
+        "Prev": 4294967295
+    },
+    "value19": 1,
+    "value20": 0,
+    "value21": {
+        "Camera": {
+            "FOV": 45.0,
+            "AspectRatio": 1.7777777910232545,
+            "NearClip": 0.10000000149011612,
+            "FarClip": 1000.0,
+            "ProjectionType": 0,
+            "ViewportWidth": 1280.0,
+            "ViewportHeight": 720.0
+        }
+    },
+    "value22": 2,
+    "value23": 0,
+    "value24": {
+        "Mesh": {
+            "value0": 13824224003300809285
+        }
+    },
+    "value25": 1,
+    "value26": {
+        "Mesh": {
+            "value0": 13824224003300809285
+        }
+    },
+    "value27": 2,
+    "value28": 0,
+    "value29": {
+        "Material": {
+            "value0": 10941509451800653470
+        }
+    },
+    "value30": 1,
+    "value31": {
+        "Material": {
+            "value0": 10941509451800653470
+        }
+    },
+    "value32": 0,
+    "value33": 1,
+    "value34": 1,
+    "value35": {
+        "IsStatic": false,
+        "UseGravity": true,
+        "Mass": 1.0,
+        "Velocity": {
+            "x": 0.0,
+            "y": 10.0,
+            "z": 0.0
+        },
+        "Acceleration": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "LinearDrag": 0.0,
+        "AngularDrag": 0.0
+    }
+}
