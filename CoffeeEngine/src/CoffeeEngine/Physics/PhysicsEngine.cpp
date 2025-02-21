@@ -3,7 +3,6 @@
 
 
 #include "CoffeeEngine/Core/Log.h"
-#include "Vehicle.h"
 #include "CoffeeEngine/Scene/Components.h"
 
 #include <entt/entity/entity.hpp>
@@ -23,7 +22,6 @@ namespace Coffee {
     
     std::vector<btCollisionObject*> PhysicsEngine::m_CollisionObjects;
     std::vector<btCollisionShape*> PhysicsEngine::m_CollisionShapes;
-    Vehicle vehicle;
     //std::shared_ptr<Scene> PhysicsEngine::m_ActiveScene = nullptr;
 
     void PhysicsEngine::Init()
@@ -54,7 +52,6 @@ namespace Coffee {
             m_world->debugDrawWorld();
         }
 
-        //vehicle.update(dt);
     }
 
    void PhysicsEngine::ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent, float dt)
