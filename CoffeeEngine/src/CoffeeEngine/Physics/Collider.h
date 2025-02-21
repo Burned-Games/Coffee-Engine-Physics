@@ -63,4 +63,97 @@ namespace Coffee
         std::vector<CollisionCallback> m_collisionListeners;
     };
 
+    class BoxCollider : public Collider
+    {
+      public:
+        BoxCollider(const glm::vec3& size, const glm::vec3& position, bool isStatic = false, bool isTrigger = false,
+                    float mass = 1.0f);
+        ~BoxCollider();
+
+      protected:
+        void UpdateCollisionShape() override;
+
+      private:
+        glm::vec3 m_size;
+    };
+
+    class CapsuleCollider : public Collider
+    {
+      public:
+        CapsuleCollider(float radius, float height, const glm::vec3& position, bool isStatic = false,
+                        bool isTrigger = false, float mass = 1.0f);
+        ~CapsuleCollider();
+
+        // Setters and getters for radius and height
+        void SetRadius(float radius);
+        float GetRadius() const;
+
+        void SetHeight(float height);
+        float GetHeight() const;
+
+      protected:
+        void UpdateCollisionShape() override;
+
+      private:
+        float m_radius;
+        float m_height;
+    };
+
+    class CylinderCollider : public Collider
+    {
+      public:
+        CylinderCollider(const glm::vec3& dimensions, const glm::vec3& position, bool isStatic = false,
+                         bool isTrigger = false, float mass = 1.0f);
+        ~CylinderCollider();
+
+        // Setters and getters for dimensions
+        void SetDimensions(const glm::vec3& dimensions);
+        glm::vec3 GetDimensions() const;
+
+      protected:
+        void UpdateCollisionShape() override;
+
+      private:
+        glm::vec3 m_dimensions; // Half extents: (width/2, height/2, depth/2)
+    };
+
+    class SphereCollider : public Collider
+    {
+      public:
+        SphereCollider(float radius, const glm::vec3& position, bool isStatic = false, bool isTrigger = false,
+                       float mass = 1.0f);
+        ~SphereCollider();
+
+        // Setter and getter for radius
+        void SetRadius(float radius);
+        float GetRadius() const;
+
+      protected:
+        void UpdateCollisionShape() override;
+
+      private:
+        float m_radius;
+    };
+
+    class PlaneCollider : public Collider
+    {
+      public:
+        PlaneCollider(const glm::vec3& normal, float constant, const glm::vec3& position = glm::vec3(0.0f));
+        ~PlaneCollider();
+
+        // Setters and getters for plane properties
+        void SetNormal(const glm::vec3& normal);
+        glm::vec3 GetNormal() const;
+
+        void SetConstant(float constant);
+        float GetConstant() const;
+
+      protected:
+        void UpdateCollisionShape() override;
+
+      private:
+        glm::vec3 m_normal; // Normal vector defining the plane
+        float m_constant;   // Distance of the plane from the origin along its normal
+    };
+
 } // namespace Coffee

@@ -14,11 +14,7 @@
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "src/CoffeeEngine/IO/Serialization/BulletSerialization.h"
-#include "src/CoffeeEngine/Physics/BoxCollider.h"
-#include "src/CoffeeEngine/Physics/SphereCollider.h"
-#include "src/CoffeeEngine/Physics/CapsuleCollider.h"
-#include "src/CoffeeEngine/Physics/CylinderCollider.h"
-#include "src/CoffeeEngine/Physics/PlaneCollider.h"
+#include "src/CoffeeEngine/Physics/Collider.h"
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/string.hpp>
