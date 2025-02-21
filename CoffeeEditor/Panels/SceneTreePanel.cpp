@@ -998,22 +998,22 @@ namespace Coffee
                 // Connected Body Field
                 ImGui::Text("Connected Body");
 
-                // 可拖拽目标区域
+                
                 if (ImGui::Button(fixedJoint.ConnectedBody[0] != '\0' ? fixedJoint.ConnectedBody : "None (Rigidbody)",
                                   ImVec2(200, 20)))
                 {
-                    // 处理按钮点击事件（例如清除绑定）
-                    strcpy(fixedJoint.ConnectedBody, ""); // 清空绑定
+                  
+                    strcpy(fixedJoint.ConnectedBody, ""); 
                 }
 
-                // 接收拖拽目标
+               
                 if (ImGui::BeginDragDropTarget())
                 {
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY"))
                     {
                         const char* droppedObjectName = (const char*)payload->Data;
                         strncpy(fixedJoint.ConnectedBody, droppedObjectName, sizeof(fixedJoint.ConnectedBody) - 1);
-                        fixedJoint.ConnectedBody[sizeof(fixedJoint.ConnectedBody) - 1] = '\0'; // 确保字符串以 null 结尾
+                        fixedJoint.ConnectedBody[sizeof(fixedJoint.ConnectedBody) - 1] = '\0'; 
                     }
                     ImGui::EndDragDropTarget();
                 }
@@ -1058,15 +1058,15 @@ namespace Coffee
                 // Connected Body Field
                 ImGui::Text("Connected Body");
 
-                // 可拖拽目标区域
+               
                 if (ImGui::Button(springJoint.ConnectedBody[0] != '\0' ? springJoint.ConnectedBody : "None (Rigidbody)",
                                   ImVec2(200, 20)))
                 {
-                    // 处理按钮点击事件（例如清除绑定）
-                    strcpy(springJoint.ConnectedBody, ""); // 清空绑定
+                   
+                    strcpy(springJoint.ConnectedBody, ""); 
                 }
 
-                // 接收拖拽目标
+                
                 if (ImGui::BeginDragDropTarget())
                 {
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY"))
@@ -1074,7 +1074,7 @@ namespace Coffee
                         const char* droppedObjectName = (const char*)payload->Data;
                         strncpy(springJoint.ConnectedBody, droppedObjectName, sizeof(springJoint.ConnectedBody) - 1);
                         springJoint.ConnectedBody[sizeof(springJoint.ConnectedBody) - 1] =
-                            '\0'; // 确保字符串以 null 结尾
+                            '\0'; 
                     }
                     ImGui::EndDragDropTarget();
                 }

@@ -1,5 +1,4 @@
 #pragma once
-#include "DebugDrawer.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
@@ -62,7 +61,6 @@ namespace Coffee{
         static btBroadphaseInterface*		m_broad_phase;
         static btConstraintSolver*          m_solver;
         static btVehicleRaycaster*			m_vehicle_raycaster;
-        static DebugDrawer*				    m_debug_draw;
 
         static std::vector<btCollisionObject*> m_CollisionObjects;
         static std::vector<btCollisionShape*> m_CollisionShapes;

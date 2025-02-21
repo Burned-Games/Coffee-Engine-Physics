@@ -18,7 +18,7 @@ namespace Coffee {
     btBroadphaseInterface* PhysicsEngine::m_broad_phase = nullptr;
     btConstraintSolver* PhysicsEngine::m_solver = nullptr;
     btVehicleRaycaster* PhysicsEngine::m_vehicle_raycaster = nullptr;
-    DebugDrawer* PhysicsEngine::m_debug_draw = nullptr;
+
     
     std::vector<btCollisionObject*> PhysicsEngine::m_CollisionObjects;
     std::vector<btCollisionShape*> PhysicsEngine::m_CollisionShapes;
@@ -35,11 +35,6 @@ namespace Coffee {
 
         m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broad_phase, m_solver, m_collision_conf);
 
-        m_debug_draw = new DebugDrawer();
-
-          
-
-        m_world->setDebugDrawer(m_debug_draw);
 
         SetGravity(glm::vec3(0.0f, -9.81f, 0.0f));
     }
