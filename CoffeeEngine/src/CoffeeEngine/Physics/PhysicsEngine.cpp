@@ -55,11 +55,13 @@ namespace Coffee {
            //COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
            for (auto entity : Scene::m_RigidbodyEntities)
            {
-               if (rigidbodyComponent.cfg.IsStatic)
+               if (rigidbodyComponent.cfg.type == RigidBodyType::Static)
                    continue;
 
                rigidbodyComponent.m_RigidBody->GetConfig(rigidbodyComponent.cfg);
-               if (rigidbodyComponent.cfg.UseGravity && !rigidbodyComponent.cfg.IsStatic && !rigidbodyComponent.cfg.FreezeY) 
+               if (rigidbodyComponent.cfg.UseGravity && 
+                   rigidbodyComponent.cfg.type == RigidBodyType::Dynamic && 
+                   !rigidbodyComponent.cfg.FreezeY) 
                {
                    glm::vec3 gravity = GetGravity(); //(0.0f, -9.81f, 0.0f);
                    gravity *= 0.1f; 
@@ -69,7 +71,7 @@ namespace Coffee {
 
                        rigidbodyComponent.ApplyDrag(); 
                    }
-                   if (rigidbodyComponent.cfg.IsKinematic)
+                   if (rigidbodyComponent.cfg.type == RigidBodyType::Kinematic)
                    {
                        transformComponent.Position += rigidbodyComponent.cfg.Velocity * dt;
                        return;
@@ -87,9 +89,9 @@ namespace Coffee {
                    if (rigidbodyComponent.cfg.FreezeRotX)
                        rigidbodyComponent.cfg.Velocity.x = 0.0f;
                    if (rigidbodyComponent.cfg.FreezeRotY)
-                       rigidbodyComponent.Velocity.y = 0.0f;
+                       rigidbodyComponent.cfg.Velocity.y = 0.0f;
                    if (rigidbodyComponent.cfg.FreezeRotZ)
-                       rigidbodyComponent.Velocity.z = 0.0f;
+                       rigidbodyComponent.cfg.Velocity.z = 0.0f;
                   
                    rigidbodyComponent.ApplyAngularDrag(); 
                }
@@ -328,13 +330,18 @@ namespace Coffee {
     int PhysicsEngine::GetRigidbodyFlags(const RigidBodyConfig& config)
     {
         int flags = 0;
-        if (config.IsKinematic)
-            flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
-        else if (config.shapeConfig.mass == 0)
-            flags |= btCollisionObject::CF_STATIC_OBJECT;
-        else
-            flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
-
+        switch (config.type)
+        {
+            case RigidBodyType::Static:
+                flags |= btCollisionObject::CF_STATIC_OBJECT;
+                break;
+            case RigidBodyType::Kinematic:
+                flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
+                break;
+            case RigidBodyType::Dynamic:
+                flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
+                break;
+        }
         return flags;
     }
     btRigidBody* PhysicsEngine::CreateRigidBody(CollisionCallbacks* colCallbacks, const RigidBodyConfig& config)
@@ -342,7 +349,7 @@ namespace Coffee {
         auto shape = CreateCollisionShape(config.shapeConfig);
 
         btVector3 localInertia(0, 0, 0);
-        if (!config.IsStatic)
+        if (config.type != RigidBodyType::Static)
             shape->calculateLocalInertia(config.shapeConfig.mass, localInertia);
 
         btDefaultMotionState* motionState =
