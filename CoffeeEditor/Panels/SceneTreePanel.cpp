@@ -704,7 +704,7 @@ namespace Coffee
 
                 // Mass
                 ImGui::Text("Mass");
-                ImGui::DragFloat("##Mass", &rigidbodyComponent.cfg.mass, 0.1f, 0.001f, 0.0f);
+                ImGui::DragFloat("##Mass", &rigidbodyComponent.cfg.shapeConfig.mass, 0.1f, 0.001f, 0.0f);
                 // Drag
                 ImGui::Text("Linear Drag");
                 ImGui::DragFloat("##Linear Drag", &rigidbodyComponent.cfg.LinearDrag, 0.1f, 0.001f, 10.0f,

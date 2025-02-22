@@ -319,7 +319,7 @@ namespace Coffee
         template <class Archive> void serialize(Archive& archive)
         {
             archive(cereal::make_nvp("IsStatic", cfg.IsStatic), cereal::make_nvp("UseGravity", cfg.UseGravity),
-                    cereal::make_nvp("Mass", cfgmass), cereal::make_nvp("Velocity", cfg.Velocity),
+                    cereal::make_nvp("Mass", cfg.shapeConfig.mass), cereal::make_nvp("Velocity", cfg.Velocity),
                     cereal::make_nvp("Acceleration", cfg.Acceleration), cereal::make_nvp("LinearDrag", cfg.LinearDrag),
                     cereal::make_nvp("AngularDrag", cfg.AngularDrag));
             if (Archive::is_loading::value)

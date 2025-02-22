@@ -63,7 +63,7 @@ namespace Coffee {
                {
                    glm::vec3 gravity = GetGravity(); //(0.0f, -9.81f, 0.0f);
                    gravity *= 0.1f; 
-                   if (rigidbodyComponent.cfg.mass > 0.0f)
+                   if (rigidbodyComponent.cfg.shapeConfig.mass > 0.0f)
                    {
                        rigidbodyComponent.cfg.Acceleration += gravity;   
 
@@ -228,7 +228,7 @@ namespace Coffee {
             );
 
             btRigidBody::btRigidBodyConstructionInfo rbInfo(
-                1.0f, motionState, shape, localInertia
+                config.mass, motionState, shape, localInertia
             );
 
             object = new btRigidBody(rbInfo);
@@ -319,7 +319,7 @@ namespace Coffee {
         int flags = 0;
         if (config.IsKinematic)
             flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
-        else if (config.mass == 0)
+        else if (config.shapeConfig.mass == 0)
             flags |= btCollisionObject::CF_STATIC_OBJECT;
         else
             flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
@@ -332,12 +332,12 @@ namespace Coffee {
 
         btVector3 localInertia(0, 0, 0);
         if (!config.IsStatic)
-            shape->calculateLocalInertia(config.mass, localInertia);
+            shape->calculateLocalInertia(config.shapeConfig.mass, localInertia);
 
         btDefaultMotionState* motionState =
             new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
 
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(config.mass, motionState, shape, localInertia);
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(config.shapeConfig.mass, motionState, shape, localInertia);
 
         btRigidBody* body = new btRigidBody(rbInfo);
 
