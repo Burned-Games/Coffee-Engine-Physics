@@ -21,7 +21,8 @@ namespace Coffee
         CollisionShapeType type = CollisionShapeType::BOX;
         glm::vec3 size = glm::vec3(1.0f);  // size of the shape
         bool isTrigger = false;
-        float mass = 1.0f;
+        
+
     };
 
     class Collider

@@ -7,6 +7,7 @@ namespace Coffee {
     struct RigidBodyConfig
     {
         CollisionShapeConfig shapeConfig;
+        float mass = 1.0f;
         bool IsStatic = false;
         bool IsKinematic = false;                    ///< Whether the object is static (non-moving) or dynamic (moving).
         bool UseGravity = true;                      ///< Whether the object is affected by gravity.

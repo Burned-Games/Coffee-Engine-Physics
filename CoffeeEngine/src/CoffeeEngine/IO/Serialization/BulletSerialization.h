@@ -17,7 +17,6 @@ namespace cereal {
         archive(CEREAL_NVP(cfg.type),
                 CEREAL_NVP(cfg.size),
                 CEREAL_NVP(cfg.isTrigger),
-                CEREAL_NVP(cfg.mass)
                 );
     }
 
