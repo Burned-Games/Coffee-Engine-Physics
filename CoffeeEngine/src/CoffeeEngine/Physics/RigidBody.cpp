@@ -21,8 +21,14 @@ namespace Coffee {
     }
     void RigidBody::GetConfig(RigidBodyConfig& config)
     {
-        // TODO leer tambien la shape
-        config.IsKinematic = m_RigidBody->getFlags() & btRigidBody::CF_KINEMATIC_OBJECT;
+        int flags = m_RigidBody->getFlags();
+        if (flags & btCollisionObject::CF_STATIC_OBJECT)
+            config.type = RigidBodyType::Static;
+        else if (flags & btCollisionObject::CF_KINEMATIC_OBJECT)
+            config.type = RigidBodyType::Kinematic;
+        else
+            config.type = RigidBodyType::Dynamic;
+
         config.UseGravity = m_RigidBody->getGravity() != btVector3(0, 0, 0);
         // Read transform
         config.transform = PhysUtils::Mat4BulletToGlm(m_RigidBody->getWorldTransform());

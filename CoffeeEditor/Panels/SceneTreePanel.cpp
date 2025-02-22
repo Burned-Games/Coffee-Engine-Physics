@@ -676,28 +676,27 @@ namespace Coffee
 
             if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // Static checkbox
-                if (ImGui::Checkbox("Static", &rigidbodyComponent.cfg.IsStatic))
+                // RigidBody type
+                const char* bodyTypeStrings[] = { "Static", "Dynamic", "Kinematic" };
+                int currentType = static_cast<int>(rigidbodyComponent.cfg.type);
+                if (ImGui::Combo("Body Type", &currentType, bodyTypeStrings, 3))
                 {
-                    // Si el objeto es est醫ico, desactivar la gravedad y otras interacciones f韘icas si es necesario
-                    if (rigidbodyComponent.cfg.IsStatic)
-                        rigidbodyComponent.cfg.UseGravity =
-                            false; // Opcional: si es est醫ico, se puede desactivar la gravedad
-                }
-
-                if (ImGui::Checkbox("Kinematic", &rigidbodyComponent.cfg.IsKinematic))
-                {
-                    // Si el objeto es Kinematic, desactivar la gravedad y otras interacciones f韘icas si es necesario
-                    if (rigidbodyComponent.cfg.IsKinematic)
+                    rigidbodyComponent.cfg.type = static_cast<RigidBodyType>(currentType);
+                    
+                    // Actualizar configuraci贸n basada en el tipo
+                    if (rigidbodyComponent.cfg.type == RigidBodyType::Static)
                     {
-                        rigidbodyComponent.cfg.UseGravity = false; // Desactivar la gravedad si es kinematic
-                        rigidbodyComponent.cfg.Velocity =
-                            glm::vec3(0.0f, 0.0f, 0.0f); // Asegurarse que la velocidad se resetea
+                        rigidbodyComponent.cfg.UseGravity = false;
+                    }
+                    else if (rigidbodyComponent.cfg.type == RigidBodyType::Kinematic)
+                    {
+                        rigidbodyComponent.cfg.UseGravity = false;
+                        rigidbodyComponent.cfg.Velocity = glm::vec3(0.0f);
                     }
                 }
 
-                // Use Gravity checkbox
-                if (!rigidbodyComponent.cfg.IsStatic && !rigidbodyComponent.cfg.IsKinematic && !rigidbodyComponent.cfg.FreezeY)
+                // Use Gravity checkbox (only for Dynamic)
+                if (rigidbodyComponent.cfg.type == RigidBodyType::Dynamic && !rigidbodyComponent.cfg.FreezeY)
                 {
                     ImGui::Checkbox("Use Gravity", &rigidbodyComponent.cfg.UseGravity);
                 }
@@ -705,6 +704,7 @@ namespace Coffee
                 // Mass
                 ImGui::Text("Mass");
                 ImGui::DragFloat("##Mass", &rigidbodyComponent.cfg.shapeConfig.mass, 0.1f, 0.001f, 0.0f);
+
                 // Drag
                 ImGui::Text("Linear Drag");
                 ImGui::DragFloat("##Linear Drag", &rigidbodyComponent.cfg.LinearDrag, 0.1f, 0.001f, 10.0f,
@@ -717,15 +717,15 @@ namespace Coffee
                 // Velocity
                 ImGui::Text("Velocity");
                 ImGui::DragFloat3("##Velocity", glm::value_ptr(rigidbodyComponent.cfg.Velocity), 0.1f);
-                COFFEE_CORE_INFO("Velocity: (%f, %f, %f)", rigidbodyComponent.cfg.Velocity.x, rigidbodyComponent.cfg.Velocity.y,
-                                 rigidbodyComponent.cfg.Velocity.z); 
+                //COFFEE_CORE_INFO("Velocity: (%f, %f, %f)", rigidbodyComponent.cfg.Velocity.x, rigidbodyComponent.cfg.Velocity.y,
+                //                 rigidbodyComponent.cfg.Velocity.z); 
                 // Acceleration
                 ImGui::Text("Acceleration");
                 ImGui::DragFloat3("##Acceleration", glm::value_ptr(rigidbodyComponent.cfg.Acceleration), 0.1f);
 
                 if (ImGui::CollapsingHeader("Constraints"))
                 {
-                    // Secci髇 para Freeze de posici髇
+                    // Secci锟絥 para Freeze de posici锟絥
                     ImGui::Text("Position");
                     ImGui::Indent();
                     ImGui::Checkbox("Freeze X", &rigidbodyComponent.cfg.FreezeX);
@@ -733,7 +733,7 @@ namespace Coffee
                     ImGui::Checkbox("Freeze Z", &rigidbodyComponent.cfg.FreezeZ);
                     ImGui::Unindent();
 
-                    // Secci髇 para Freeze de rotaci髇
+                    // Secci锟絥 para Freeze de rotaci锟絥
                     ImGui::Text("Rotation");
                     ImGui::Indent();
                     ImGui::Checkbox("Freeze Rotation X", &rigidbodyComponent.cfg.FreezeRotX);
@@ -998,22 +998,22 @@ namespace Coffee
                 // Connected Body Field
                 ImGui::Text("Connected Body");
 
-                // 可拖拽目标区域
+                
                 if (ImGui::Button(fixedJoint.ConnectedBody[0] != '\0' ? fixedJoint.ConnectedBody : "None (Rigidbody)",
                                   ImVec2(200, 20)))
                 {
-                    // 处理按钮点击事件（例如清除绑定）
-                    strcpy(fixedJoint.ConnectedBody, ""); // 清空绑定
+                  
+                    strcpy(fixedJoint.ConnectedBody, ""); 
                 }
 
-                // 接收拖拽目标
+               
                 if (ImGui::BeginDragDropTarget())
                 {
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY"))
                     {
                         const char* droppedObjectName = (const char*)payload->Data;
                         strncpy(fixedJoint.ConnectedBody, droppedObjectName, sizeof(fixedJoint.ConnectedBody) - 1);
-                        fixedJoint.ConnectedBody[sizeof(fixedJoint.ConnectedBody) - 1] = '\0'; // 确保字符串以 null 结尾
+                        fixedJoint.ConnectedBody[sizeof(fixedJoint.ConnectedBody) - 1] = '\0'; 
                     }
                     ImGui::EndDragDropTarget();
                 }
@@ -1058,15 +1058,15 @@ namespace Coffee
                 // Connected Body Field
                 ImGui::Text("Connected Body");
 
-                // 可拖拽目标区域
+               
                 if (ImGui::Button(springJoint.ConnectedBody[0] != '\0' ? springJoint.ConnectedBody : "None (Rigidbody)",
                                   ImVec2(200, 20)))
                 {
-                    // 处理按钮点击事件（例如清除绑定）
-                    strcpy(springJoint.ConnectedBody, ""); // 清空绑定
+                   
+                    strcpy(springJoint.ConnectedBody, ""); 
                 }
 
-                // 接收拖拽目标
+                
                 if (ImGui::BeginDragDropTarget())
                 {
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RIGIDBODY"))
@@ -1074,7 +1074,7 @@ namespace Coffee
                         const char* droppedObjectName = (const char*)payload->Data;
                         strncpy(springJoint.ConnectedBody, droppedObjectName, sizeof(springJoint.ConnectedBody) - 1);
                         springJoint.ConnectedBody[sizeof(springJoint.ConnectedBody) - 1] =
-                            '\0'; // 确保字符串以 null 结尾
+                            '\0'; 
                     }
                     ImGui::EndDragDropTarget();
                 }

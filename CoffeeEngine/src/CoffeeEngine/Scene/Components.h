@@ -14,11 +14,8 @@
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "src/CoffeeEngine/IO/Serialization/BulletSerialization.h"
-#include "src/CoffeeEngine/Physics/BoxCollider.h"
-#include "src/CoffeeEngine/Physics/SphereCollider.h"
-#include "src/CoffeeEngine/Physics/CapsuleCollider.h"
-#include "src/CoffeeEngine/Physics/CylinderCollider.h"
-#include "src/CoffeeEngine/Physics/PlaneCollider.h"
+//#include "CoffeeEngine/Physics/PhysicsEngine.h"
+#include "src/CoffeeEngine/Physics/Collider.h"
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/string.hpp>
@@ -274,42 +271,20 @@ namespace Coffee
                     cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
         }
     };
+
     struct RigidbodyComponent
     {
         Ref<RigidBody> m_RigidBody = nullptr;
         RigidBodyConfig cfg;
         
-        bool IsStatic = false;                       ///< Whether the object is static (non-moving) or dynamic (moving).
-        bool IsKinematic = false;                    ///< Whether the object is static (non-moving) or dynamic (moving).
-        bool UseGravity = true;                      ///< Whether the object is affected by gravity.
-        float Mass = 1.0f;                           ///< The mass of the rigidbody.
-        glm::vec3 Velocity = {0.0f, 0.0f, 0.0f};     ///< The current velocity of the rigidbody.
-        glm::vec3 Acceleration = {0.0f, 0.0f, 0.0f}; ///< The current acceleration of the rigidbody.
-
-        float LinearDrag = 0.1f; ///< The linear drag of the rigidbody.
-        float AngularDrag = 0.1f;
-
-        bool FreezeX = false;
-        bool FreezeY = false;
-        bool FreezeZ = false;
-        bool FreezeRotationX = false;
-        bool FreezeRotationY = false;
-        bool FreezeRotationZ = false;
-
         RigidbodyComponent() = default;
         explicit RigidbodyComponent(TransformComponent& transform)
         {
             cfg.shapeConfig.type = CollisionShapeType::SPHERE;
             cfg.transform = transform.GetWorldTransform();
+            cfg.type = RigidBodyType::Dynamic;
             m_RigidBody = std::make_shared<RigidBody>(cfg);
             
-        }
-
-        RigidbodyComponent(bool isStatic, bool useGravity, float mass, const glm::vec3& velocity,
-                           const glm::vec3& acceleration, float linearDrag, float angularDrag)
-            : IsStatic(isStatic), UseGravity(useGravity), Mass(mass), Velocity(velocity), Acceleration(acceleration),
-              LinearDrag(linearDrag), AngularDrag(angularDrag)
-        {
         }
 
         ~RigidbodyComponent()
@@ -322,9 +297,12 @@ namespace Coffee
          */
         template <class Archive> void serialize(Archive& archive)
         {
-            archive(cereal::make_nvp("IsStatic", cfg.IsStatic), cereal::make_nvp("UseGravity", cfg.UseGravity),
-                    cereal::make_nvp("Mass", cfg.shapeConfig.mass), cereal::make_nvp("Velocity", cfg.Velocity),
-                    cereal::make_nvp("Acceleration", cfg.Acceleration), cereal::make_nvp("LinearDrag", cfg.LinearDrag),
+            archive(cereal::make_nvp("Type", cfg.type),
+                    cereal::make_nvp("UseGravity", cfg.UseGravity),
+                    cereal::make_nvp("Mass", cfg.shapeConfig.mass),
+                    cereal::make_nvp("Velocity", cfg.Velocity),
+                    cereal::make_nvp("Acceleration", cfg.Acceleration),
+                    cereal::make_nvp("LinearDrag", cfg.LinearDrag),
                     cereal::make_nvp("AngularDrag", cfg.AngularDrag));
             if (Archive::is_loading::value)
             {
@@ -339,9 +317,9 @@ namespace Coffee
          */
         void ApplyForce(const glm::vec3& force)
         {
-            if (!IsStatic)
+            if (cfg.type != RigidBodyType::Static)
             {
-                Acceleration += force / Mass; // F = ma => a = F / m
+                cfg.Acceleration += force / cfg.shapeConfig.mass; // F = ma => a = F / m
             }
         }
 
@@ -351,21 +329,21 @@ namespace Coffee
          */
         void ApplyVelocityChange(const glm::vec3& velocityChange)
         {
-            if (!IsStatic)
+            if (cfg.type != RigidBodyType::Static)
             {
-                Velocity += velocityChange;
+                cfg.Velocity += velocityChange;
             }
         }
         void ApplyDrag()
         {
-            if (!IsStatic)
+            if (cfg.type != RigidBodyType::Static)
             {
-                Velocity *= (1.0f - LinearDrag);
+                cfg.Velocity *= (1.0f - cfg.LinearDrag);
             }
         }
         void ApplyAngularDrag()
         {
-            if (!IsStatic)
+            if (cfg.type != RigidBodyType::Static)
             {
                 // You would need a separate angular velocity value to apply angular drag, similar to velocity.
                 // For now, this is a placeholder.
@@ -375,22 +353,31 @@ namespace Coffee
     };
 
    
-struct BoxColliderComponent
+    struct BoxColliderComponent
     {
-        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
-        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
-        bool IsTrigger = false;                // is the collider a trigger
-        int MaterialIndex = 0;                 // index for the material dropdown
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Tamaño del collider
+        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // Offset del collider
+        bool IsTrigger = false;                // Es un trigger
+        int MaterialIndex = 0;                 // Índice del material
 
-        // You could add more properties related to the collider
-        // For example: material properties, friction, restitution, etc.
+        btCollisionObject* ColliderObject = nullptr; // Referencia al objeto físico
 
-        BoxColliderComponent() = default;
-        BoxColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger, int materialIndex = 0)
-            : Size(size), Offset(offset), IsTrigger(isTrigger), MaterialIndex(materialIndex)
-        {
-        }
+        // Función para inicializar el collider
+        //void Initialize(PhysicsEngine* physicsEngine, const glm::vec3& position, const glm::vec3& scale,
+        //                const glm::quat& rotation)
+        //{
+        //    // Crear configuración del collider
+        //    CollisionShapeConfig colliderConfig;
+        //    colliderConfig.type = CollisionShapeType::BOX;
+        //    colliderConfig.size = Size * scale; // Ajusta el tamaño por la escala
+        //    colliderConfig.isTrigger = IsTrigger;
+        //    colliderConfig.mass = IsTrigger ? 0.0f : 1.0f; // Sin masa si es trigger
+
+        //    // Crear el objeto de colisión en el motor físico
+        //    ColliderObject = physicsEngine->CreateCollisionObject(colliderConfig, position + Offset, scale, rotation);
+        //}
     };
+
     struct SphereColliderComponent
     {
         glm::vec3 Center = {0.0f, 0.0f, 0.0f}; // center of the collider

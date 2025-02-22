@@ -3,14 +3,12 @@
 
 
 #include "CoffeeEngine/Core/Log.h"
-#include "Vehicle.h"
 #include "CoffeeEngine/Scene/Components.h"
 
 #include <entt/entity/entity.hpp>
 
 namespace Coffee {
 
-    entt::registry PhysicsEngine::m_EntityRegistry; 
     using namespace Coffee;
     
     btDynamicsWorld* PhysicsEngine::m_world = nullptr;
@@ -19,11 +17,10 @@ namespace Coffee {
     btBroadphaseInterface* PhysicsEngine::m_broad_phase = nullptr;
     btConstraintSolver* PhysicsEngine::m_solver = nullptr;
     btVehicleRaycaster* PhysicsEngine::m_vehicle_raycaster = nullptr;
-    DebugDrawer* PhysicsEngine::m_debug_draw = nullptr;
+
     
     std::vector<btCollisionObject*> PhysicsEngine::m_CollisionObjects;
     std::vector<btCollisionShape*> PhysicsEngine::m_CollisionShapes;
-    Vehicle vehicle;
     //std::shared_ptr<Scene> PhysicsEngine::m_ActiveScene = nullptr;
 
     void PhysicsEngine::Init()
@@ -37,11 +34,6 @@ namespace Coffee {
 
         m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broad_phase, m_solver, m_collision_conf);
 
-        m_debug_draw = new DebugDrawer();
-
-          
-
-        m_world->setDebugDrawer(m_debug_draw);
 
         SetGravity(glm::vec3(0.0f, -9.81f, 0.0f));
     }
@@ -54,7 +46,6 @@ namespace Coffee {
             m_world->debugDrawWorld();
         }
 
-        //vehicle.update(dt);
     }
 
    void PhysicsEngine::ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent, float dt)
@@ -64,11 +55,13 @@ namespace Coffee {
            //COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
            for (auto entity : Scene::m_RigidbodyEntities)
            {
-               if (rigidbodyComponent.cfg.IsStatic)
+               if (rigidbodyComponent.cfg.type == RigidBodyType::Static)
                    continue;
 
                rigidbodyComponent.m_RigidBody->GetConfig(rigidbodyComponent.cfg);
-               if (rigidbodyComponent.cfg.UseGravity && !rigidbodyComponent.cfg.IsStatic && !rigidbodyComponent.cfg.FreezeY) 
+               if (rigidbodyComponent.cfg.UseGravity && 
+                   rigidbodyComponent.cfg.type == RigidBodyType::Dynamic && 
+                   !rigidbodyComponent.cfg.FreezeY) 
                {
                    glm::vec3 gravity = GetGravity(); //(0.0f, -9.81f, 0.0f);
                    gravity *= 0.1f; 
@@ -78,7 +71,7 @@ namespace Coffee {
 
                        rigidbodyComponent.ApplyDrag(); 
                    }
-                   if (rigidbodyComponent.cfg.IsKinematic)
+                   if (rigidbodyComponent.cfg.type == RigidBodyType::Kinematic)
                    {
                        transformComponent.Position += rigidbodyComponent.cfg.Velocity * dt;
                        return;
@@ -96,9 +89,9 @@ namespace Coffee {
                    if (rigidbodyComponent.cfg.FreezeRotX)
                        rigidbodyComponent.cfg.Velocity.x = 0.0f;
                    if (rigidbodyComponent.cfg.FreezeRotY)
-                       rigidbodyComponent.Velocity.y = 0.0f;
+                       rigidbodyComponent.cfg.Velocity.y = 0.0f;
                    if (rigidbodyComponent.cfg.FreezeRotZ)
-                       rigidbodyComponent.Velocity.z = 0.0f;
+                       rigidbodyComponent.cfg.Velocity.z = 0.0f;
                   
                    rigidbodyComponent.ApplyAngularDrag(); 
                }
@@ -217,46 +210,75 @@ namespace Coffee {
         return shape;
     }
 
-    btCollisionObject* PhysicsEngine::CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position)
+    btCollisionObject* PhysicsEngine::CreateCollisionObject(const CollisionShapeConfig& config,
+                                                            const glm::vec3& position, const glm::vec3& scale,
+                                                            const glm::quat& rotation)
     {
-        btCollisionShape* shape = CreateCollisionShape(config);
-        
+        // Ajustar el tamaño por la escala del GameObject
+        glm::vec3 adjustedSize = config.size;
+
+        // Crear la forma de colisión con el tamaño ajustado
+        btCollisionShape* shape = nullptr;
+
+        switch (config.type)
+        {
+        case CollisionShapeType::BOX:
+            shape = new btBoxShape(PhysUtils::GlmToBullet(adjustedSize * 0.5f)); // Half extents
+            break;
+        case CollisionShapeType::SPHERE:
+            shape = new btSphereShape(config.size.x);
+            break;
+        // Otros tipos...
+        default:
+            shape = new btBoxShape(PhysUtils::GlmToBullet(adjustedSize * 0.5f));
+            break;
+        }
+
         btCollisionObject* object = nullptr;
-        
-        if (config.isStatic || config.isTrigger)
+
+        if (config.isTrigger)
         {
             object = new btCollisionObject();
         }
         else
         {
             btVector3 localInertia(0, 0, 0);
-            if (!config.isStatic)
+
+            if (config.mass != 0.0f)
+            {
                 shape->calculateLocalInertia(config.mass, localInertia);
+            }
 
             btDefaultMotionState* motionState = new btDefaultMotionState(
-                btTransform(btQuaternion(0, 0, 0, 1), PhysUtils::GlmToBullet(position))
-            );
+                btTransform(PhysUtils::GlmToBullet(rotation), PhysUtils::GlmToBullet(position)));
 
-            btRigidBody::btRigidBodyConstructionInfo rbInfo(
-                config.mass, motionState, shape, localInertia
-            );
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(config.mass, motionState, shape, localInertia);
 
             object = new btRigidBody(rbInfo);
         }
 
+        // Establecer la forma y la transformación inicial
         object->setCollisionShape(shape);
-        object->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), PhysUtils::GlmToBullet(position)));
+        btTransform transform;
+        transform.setIdentity();
+        transform.setOrigin(PhysUtils::GlmToBullet(position));
+        transform.setRotation(PhysUtils::GlmToBullet(rotation));
+        object->setWorldTransform(transform);
 
+        // Configurar si es un trigger
         if (config.isTrigger)
         {
             object->setCollisionFlags(object->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         }
 
+        // Añadir al mundo físico
         m_world->addCollisionObject(object);
         m_CollisionObjects.push_back(object);
 
         return object;
     }
+
+
 
     void PhysicsEngine::DestroyCollisionObject(btCollisionObject* object)
     {
@@ -295,7 +317,7 @@ namespace Coffee {
 
             if (contactManifold->getNumContacts() > 0)
             {
-                // Aseg�rate de que los UserPointers son v�lidos y convertibles
+                // Aseg�rate de que los UserPointers son v�lidos y convertibles
                 if (objA->getUserPointer() && objB->getUserPointer())
                 {
                     Collider* colliderA = dynamic_cast<Collider*>(static_cast<Collider*>(objA->getUserPointer()));
@@ -324,16 +346,32 @@ namespace Coffee {
         object->setWorldTransform(transform);
     }
 
+
+    glm::vec3 PhysicsEngine::GetPosition(btCollisionObject* object)
+    {
+        if (!object)
+            return glm::vec3(0.0f);
+
+        const btTransform& transform = object->getWorldTransform();
+        return PhysUtils::BulletToGlm(transform.getOrigin());
+    }
+
+
     int PhysicsEngine::GetRigidbodyFlags(const RigidBodyConfig& config)
     {
         int flags = 0;
-        if (config.IsKinematic)
-            flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
-        else if (config.shapeConfig.mass == 0)
-            flags |= btCollisionObject::CF_STATIC_OBJECT;
-        else
-            flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
-
+        switch (config.type)
+        {
+            case RigidBodyType::Static:
+                flags |= btCollisionObject::CF_STATIC_OBJECT;
+                break;
+            case RigidBodyType::Kinematic:
+                flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
+                break;
+            case RigidBodyType::Dynamic:
+                flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
+                break;
+        }
         return flags;
     }
     btRigidBody* PhysicsEngine::CreateRigidBody(CollisionCallbacks* colCallbacks, const RigidBodyConfig& config)
@@ -341,6 +379,7 @@ namespace Coffee {
         auto shape = CreateCollisionShape(config.shapeConfig);
 
         btVector3 localInertia(0, 0, 0);
+        if (config.type != RigidBodyType::Static)
             shape->calculateLocalInertia(config.shapeConfig.mass, localInertia);
 
         btDefaultMotionState* motionState =

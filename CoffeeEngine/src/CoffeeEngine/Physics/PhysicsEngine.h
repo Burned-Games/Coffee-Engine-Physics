@@ -1,5 +1,4 @@
 #pragma once
-#include "DebugDrawer.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
@@ -9,6 +8,7 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "CollisionCallbacks.h"
 #include <entt/entt.hpp>
+
 
 namespace Coffee{
 
@@ -26,7 +26,6 @@ namespace Coffee{
     {
     public:
 
-        static entt::registry m_EntityRegistry;
 
         static void Init();
         static void Update(float dt);
@@ -42,13 +41,17 @@ namespace Coffee{
         static void ProcessTriggerEvents();
 
         static void SetPosition(btCollisionObject* object, const glm::vec3& position);
+        glm::vec3 GetPosition(btCollisionObject* object);
         static int GetRigidbodyFlags(const RigidBodyConfig& config);
 
         // Create + Destroy collision objects
-        static btCollisionObject* CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position);
+       /* static btCollisionObject* CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position);*/
         static void DestroyCollisionObject(btCollisionObject* object);
         
         static btCollisionShape* CreateCollisionShape(const CollisionShapeConfig& config);
+
+        static btCollisionObject* CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position,
+                                                 const glm::vec3& scale, const glm::quat& rotation);
 
         static btRigidBody* CreateRigidBody(CollisionCallbacks* colCallbacks, const RigidBodyConfig& config);
         static void RemoveRigidBody(btRigidBody* rigidBody);
@@ -62,7 +65,6 @@ namespace Coffee{
         static btBroadphaseInterface*		m_broad_phase;
         static btConstraintSolver*          m_solver;
         static btVehicleRaycaster*			m_vehicle_raycaster;
-        static DebugDrawer*				    m_debug_draw;
 
         static std::vector<btCollisionObject*> m_CollisionObjects;
         static std::vector<btCollisionShape*> m_CollisionShapes;
