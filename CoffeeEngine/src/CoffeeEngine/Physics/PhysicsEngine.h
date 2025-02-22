@@ -25,7 +25,6 @@ namespace Coffee{
     {
     public:
 
-        static entt::registry m_EntityRegistry;
 
         static void Init();
         static void Update(float dt);

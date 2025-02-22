@@ -9,7 +9,6 @@
 
 namespace Coffee {
 
-    entt::registry PhysicsEngine::m_EntityRegistry; 
     using namespace Coffee;
     
     btDynamicsWorld* PhysicsEngine::m_world = nullptr;
