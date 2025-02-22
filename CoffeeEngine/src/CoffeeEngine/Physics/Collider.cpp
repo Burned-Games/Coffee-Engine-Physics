@@ -5,8 +5,8 @@
 namespace Coffee
 {
 
-    Collider::Collider(bool isStatic, bool isTrigger, float mass)
-        : m_isStatic(isStatic), m_isTrigger(isTrigger), m_mass(mass), m_position(0.0f)
+    Collider::Collider(bool isTrigger, float mass)
+        : m_isTrigger(isTrigger), m_mass(mass), m_position(0.0f)
     {
         m_collisionObject = new btCollisionObject();
         if (m_isTrigger)
@@ -70,9 +70,8 @@ namespace Coffee
 
     // BOX COLLIDER
 
-    BoxCollider::BoxCollider(const glm::vec3& size, const glm::vec3& position, bool isStatic, bool isTrigger,
-                             float mass)
-        : Collider(isStatic, isTrigger, mass), m_size(size)
+    BoxCollider::BoxCollider(const glm::vec3& size, const glm::vec3& position, bool isTrigger, float mass)
+        : Collider(isTrigger, mass), m_size(size)
     {
         UpdateCollisionShape();
         SetPosition(position);
@@ -80,7 +79,7 @@ namespace Coffee
 
     BoxCollider::~BoxCollider()
     {
-        // La lógica de limpieza est?en la clase base
+        // La lï¿½gica de limpieza est?en la clase base
     }
 
     void BoxCollider::UpdateCollisionShape()
@@ -91,9 +90,8 @@ namespace Coffee
 
     // CAPSULE COLLIDER
 
-    CapsuleCollider::CapsuleCollider(float radius, float height, const glm::vec3& position, bool isStatic,
-                                     bool isTrigger, float mass)
-        : Collider(isStatic, isTrigger, mass), m_radius(radius), m_height(height)
+    CapsuleCollider::CapsuleCollider(float radius, float height, const glm::vec3& position, bool isTrigger, float mass)
+        : Collider(isTrigger, mass), m_radius(radius), m_height(height)
     {
         UpdateCollisionShape();
         SetPosition(position);
@@ -101,7 +99,7 @@ namespace Coffee
 
     CapsuleCollider::~CapsuleCollider()
     {
-        // La lógica de limpieza está en la clase base
+        // La lï¿½gica de limpieza estï¿½ en la clase base
     }
 
     void CapsuleCollider::SetRadius(float radius)
@@ -134,16 +132,15 @@ namespace Coffee
 
     void CapsuleCollider::UpdateCollisionShape()
     {
-        // Crear una nueva forma de colisión para la cápsula
+        // Crear una nueva forma de colisiï¿½n para la cï¿½psula
         btCollisionShape* shape = new btCapsuleShape(m_radius, m_height);
         m_collisionObject->setCollisionShape(shape);
     }
 
     // CYLINDER COLLIDER
 
-    CylinderCollider::CylinderCollider(const glm::vec3& dimensions, const glm::vec3& position, bool isStatic,
-                                       bool isTrigger, float mass)
-        : Collider(isStatic, isTrigger, mass), m_dimensions(dimensions)
+    CylinderCollider::CylinderCollider(const glm::vec3& dimensions, const glm::vec3& position, bool isTrigger, float mass)
+        : Collider(isTrigger, mass), m_dimensions(dimensions)
     {
         UpdateCollisionShape();
         SetPosition(position);
@@ -151,7 +148,7 @@ namespace Coffee
 
     CylinderCollider::~CylinderCollider()
     {
-        // La lógica de limpieza está en la clase base
+        // La lï¿½gica de limpieza estï¿½ en la clase base
     }
 
     void CylinderCollider::SetDimensions(const glm::vec3& dimensions)
@@ -170,7 +167,7 @@ namespace Coffee
 
     void CylinderCollider::UpdateCollisionShape()
     {
-        // Crear una nueva forma de colisión para el cilindro
+        // Crear una nueva forma de colisiï¿½n para el cilindro
         btVector3 halfExtents = PhysUtils::GlmToBullet(m_dimensions * 0.5f); // Convertir dimensiones a half extents
         btCollisionShape* shape = new btCylinderShape(halfExtents);
         m_collisionObject->setCollisionShape(shape);
@@ -179,7 +176,7 @@ namespace Coffee
     // PLANE COLLIDER
 
     PlaneCollider::PlaneCollider(const glm::vec3& normal, float constant, const glm::vec3& position)
-        : Collider(true, false, 0.0f), m_normal(normal), m_constant(constant)
+        : Collider(false, 0.0f), m_normal(normal), m_constant(constant)
     {
         UpdateCollisionShape();
         SetPosition(position);
@@ -187,7 +184,7 @@ namespace Coffee
 
     PlaneCollider::~PlaneCollider()
     {
-        // La lógica de limpieza está en la clase base
+        // La lï¿½gica de limpieza estï¿½ en la clase base
     }
 
     void PlaneCollider::SetNormal(const glm::vec3& normal)
@@ -220,15 +217,15 @@ namespace Coffee
 
     void PlaneCollider::UpdateCollisionShape()
     {
-        // Crear una nueva forma de colisión para el plano
+        // Crear una nueva forma de colisiï¿½n para el plano
         btCollisionShape* shape = new btStaticPlaneShape(PhysUtils::GlmToBullet(m_normal), m_constant);
         m_collisionObject->setCollisionShape(shape);
     }
 
     // SPHERE COLLIDER
 
-    SphereCollider::SphereCollider(float radius, const glm::vec3& position, bool isStatic, bool isTrigger, float mass)
-        : Collider(isStatic, isTrigger, mass), m_radius(radius)
+    SphereCollider::SphereCollider(float radius, const glm::vec3& position, bool isTrigger, float mass)
+        : Collider(isTrigger, mass), m_radius(radius)
     {
         UpdateCollisionShape();
         SetPosition(position);
@@ -236,7 +233,7 @@ namespace Coffee
 
     SphereCollider::~SphereCollider()
     {
-        // La lógica de limpieza est?en la clase base
+        // La lï¿½gica de limpieza est?en la clase base
     }
 
     void SphereCollider::SetRadius(float radius)

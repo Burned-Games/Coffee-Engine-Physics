@@ -214,15 +214,14 @@ namespace Coffee {
         
         btCollisionObject* object = nullptr;
         
-        if (config.isStatic || config.isTrigger)
+        if (config.isTrigger)
         {
             object = new btCollisionObject();
         }
         else
         {
             btVector3 localInertia(0, 0, 0);
-            if (!config.isStatic)
-                shape->calculateLocalInertia(config.mass, localInertia);
+            //shape->calculateLocalInertia(config.mass, localInertia);
 
             btDefaultMotionState* motionState = new btDefaultMotionState(
                 btTransform(btQuaternion(0, 0, 0, 1), PhysUtils::GlmToBullet(position))
@@ -286,7 +285,7 @@ namespace Coffee {
 
             if (contactManifold->getNumContacts() > 0)
             {
-                // Asegúrate de que los UserPointers son válidos y convertibles
+                // Asegï¿½rate de que los UserPointers son vï¿½lidos y convertibles
                 if (objA->getUserPointer() && objB->getUserPointer())
                 {
                     Collider* colliderA = dynamic_cast<Collider*>(static_cast<Collider*>(objA->getUserPointer()));
@@ -332,6 +331,7 @@ namespace Coffee {
         auto shape = CreateCollisionShape(config.shapeConfig);
 
         btVector3 localInertia(0, 0, 0);
+        if (!config.IsStatic)
             shape->calculateLocalInertia(config.shapeConfig.mass, localInertia);
 
         btDefaultMotionState* motionState =

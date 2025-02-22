@@ -22,7 +22,6 @@ namespace Coffee
         glm::vec3 size = glm::vec3(1.0f);  // size of the shape
         bool isTrigger = false;
         float mass = 1.0f;
-        bool isStatic = false; // mass == 0 means static object
     };
 
     class Collider
@@ -30,7 +29,7 @@ namespace Coffee
       public:
         using CollisionCallback = std::function<void(Collider* other)>;
 
-        Collider(bool isStatic, bool isTrigger, float mass);
+        Collider(bool isTrigger, float mass);
         virtual ~Collider();
 
         // Position management
@@ -55,7 +54,6 @@ namespace Coffee
 
         btCollisionObject* m_collisionObject;
         glm::vec3 m_position;
-        bool m_isStatic;
         bool m_isTrigger;
         float m_mass;
 
@@ -66,7 +64,7 @@ namespace Coffee
     class BoxCollider : public Collider
     {
       public:
-        BoxCollider(const glm::vec3& size, const glm::vec3& position, bool isStatic = false, bool isTrigger = false,
+        BoxCollider(const glm::vec3& size, const glm::vec3& position, bool isTrigger = false,
                     float mass = 1.0f);
         ~BoxCollider();
 
@@ -80,7 +78,7 @@ namespace Coffee
     class CapsuleCollider : public Collider
     {
       public:
-        CapsuleCollider(float radius, float height, const glm::vec3& position, bool isStatic = false,
+        CapsuleCollider(float radius, float height, const glm::vec3& position,
                         bool isTrigger = false, float mass = 1.0f);
         ~CapsuleCollider();
 
@@ -102,7 +100,7 @@ namespace Coffee
     class CylinderCollider : public Collider
     {
       public:
-        CylinderCollider(const glm::vec3& dimensions, const glm::vec3& position, bool isStatic = false,
+        CylinderCollider(const glm::vec3& dimensions, const glm::vec3& position,
                          bool isTrigger = false, float mass = 1.0f);
         ~CylinderCollider();
 
@@ -120,7 +118,7 @@ namespace Coffee
     class SphereCollider : public Collider
     {
       public:
-        SphereCollider(float radius, const glm::vec3& position, bool isStatic = false, bool isTrigger = false,
+        SphereCollider(float radius, const glm::vec3& position, bool isTrigger = false,
                        float mass = 1.0f);
         ~SphereCollider();
 
