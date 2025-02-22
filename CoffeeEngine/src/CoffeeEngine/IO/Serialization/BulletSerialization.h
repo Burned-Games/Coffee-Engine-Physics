@@ -31,7 +31,7 @@ namespace cereal {
     void serialize(Archive& archive, Coffee::RigidBodyConfig& cfg)
     {
         archive(CEREAL_NVP(cfg.shapeConfig),
-                CEREAL_NVP(cfg.IsKinematic),
+                CEREAL_NVP(cfg.type),
                 CEREAL_NVP(cfg.UseGravity),
                 CEREAL_NVP(cfg.transform),
                 CEREAL_NVP(cfg.Velocity),

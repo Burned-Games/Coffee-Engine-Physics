@@ -275,37 +275,14 @@ namespace Coffee
         Ref<RigidBody> m_RigidBody = nullptr;
         RigidBodyConfig cfg;
         
-        bool IsStatic = false;                       ///< Whether the object is static (non-moving) or dynamic (moving).
-        bool IsKinematic = false;                    ///< Whether the object is static (non-moving) or dynamic (moving).
-        bool UseGravity = true;                      ///< Whether the object is affected by gravity.
-        float Mass = 1.0f;                           ///< The mass of the rigidbody.
-        glm::vec3 Velocity = {0.0f, 0.0f, 0.0f};     ///< The current velocity of the rigidbody.
-        glm::vec3 Acceleration = {0.0f, 0.0f, 0.0f}; ///< The current acceleration of the rigidbody.
-
-        float LinearDrag = 0.1f; ///< The linear drag of the rigidbody.
-        float AngularDrag = 0.1f;
-
-        bool FreezeX = false;
-        bool FreezeY = false;
-        bool FreezeZ = false;
-        bool FreezeRotationX = false;
-        bool FreezeRotationY = false;
-        bool FreezeRotationZ = false;
-
         RigidbodyComponent() = default;
         explicit RigidbodyComponent(TransformComponent& transform)
         {
             cfg.shapeConfig.type = CollisionShapeType::SPHERE;
             cfg.transform = transform.GetWorldTransform();
+            cfg.type = RigidBodyType::Dynamic;
             m_RigidBody = std::make_shared<RigidBody>(cfg);
             
-        }
-
-        RigidbodyComponent(bool isStatic, bool useGravity, float mass, const glm::vec3& velocity,
-                           const glm::vec3& acceleration, float linearDrag, float angularDrag)
-            : IsStatic(isStatic), UseGravity(useGravity), Mass(mass), Velocity(velocity), Acceleration(acceleration),
-              LinearDrag(linearDrag), AngularDrag(angularDrag)
-        {
         }
 
         ~RigidbodyComponent()
@@ -318,9 +295,12 @@ namespace Coffee
          */
         template <class Archive> void serialize(Archive& archive)
         {
-            archive(cereal::make_nvp("IsStatic", cfg.IsStatic), cereal::make_nvp("UseGravity", cfg.UseGravity),
-                    cereal::make_nvp("Mass", cfg.shapeConfig.mass), cereal::make_nvp("Velocity", cfg.Velocity),
-                    cereal::make_nvp("Acceleration", cfg.Acceleration), cereal::make_nvp("LinearDrag", cfg.LinearDrag),
+            archive(cereal::make_nvp("Type", cfg.type),
+                    cereal::make_nvp("UseGravity", cfg.UseGravity),
+                    cereal::make_nvp("Mass", cfg.shapeConfig.mass),
+                    cereal::make_nvp("Velocity", cfg.Velocity),
+                    cereal::make_nvp("Acceleration", cfg.Acceleration),
+                    cereal::make_nvp("LinearDrag", cfg.LinearDrag),
                     cereal::make_nvp("AngularDrag", cfg.AngularDrag));
             if (Archive::is_loading::value)
             {
@@ -335,9 +315,9 @@ namespace Coffee
          */
         void ApplyForce(const glm::vec3& force)
         {
-            if (!IsStatic)
+            if (cfg.type != RigidBodyType::Static)
             {
-                Acceleration += force / Mass; // F = ma => a = F / m
+                cfg.Acceleration += force / cfg.shapeConfig.mass; // F = ma => a = F / m
             }
         }
 
@@ -347,21 +327,21 @@ namespace Coffee
          */
         void ApplyVelocityChange(const glm::vec3& velocityChange)
         {
-            if (!IsStatic)
+            if (cfg.type != RigidBodyType::Static)
             {
-                Velocity += velocityChange;
+                cfg.Velocity += velocityChange;
             }
         }
         void ApplyDrag()
         {
-            if (!IsStatic)
+            if (cfg.type != RigidBodyType::Static)
             {
-                Velocity *= (1.0f - LinearDrag);
+                cfg.Velocity *= (1.0f - cfg.LinearDrag);
             }
         }
         void ApplyAngularDrag()
         {
-            if (!IsStatic)
+            if (cfg.type != RigidBodyType::Static)
             {
                 // You would need a separate angular velocity value to apply angular drag, similar to velocity.
                 // For now, this is a placeholder.

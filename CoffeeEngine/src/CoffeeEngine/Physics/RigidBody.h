@@ -4,11 +4,16 @@
 
 namespace Coffee {
 
+    enum class RigidBodyType {
+        Static,     // No se mueve, no afectado por fuerzas
+        Dynamic,    // Se mueve y es afectado por fuerzas
+        Kinematic   // Se mueve pero no es afectado por fuerzas físicas
+    };
+
     struct RigidBodyConfig
     {
         CollisionShapeConfig shapeConfig;
-        bool IsStatic = false;
-        bool IsKinematic = false;                    ///< Whether the object is static (non-moving) or dynamic (moving).
+        RigidBodyType type = RigidBodyType::Dynamic;  // Reemplaza IsStatic e IsKinematic
         bool UseGravity = true;                      ///< Whether the object is affected by gravity.
         glm::mat4 transform = glm::mat4(1.0f);
         glm::vec3 Velocity = {0.0f, 0.0f, 0.0f};     ///< The current velocity of the rigidbody.
