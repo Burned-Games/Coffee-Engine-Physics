@@ -9,6 +9,7 @@
 #include "CollisionCallbacks.h"
 #include <entt/entt.hpp>
 
+
 namespace Coffee{
 
     enum class PhysicsType
@@ -43,10 +44,13 @@ namespace Coffee{
         static int GetRigidbodyFlags(const RigidBodyConfig& config);
 
         // Create + Destroy collision objects
-        static btCollisionObject* CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position);
+       /* static btCollisionObject* CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position);*/
         static void DestroyCollisionObject(btCollisionObject* object);
         
         static btCollisionShape* CreateCollisionShape(const CollisionShapeConfig& config);
+
+        static btCollisionObject* CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position,
+                                                 const glm::vec3& scale, const glm::quat& rotation);
 
         static btRigidBody* CreateRigidBody(CollisionCallbacks* colCallbacks, const RigidBodyConfig& config);
         static void RemoveRigidBody(btRigidBody* rigidBody);

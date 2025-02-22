@@ -14,6 +14,7 @@
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "src/CoffeeEngine/IO/Serialization/BulletSerialization.h"
+//#include "CoffeeEngine/Physics/PhysicsEngine.h"
 #include "src/CoffeeEngine/Physics/Collider.h"
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
@@ -270,6 +271,7 @@ namespace Coffee
                     cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
         }
     };
+
     struct RigidbodyComponent
     {
         Ref<RigidBody> m_RigidBody = nullptr;
@@ -351,22 +353,31 @@ namespace Coffee
     };
 
    
-struct BoxColliderComponent
+    struct BoxColliderComponent
     {
-        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Size of the collider
-        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // offset of the collider
-        bool IsTrigger = false;                // is the collider a trigger
-        int MaterialIndex = 0;                 // index for the material dropdown
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Tamaño del collider
+        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // Offset del collider
+        bool IsTrigger = false;                // Es un trigger
+        int MaterialIndex = 0;                 // Índice del material
 
-        // You could add more properties related to the collider
-        // For example: material properties, friction, restitution, etc.
+        btCollisionObject* ColliderObject = nullptr; // Referencia al objeto físico
 
-        BoxColliderComponent() = default;
-        BoxColliderComponent(const glm::vec3& size, const glm::vec3& offset, bool isTrigger, int materialIndex = 0)
-            : Size(size), Offset(offset), IsTrigger(isTrigger), MaterialIndex(materialIndex)
-        {
-        }
+        // Función para inicializar el collider
+        //void Initialize(PhysicsEngine* physicsEngine, const glm::vec3& position, const glm::vec3& scale,
+        //                const glm::quat& rotation)
+        //{
+        //    // Crear configuración del collider
+        //    CollisionShapeConfig colliderConfig;
+        //    colliderConfig.type = CollisionShapeType::BOX;
+        //    colliderConfig.size = Size * scale; // Ajusta el tamaño por la escala
+        //    colliderConfig.isTrigger = IsTrigger;
+        //    colliderConfig.mass = IsTrigger ? 0.0f : 1.0f; // Sin masa si es trigger
+
+        //    // Crear el objeto de colisión en el motor físico
+        //    ColliderObject = physicsEngine->CreateCollisionObject(colliderConfig, position + Offset, scale, rotation);
+        //}
     };
+
     struct SphereColliderComponent
     {
         glm::vec3 Center = {0.0f, 0.0f, 0.0f}; // center of the collider

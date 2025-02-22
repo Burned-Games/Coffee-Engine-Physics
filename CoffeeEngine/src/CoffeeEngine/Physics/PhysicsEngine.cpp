@@ -210,12 +210,32 @@ namespace Coffee {
         return shape;
     }
 
-    btCollisionObject* PhysicsEngine::CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position)
+    btCollisionObject* PhysicsEngine::CreateCollisionObject(const CollisionShapeConfig& config,
+                                                            const glm::vec3& position, const glm::vec3& scale,
+                                                            const glm::quat& rotation)
     {
-        btCollisionShape* shape = CreateCollisionShape(config);
-        
+        // Ajustar el tamaño por la escala del GameObject
+        glm::vec3 adjustedSize = config.size;
+
+        // Crear la forma de colisión con el tamaño ajustado
+        btCollisionShape* shape = nullptr;
+
+        switch (config.type)
+        {
+        case CollisionShapeType::BOX:
+            shape = new btBoxShape(PhysUtils::GlmToBullet(adjustedSize * 0.5f)); // Half extents
+            break;
+        case CollisionShapeType::SPHERE:
+            shape = new btSphereShape(config.size.x);
+            break;
+        // Otros tipos...
+        default:
+            shape = new btBoxShape(PhysUtils::GlmToBullet(adjustedSize * 0.5f));
+            break;
+        }
+
         btCollisionObject* object = nullptr;
-        
+
         if (config.isTrigger)
         {
             object = new btCollisionObject();
@@ -223,32 +243,42 @@ namespace Coffee {
         else
         {
             btVector3 localInertia(0, 0, 0);
-            //shape->calculateLocalInertia(config.mass, localInertia);
+
+            if (config.mass != 0.0f)
+            {
+                shape->calculateLocalInertia(config.mass, localInertia);
+            }
 
             btDefaultMotionState* motionState = new btDefaultMotionState(
-                btTransform(btQuaternion(0, 0, 0, 1), PhysUtils::GlmToBullet(position))
-            );
+                btTransform(PhysUtils::GlmToBullet(rotation), PhysUtils::GlmToBullet(position)));
 
-            btRigidBody::btRigidBodyConstructionInfo rbInfo(
-                config.mass, motionState, shape, localInertia
-            );
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(config.mass, motionState, shape, localInertia);
 
             object = new btRigidBody(rbInfo);
         }
 
+        // Establecer la forma y la transformación inicial
         object->setCollisionShape(shape);
-        object->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), PhysUtils::GlmToBullet(position)));
+        btTransform transform;
+        transform.setIdentity();
+        transform.setOrigin(PhysUtils::GlmToBullet(position));
+        transform.setRotation(PhysUtils::GlmToBullet(rotation));
+        object->setWorldTransform(transform);
 
+        // Configurar si es un trigger
         if (config.isTrigger)
         {
             object->setCollisionFlags(object->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         }
 
+        // Añadir al mundo físico
         m_world->addCollisionObject(object);
         m_CollisionObjects.push_back(object);
 
         return object;
     }
+
+
 
     void PhysicsEngine::DestroyCollisionObject(btCollisionObject* object)
     {

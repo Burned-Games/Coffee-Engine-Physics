@@ -15,6 +15,14 @@ namespace Coffee {
     {
         return glm::vec3(v.x(), v.y(), v.z());
     }
+    btQuaternion PhysUtils::GlmToBullet(const glm::quat& q)
+    {
+        return btQuaternion(q.x, q.y, q.z, q.w);
+    }
+    glm::quat PhysUtils::BulletToGlm(const btQuaternion& q)
+    {
+        return glm::quat(q.w(), q.x(), q.y(), q.z());
+    }
     glm::mat4 PhysUtils::Mat4BulletToGlm(const btTransform& t)
     {
         glm::mat4 m(1.0f);
