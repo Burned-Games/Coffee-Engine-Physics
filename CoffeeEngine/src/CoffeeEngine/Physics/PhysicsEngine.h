@@ -41,6 +41,7 @@ namespace Coffee{
         static void ProcessTriggerEvents();
 
         static void SetPosition(btCollisionObject* object, const glm::vec3& position);
+        glm::vec3 GetPosition(btCollisionObject* object);
         static int GetRigidbodyFlags(const RigidBodyConfig& config);
 
         // Create + Destroy collision objects

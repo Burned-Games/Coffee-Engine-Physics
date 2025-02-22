@@ -346,6 +346,17 @@ namespace Coffee {
         object->setWorldTransform(transform);
     }
 
+
+    glm::vec3 PhysicsEngine::GetPosition(btCollisionObject* object)
+    {
+        if (!object)
+            return glm::vec3(0.0f);
+
+        const btTransform& transform = object->getWorldTransform();
+        return PhysUtils::BulletToGlm(transform.getOrigin());
+    }
+
+
     int PhysicsEngine::GetRigidbodyFlags(const RigidBodyConfig& config)
     {
         int flags = 0;
