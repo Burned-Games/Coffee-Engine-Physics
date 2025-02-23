@@ -8,59 +8,111 @@
 namespace Coffee
 {
 
-    // collision shape types
+    /**
+     * @enum CollisionShapeType
+     * @brief Defines the types of collision shapes.
+     */
     enum class CollisionShapeType {
-        BOX,
-        SPHERE,
-        CAPSULE,
-        CYLINDER,
-        MESH
+        BOX,      /**< Box shape */
+        SPHERE,   /**< Sphere shape */
+        CAPSULE,  /**< Capsule shape */
+        CYLINDER, /**< Cylinder shape */
+        MESH      /**< Mesh shape */
     };
 
+    /**
+     * @struct CollisionShapeConfig
+     * @brief Configuration for a collision shape.
+     */
     struct CollisionShapeConfig {
-        CollisionShapeType type = CollisionShapeType::BOX;
-        glm::vec3 size = glm::vec3(1.0f);  // size of the shape
-        bool isTrigger = false;
-        float mass = 1.0f;
+        CollisionShapeType type = CollisionShapeType::BOX;  /**< Type of the collision shape */
+        glm::vec3 size = glm::vec3(1.0f);                   /**< Size of the shape */
+        bool isTrigger = false;                             /**< Whether the shape is a trigger */
+        float mass = 1.0f;                                  /**< Mass of the object */
     };
+      
 
+
+
+
+    /**
+     * @class Collider
+     * @brief Base class for all colliders.
+     */
     class Collider
     {
       public:
         using CollisionCallback = std::function<void(Collider* other)>;
 
+        /**
+         * @brief Constructor for Collider.
+         * @param isTrigger Whether the collider is a trigger.
+         * @param mass The mass of the collider.
+         */
         Collider(bool isTrigger, float mass);
+
+        /**
+         * @brief Destructor for Collider.
+         */
         virtual ~Collider();
 
-        // Position management
+        /**
+         * @brief Sets the position of the collider.
+         * @param position The new position.
+         */
         void SetPosition(const glm::vec3& position);
+        /**
+         * @brief Gets the current position of the collider.
+         * @return The collider's position.
+         */
         glm::vec3 GetPosition() const;
 
-        // Enable/disable collider
+        /**
+         * @brief Enables or disables the collider.
+         * @param enabled True to enable, false to disable.
+         */
         void SetEnabled(bool enabled);
+
+        /**
+         * @brief Checks if the collider is enabled.
+         * @return True if enabled, false otherwise.
+         */
         bool IsEnabled() const;
 
-        // Add collision listeners
+        /**
+         * @brief Adds a collision listener.
+         * @param callback Function to execute upon collision.
+         */
         void AddCollisionListener(const CollisionCallback& callback);
 
-        // Trigger collision callbacks
+        /**
+         * @brief Handles collision events.
+         * @param other The other collider involved.
+         */
         void OnCollision(Collider* other);
 
-        // Access Bullet collision object
+        /**
+         * @brief Gets the Bullet collision object.
+         * @return Pointer to the Bullet collision object.
+         */
         btCollisionObject* GetCollisionObject() const { return m_collisionObject; }
 
       protected:
-        virtual void UpdateCollisionShape() = 0; // Implementado por clases derivadas
+        virtual void UpdateCollisionShape() = 0; /**< Implemented by derived classes */
 
-        btCollisionObject* m_collisionObject;
-        glm::vec3 m_position;
-        bool m_isTrigger;
-        float m_mass;
+        btCollisionObject* m_collisionObject; /**< Bullet collision object */
+        glm::vec3 m_position;                 /**< Collider position */
+        bool m_isTrigger;                     /**< Whether the collider is a trigger */
+        float m_mass;                         /**< Mass of the collider */
 
       private:
-        std::vector<CollisionCallback> m_collisionListeners;
+        std::vector<CollisionCallback> m_collisionListeners;  /**< List of collision listeners */
     };
 
+    /**
+     * @class BoxCollider
+     * @brief Represents a box-shaped collider.
+     */
     class BoxCollider : public Collider
     {
       public:
@@ -72,9 +124,13 @@ namespace Coffee
         void UpdateCollisionShape() override;
 
       private:
-        glm::vec3 m_size;
+        glm::vec3 m_size; /**< Size of the box */
     };
 
+    /**
+     * @class CapsuleCollider
+     * @brief Represents a capsule-shaped collider.
+     */
     class CapsuleCollider : public Collider
     {
       public:
@@ -93,10 +149,14 @@ namespace Coffee
         void UpdateCollisionShape() override;
 
       private:
-        float m_radius;
-        float m_height;
+        float m_radius; /**< Radius of the capsule */
+        float m_height; /**< Height of the capsule */
     };
 
+    /**
+     * @class CylinderCollider
+     * @brief Represents a cylinder-shaped collider.
+     */
     class CylinderCollider : public Collider
     {
       public:
@@ -112,9 +172,13 @@ namespace Coffee
         void UpdateCollisionShape() override;
 
       private:
-        glm::vec3 m_dimensions; // Half extents: (width/2, height/2, depth/2)
+        glm::vec3 m_dimensions; /**< Half extents of the cylinder */
     };
 
+    /**
+     * @class SphereCollider
+     * @brief Represents a sphere-shaped collider.
+     */
     class SphereCollider : public Collider
     {
       public:
@@ -130,9 +194,13 @@ namespace Coffee
         void UpdateCollisionShape() override;
 
       private:
-        float m_radius;
+        float m_radius;   /**< Radius of the sphere */
     };
 
+    /**
+     * @class PlaneCollider
+     * @brief Represents a plane collider.
+     */
     class PlaneCollider : public Collider
     {
       public:
@@ -150,8 +218,8 @@ namespace Coffee
         void UpdateCollisionShape() override;
 
       private:
-        glm::vec3 m_normal; // Normal vector defining the plane
-        float m_constant;   // Distance of the plane from the origin along its normal
+        glm::vec3 m_normal; /**< Normal vector defining the plane */
+        float m_constant;   /**< Distance of the plane from the origin */
     };
 
 } // namespace Coffee
