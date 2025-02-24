@@ -35,7 +35,7 @@ namespace Coffee{
      * @class PhysicsEngine
      * @brief Manages the physics world and updates simulation.
      */
-    static class PhysicsEngine
+    class PhysicsEngine
     {
     public:
 
