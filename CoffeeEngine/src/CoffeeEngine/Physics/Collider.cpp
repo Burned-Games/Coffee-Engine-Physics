@@ -5,16 +5,14 @@
 namespace Coffee
 {
 
-    Collider::Collider(bool isTrigger, float mass)
-        : m_isTrigger(isTrigger), m_mass(mass), m_position(0.0f)
+    Collider::Collider(const CollisionShapeConfig& config, const glm::vec3& position, const glm::quat& rotation,
+                       const glm::vec3& scale)
+        : m_isTrigger(config.isTrigger), m_mass(config.mass), m_position(position)
     {
-        m_collisionObject = new btCollisionObject();
-        if (m_isTrigger)
-        {
-            m_collisionObject->setCollisionFlags(m_collisionObject->getCollisionFlags() |
-                                                 btCollisionObject::CF_NO_CONTACT_RESPONSE);
-        }
-        PhysicsEngine::GetWorld()->addCollisionObject(m_collisionObject);
+        // Usar la función CreateCollisionObject para crear el btCollisionObject
+        m_collisionObject = PhysicsEngine::CreateCollisionObject(config, position, scale, rotation);
+
+        // Añadir el objeto al mundo físico (ya se hace en CreateCollisionObject)
     }
 
     Collider::~Collider()
@@ -45,8 +43,8 @@ namespace Coffee
         }
         else
         {
-            m_collisionObject->setCollisionFlags(m_collisionObject->getCollisionFlags() |
-                                                 btCollisionObject::CF_NO_CONTACT_RESPONSE);
+           /* m_collisionObject->setCollisionFlags(m_collisionObject->getCollisionFlags() |
+                                                 btCollisionObject::CF_NO_CONTACT_RESPONSE);*/
         }
     }
 
@@ -70,190 +68,190 @@ namespace Coffee
 
     // BOX COLLIDER
 
-    BoxCollider::BoxCollider(const glm::vec3& size, const glm::vec3& position, bool isTrigger, float mass)
-        : Collider(isTrigger, mass), m_size(size)
-    {
-        UpdateCollisionShape();
-        SetPosition(position);
-    }
+    //BoxCollider::BoxCollider(const glm::vec3& size, const glm::vec3& position, bool isTrigger, float mass)
+    //    : Collider(isTrigger, mass), m_size(size)
+    //{
+    //    UpdateCollisionShape();
+    //    SetPosition(position);
+    //}
 
-    BoxCollider::~BoxCollider()
-    {
-        // La l�gica de limpieza est?en la clase base
-    }
+    //BoxCollider::~BoxCollider()
+    //{
+    //    // La l�gica de limpieza est?en la clase base
+    //}
 
-    void BoxCollider::UpdateCollisionShape()
-    {
-        btCollisionShape* shape = new btBoxShape(PhysUtils::GlmToBullet(m_size * 0.5f));
-        m_collisionObject->setCollisionShape(shape);
-    }
+    //void BoxCollider::UpdateCollisionShape()
+    //{
+    //    btCollisionShape* shape = new btBoxShape(PhysUtils::GlmToBullet(m_size * 0.5f));
+    //    m_collisionObject->setCollisionShape(shape);
+    //}
 
-    // CAPSULE COLLIDER
+    //// CAPSULE COLLIDER
 
-    CapsuleCollider::CapsuleCollider(float radius, float height, const glm::vec3& position, bool isTrigger, float mass)
-        : Collider(isTrigger, mass), m_radius(radius), m_height(height)
-    {
-        UpdateCollisionShape();
-        SetPosition(position);
-    }
+    //CapsuleCollider::CapsuleCollider(float radius, float height, const glm::vec3& position, bool isTrigger, float mass)
+    //    : Collider(isTrigger, mass), m_radius(radius), m_height(height)
+    //{
+    //    UpdateCollisionShape();
+    //    SetPosition(position);
+    //}
 
-    CapsuleCollider::~CapsuleCollider()
-    {
-        // La l�gica de limpieza est� en la clase base
-    }
+    //CapsuleCollider::~CapsuleCollider()
+    //{
+    //    // La l�gica de limpieza est� en la clase base
+    //}
 
-    void CapsuleCollider::SetRadius(float radius)
-    {
-        if (m_radius != radius)
-        {
-            m_radius = radius;
-            UpdateCollisionShape();
-        }
-    }
+    //void CapsuleCollider::SetRadius(float radius)
+    //{
+    //    if (m_radius != radius)
+    //    {
+    //        m_radius = radius;
+    //        UpdateCollisionShape();
+    //    }
+    //}
 
-    float CapsuleCollider::GetRadius() const
-    {
-        return m_radius;
-    }
+    //float CapsuleCollider::GetRadius() const
+    //{
+    //    return m_radius;
+    //}
 
-    void CapsuleCollider::SetHeight(float height)
-    {
-        if (m_height != height)
-        {
-            m_height = height;
-            UpdateCollisionShape();
-        }
-    }
+    //void CapsuleCollider::SetHeight(float height)
+    //{
+    //    if (m_height != height)
+    //    {
+    //        m_height = height;
+    //        UpdateCollisionShape();
+    //    }
+    //}
 
-    float CapsuleCollider::GetHeight() const
-    {
-        return m_height;
-    }
+    //float CapsuleCollider::GetHeight() const
+    //{
+    //    return m_height;
+    //}
 
-    void CapsuleCollider::UpdateCollisionShape()
-    {
-        // Crear una nueva forma de colisi�n para la c�psula
-        btCollisionShape* shape = new btCapsuleShape(m_radius, m_height);
-        m_collisionObject->setCollisionShape(shape);
-    }
+    //void CapsuleCollider::UpdateCollisionShape()
+    //{
+    //    // Crear una nueva forma de colisi�n para la c�psula
+    //    btCollisionShape* shape = new btCapsuleShape(m_radius, m_height);
+    //    m_collisionObject->setCollisionShape(shape);
+    //}
 
-    // CYLINDER COLLIDER
+    //// CYLINDER COLLIDER
 
-    CylinderCollider::CylinderCollider(const glm::vec3& dimensions, const glm::vec3& position, bool isTrigger, float mass)
-        : Collider(isTrigger, mass), m_dimensions(dimensions)
-    {
-        UpdateCollisionShape();
-        SetPosition(position);
-    }
+    //CylinderCollider::CylinderCollider(const glm::vec3& dimensions, const glm::vec3& position, bool isTrigger, float mass)
+    //    : Collider(isTrigger, mass), m_dimensions(dimensions)
+    //{
+    //    UpdateCollisionShape();
+    //    SetPosition(position);
+    //}
 
-    CylinderCollider::~CylinderCollider()
-    {
-        // La l�gica de limpieza est� en la clase base
-    }
+    //CylinderCollider::~CylinderCollider()
+    //{
+    //    // La l�gica de limpieza est� en la clase base
+    //}
 
-    void CylinderCollider::SetDimensions(const glm::vec3& dimensions)
-    {
-        if (m_dimensions != dimensions)
-        {
-            m_dimensions = dimensions;
-            UpdateCollisionShape();
-        }
-    }
+    //void CylinderCollider::SetDimensions(const glm::vec3& dimensions)
+    //{
+    //    if (m_dimensions != dimensions)
+    //    {
+    //        m_dimensions = dimensions;
+    //        UpdateCollisionShape();
+    //    }
+    //}
 
-    glm::vec3 CylinderCollider::GetDimensions() const
-    {
-        return m_dimensions;
-    }
+    //glm::vec3 CylinderCollider::GetDimensions() const
+    //{
+    //    return m_dimensions;
+    //}
 
-    void CylinderCollider::UpdateCollisionShape()
-    {
-        // Crear una nueva forma de colisi�n para el cilindro
-        btVector3 halfExtents = PhysUtils::GlmToBullet(m_dimensions * 0.5f); // Convertir dimensiones a half extents
-        btCollisionShape* shape = new btCylinderShape(halfExtents);
-        m_collisionObject->setCollisionShape(shape);
-    }
+    //void CylinderCollider::UpdateCollisionShape()
+    //{
+    //    // Crear una nueva forma de colisi�n para el cilindro
+    //    btVector3 halfExtents = PhysUtils::GlmToBullet(m_dimensions * 0.5f); // Convertir dimensiones a half extents
+    //    btCollisionShape* shape = new btCylinderShape(halfExtents);
+    //    m_collisionObject->setCollisionShape(shape);
+    //}
 
-    // PLANE COLLIDER
+    //// PLANE COLLIDER
 
-    PlaneCollider::PlaneCollider(const glm::vec3& normal, float constant, const glm::vec3& position)
-        : Collider(false, 0.0f), m_normal(normal), m_constant(constant)
-    {
-        UpdateCollisionShape();
-        SetPosition(position);
-    }
+    //PlaneCollider::PlaneCollider(const glm::vec3& normal, float constant, const glm::vec3& position)
+    //    : Collider(false, 0.0f), m_normal(normal), m_constant(constant)
+    //{
+    //    UpdateCollisionShape();
+    //    SetPosition(position);
+    //}
 
-    PlaneCollider::~PlaneCollider()
-    {
-        // La l�gica de limpieza est� en la clase base
-    }
+    //PlaneCollider::~PlaneCollider()
+    //{
+    //    // La l�gica de limpieza est� en la clase base
+    //}
 
-    void PlaneCollider::SetNormal(const glm::vec3& normal)
-    {
-        if (m_normal != normal)
-        {
-            m_normal = normal;
-            UpdateCollisionShape();
-        }
-    }
+    //void PlaneCollider::SetNormal(const glm::vec3& normal)
+    //{
+    //    if (m_normal != normal)
+    //    {
+    //        m_normal = normal;
+    //        UpdateCollisionShape();
+    //    }
+    //}
 
-    glm::vec3 PlaneCollider::GetNormal() const
-    {
-        return m_normal;
-    }
+    //glm::vec3 PlaneCollider::GetNormal() const
+    //{
+    //    return m_normal;
+    //}
 
-    void PlaneCollider::SetConstant(float constant)
-    {
-        if (m_constant != constant)
-        {
-            m_constant = constant;
-            UpdateCollisionShape();
-        }
-    }
+    //void PlaneCollider::SetConstant(float constant)
+    //{
+    //    if (m_constant != constant)
+    //    {
+    //        m_constant = constant;
+    //        UpdateCollisionShape();
+    //    }
+    //}
 
-    float PlaneCollider::GetConstant() const
-    {
-        return m_constant;
-    }
+    //float PlaneCollider::GetConstant() const
+    //{
+    //    return m_constant;
+    //}
 
-    void PlaneCollider::UpdateCollisionShape()
-    {
-        // Crear una nueva forma de colisi�n para el plano
-        btCollisionShape* shape = new btStaticPlaneShape(PhysUtils::GlmToBullet(m_normal), m_constant);
-        m_collisionObject->setCollisionShape(shape);
-    }
+    //void PlaneCollider::UpdateCollisionShape()
+    //{
+    //    // Crear una nueva forma de colisi�n para el plano
+    //    btCollisionShape* shape = new btStaticPlaneShape(PhysUtils::GlmToBullet(m_normal), m_constant);
+    //    m_collisionObject->setCollisionShape(shape);
+    //}
 
-    // SPHERE COLLIDER
+    //// SPHERE COLLIDER
 
-    SphereCollider::SphereCollider(float radius, const glm::vec3& position, bool isTrigger, float mass)
-        : Collider(isTrigger, mass), m_radius(radius)
-    {
-        UpdateCollisionShape();
-        SetPosition(position);
-    }
+    //SphereCollider::SphereCollider(float radius, const glm::vec3& position, bool isTrigger, float mass)
+    //    : Collider(isTrigger, mass), m_radius(radius)
+    //{
+    //    UpdateCollisionShape();
+    //    SetPosition(position);
+    //}
 
-    SphereCollider::~SphereCollider()
-    {
-        // La l�gica de limpieza est?en la clase base
-    }
+    //SphereCollider::~SphereCollider()
+    //{
+    //    // La l�gica de limpieza est?en la clase base
+    //}
 
-    void SphereCollider::SetRadius(float radius)
-    {
-        if (m_radius != radius)
-        {
-            m_radius = radius;
-            UpdateCollisionShape();
-        }
-    }
+    //void SphereCollider::SetRadius(float radius)
+    //{
+    //    if (m_radius != radius)
+    //    {
+    //        m_radius = radius;
+    //        UpdateCollisionShape();
+    //    }
+    //}
 
-    float SphereCollider::GetRadius() const
-    {
-        return m_radius;
-    }
+    //float SphereCollider::GetRadius() const
+    //{
+    //    return m_radius;
+    //}
 
-    void SphereCollider::UpdateCollisionShape()
-    {
-        btCollisionShape* shape = new btSphereShape(m_radius);
-        m_collisionObject->setCollisionShape(shape);
-    }
+    //void SphereCollider::UpdateCollisionShape()
+    //{
+    //    btCollisionShape* shape = new btSphereShape(m_radius);
+    //    m_collisionObject->setCollisionShape(shape);
+    //}
 
 } // namespace Coffee

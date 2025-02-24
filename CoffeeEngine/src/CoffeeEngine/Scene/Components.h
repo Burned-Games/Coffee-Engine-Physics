@@ -369,25 +369,61 @@ namespace Coffee
         glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Tama�o del collider
         glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // Offset del collider
         bool IsTrigger = false;                // Es un trigger
+        float Mass = 0.0f;                     // Masa del collider
         int MaterialIndex = 0;                 // �ndice del material
 
-        btCollisionObject* ColliderObject = nullptr; // Referencia al objeto f�sico
+        Ref<Collider> m_Collider = nullptr; // Usando Collider en lugar de BoxCollider
 
-        // Funci�n para inicializar el collider
-        //void Initialize(PhysicsEngine* physicsEngine, const glm::vec3& position, const glm::vec3& scale,
-        //                const glm::quat& rotation)
-        //{
-        //    // Crear configuraci�n del collider
-        //    CollisionShapeConfig colliderConfig;
-        //    colliderConfig.type = CollisionShapeType::BOX;
-        //    colliderConfig.size = Size * scale; // Ajusta el tama�o por la escala
-        //    colliderConfig.isTrigger = IsTrigger;
-        //    colliderConfig.mass = IsTrigger ? 0.0f : 1.0f; // Sin masa si es trigger
+        BoxColliderComponent() = default;
 
-        //    // Crear el objeto de colisi�n en el motor f�sico
-        //    ColliderObject = physicsEngine->CreateCollisionObject(colliderConfig, position + Offset, scale, rotation);
-        //}
+        explicit BoxColliderComponent(TransformComponent& transform)
+        {
+            // Crear la configuraci�n del collider
+            CollisionShapeConfig config;
+            config.type = CollisionShapeType::BOX;
+            config.size = Size;
+            config.isTrigger = IsTrigger;
+            config.mass = Mass;
+
+            glm::vec3 position = glm::vec3(transform.GetWorldTransform()[3]) + Offset;
+            glm::quat rotation = glm::quat(glm::vec3(0.0f)); // Sin rotaci�n inicial
+            glm::vec3 scale = glm::vec3(1.0f);               // Escala por defecto
+
+            // Crear el Collider usando el nuevo constructor
+            m_Collider = std::make_shared<Collider>(config, position, rotation, scale);
+        }
+
+        ~BoxColliderComponent() = default;
+
+        /**
+         * @brief Serializes the BoxColliderComponent.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to serialize to.
+         */
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Size", Size), cereal::make_nvp("Offset", Offset),
+                    cereal::make_nvp("IsTrigger", IsTrigger), cereal::make_nvp("Mass", Mass),
+                    cereal::make_nvp("MaterialIndex", MaterialIndex));
+
+            if (Archive::is_loading::value)
+            {
+                // Al cargar, recrear el Collider
+                CollisionShapeConfig config;
+                config.type = CollisionShapeType::BOX;
+                config.size = Size;
+                config.isTrigger = IsTrigger;
+                config.mass = Mass;
+
+                glm::vec3 position = Offset;
+                glm::quat rotation = glm::quat(glm::vec3(0.0f));
+                glm::vec3 scale = glm::vec3(1.0f);
+
+                m_Collider = std::make_shared<Collider>(config, position, rotation, scale);
+            }
+        }
     };
+
 
     struct SphereColliderComponent
     {

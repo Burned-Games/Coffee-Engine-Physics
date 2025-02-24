@@ -19,6 +19,7 @@
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
 #include "CoffeeEngine/Physics/PhysicsEngine.h"
+#include "CoffeeEngine/Physics/Collider.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -301,7 +302,8 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive);
+            .get<RigidbodyComponent>(archive)
+            .get<BoxColliderComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -336,7 +338,8 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive);
+            .get<RigidbodyComponent>(archive)
+            .get<BoxColliderComponent>(archive);
         
         scene->m_FilePath = path;
 

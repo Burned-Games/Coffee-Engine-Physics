@@ -790,29 +790,44 @@ namespace Coffee
             }
         }
 
-        if (entity.HasComponent<BoxColliderComponent>())
+       if (entity.HasComponent<BoxColliderComponent>())
         {
             auto& boxCollider = entity.GetComponent<BoxColliderComponent>();
             bool isCollapsingHeaderOpen = true;
 
-            ImGui::PushID("BoxCollider"); // Unic ID
+            ImGui::PushID("BoxCollider"); // Unique ID
             if (ImGui::CollapsingHeader("Box Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // size
+                // Size
                 ImGui::Text("Size");
-                ImGui::DragFloat3("##BoxSize", glm::value_ptr(boxCollider.Size), 0.1f, 0.0f, 100.0f);
+                if (ImGui::DragFloat3("##BoxSize", glm::value_ptr(boxCollider.Size), 0.1f, 0.0f, 100.0f))
+                {
+                    // Update collider size
+                    boxCollider.m_Collider->SetPosition(boxCollider.Offset);
+                }
 
-                // offset
+                // Offset
                 ImGui::Text("Offset");
-                ImGui::DragFloat3("##BoxOffset", glm::value_ptr(boxCollider.Offset), 0.1f);
+                if (ImGui::DragFloat3("##BoxOffset", glm::value_ptr(boxCollider.Offset), 0.1f))
+                {
+                    // Update collider position
+                    glm::vec3 position = boxCollider.Offset;
+                    boxCollider.m_Collider->SetPosition(position);
+                }
 
-                // is trigger
-                ImGui::Checkbox("Is Trigger", &boxCollider.IsTrigger);
+                // Is Trigger
+                if (ImGui::Checkbox("Is Trigger", &boxCollider.IsTrigger))
+                {
+                    // Update trigger state
+                    boxCollider.m_Collider->SetEnabled(!boxCollider.IsTrigger);
+                }
 
-                // material
+                // Mass
+                ImGui::Text("Mass");
+                ImGui::DragFloat("##Mass", &boxCollider.Mass, 0.1f, 0.001f, 1000.0f);
+
+                // Material
                 ImGui::Text("Material");
-                // Here you could add more properties related to the collider's material
-                // For example: material properties, friction, restitution, etc.
                 ImGui::Combo("Material", &boxCollider.MaterialIndex, "None\0Physic Material\0\0");
 
                 // Layer Overrides
@@ -827,7 +842,7 @@ namespace Coffee
             {
                 entity.RemoveComponent<BoxColliderComponent>();
             }
-            ImGui::PopID(); // end Unic ID
+            ImGui::PopID(); // End Unique ID
         }
 
         if (entity.HasComponent<SphereColliderComponent>())

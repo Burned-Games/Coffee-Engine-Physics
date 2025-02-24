@@ -20,6 +20,7 @@ namespace Coffee{
 
     class RigidbodyComponent;
     class TransformComponent;
+    
     /**
      * @enum PhysicsType
      * @brief Defines different types of physics simulations.
