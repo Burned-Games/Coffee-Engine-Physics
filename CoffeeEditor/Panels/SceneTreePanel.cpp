@@ -742,6 +742,51 @@ namespace Coffee
                     ImGui::Checkbox("Freeze Rotation Z", &rigidbodyComponent.cfg.FreezeRotZ);
                     ImGui::Unindent();
                 }
+
+                // Force Test Buttons Section
+                if (ImGui::CollapsingHeader("Force Tests"))
+                {
+                    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 8));
+                    
+                    // Y-Axis Impulses
+                    if (ImGui::Button("Impulse Up", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, 5.0f, 0.0f));
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Impulse Down", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, -5.0f, 0.0f));
+                    }
+
+                    ImGui::Separator();
+
+                    // Z-Axis Impulses
+                    if (ImGui::Button("Impulse Forward", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, 0.0f, 5.0f));
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Impulse Back", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, 0.0f, -5.0f));
+                    }
+
+                    ImGui::Separator();
+
+                    // X-Axis Impulses
+                    if (ImGui::Button("Impulse Right", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(5.0f, 0.0f, 0.0f));
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Impulse Left", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(-5.0f, 0.0f, 0.0f));
+                    }
+
+                    ImGui::PopStyleVar();
+                }
             }
         }
 

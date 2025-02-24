@@ -44,4 +44,26 @@ namespace Coffee {
         // TODO usar joints para esto? No hay opcion para ello en el rigidbody
         
     }
+
+    void RigidBody::ApplyForce(const glm::vec3& force, const glm::vec3& point)
+    {
+        if (!m_RigidBody) return;
+        
+        btVector3 btForce = PhysUtils::GlmToBullet(force);
+        btVector3 btPoint = PhysUtils::GlmToBullet(point);
+        
+        m_RigidBody->applyForce(btForce, btPoint);
+        m_RigidBody->activate(true);
+    }
+
+    void RigidBody::ApplyImpulse(const glm::vec3& impulse, const glm::vec3& point)
+    {
+        if (!m_RigidBody) return;
+        
+        btVector3 btImpulse = PhysUtils::GlmToBullet(impulse);
+        btVector3 btPoint = PhysUtils::GlmToBullet(point);
+        
+        m_RigidBody->applyImpulse(btImpulse, btPoint);
+        m_RigidBody->activate(true);
+    }
 } // Coffee

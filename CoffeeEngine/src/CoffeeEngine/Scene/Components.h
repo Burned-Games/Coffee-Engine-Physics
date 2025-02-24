@@ -313,18 +313,6 @@ namespace Coffee
         }
 
         /**
-         * @brief Applies a force to the rigidbody.
-         * @param force The force to apply.
-         */
-        void ApplyForce(const glm::vec3& force)
-        {
-            if (cfg.type != RigidBodyType::Static)
-            {
-                cfg.Acceleration += force / cfg.shapeConfig.mass; // F = ma => a = F / m
-            }
-        }
-
-        /**
          * @brief Applies a velocity change to the rigidbody.
          * @param velocityChange The change in velocity.
          */
@@ -351,30 +339,52 @@ namespace Coffee
                 // AngularVelocity *= (1.0f - AngularDrag);
             }
         }
+
+        /**
+         * @brief Applies a force to the rigidbody.
+         * @param force The force to apply.
+         * @param point The point at which to apply the force.
+         */
+        void ApplyForce(const glm::vec3& force, const glm::vec3& point = glm::vec3(0.0f))
+        {
+            if (m_RigidBody)
+                m_RigidBody->ApplyForce(force, point);
+        }
+
+        /**
+         * @brief Applies an impulse to the rigidbody.
+         * @param impulse The impulse to apply.
+         * @param point The point at which to apply the impulse.
+         */
+        void ApplyImpulse(const glm::vec3& impulse, const glm::vec3& point = glm::vec3(0.0f))
+        {
+            if (m_RigidBody)
+                m_RigidBody->ApplyImpulse(impulse, point);
+        }
     };
 
    
     struct BoxColliderComponent
     {
-        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Tamaño del collider
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Tamaï¿½o del collider
         glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // Offset del collider
         bool IsTrigger = false;                // Es un trigger
-        int MaterialIndex = 0;                 // Índice del material
+        int MaterialIndex = 0;                 // ï¿½ndice del material
 
-        btCollisionObject* ColliderObject = nullptr; // Referencia al objeto físico
+        btCollisionObject* ColliderObject = nullptr; // Referencia al objeto fï¿½sico
 
-        // Función para inicializar el collider
+        // Funciï¿½n para inicializar el collider
         //void Initialize(PhysicsEngine* physicsEngine, const glm::vec3& position, const glm::vec3& scale,
         //                const glm::quat& rotation)
         //{
-        //    // Crear configuración del collider
+        //    // Crear configuraciï¿½n del collider
         //    CollisionShapeConfig colliderConfig;
         //    colliderConfig.type = CollisionShapeType::BOX;
-        //    colliderConfig.size = Size * scale; // Ajusta el tamaño por la escala
+        //    colliderConfig.size = Size * scale; // Ajusta el tamaï¿½o por la escala
         //    colliderConfig.isTrigger = IsTrigger;
         //    colliderConfig.mass = IsTrigger ? 0.0f : 1.0f; // Sin masa si es trigger
 
-        //    // Crear el objeto de colisión en el motor físico
+        //    // Crear el objeto de colisiï¿½n en el motor fï¿½sico
         //    ColliderObject = physicsEngine->CreateCollisionObject(colliderConfig, position + Offset, scale, rotation);
         //}
     };
