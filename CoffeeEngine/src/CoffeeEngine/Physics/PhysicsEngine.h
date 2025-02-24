@@ -105,7 +105,6 @@ namespace Coffee{
         static btDispatcher* m_dispatcher;                 ///< Collision dispatcher.
         static btBroadphaseInterface* m_broad_phase;       ///< Broadphase collision detection.
         static btConstraintSolver* m_solver;               ///< Constraint solver.
-        static btVehicleRaycaster* m_vehicle_raycaster;    ///< Vehicle raycasting utility.
 
         static std::vector<btCollisionObject*> m_CollisionObjects; ///< List of collision objects.
         static std::vector<btCollisionShape*> m_CollisionShapes;   ///< List of collision shapes.

@@ -670,6 +670,7 @@ namespace Coffee
                 }
             }
         }
+
         if (entity.HasComponent<RigidbodyComponent>())
         {
             auto& rigidbodyComponent = entity.GetComponent<RigidbodyComponent>();
@@ -743,6 +744,7 @@ namespace Coffee
                 }
             }
         }
+
         if (entity.HasComponent<BoxColliderComponent>())
         {
             auto& boxCollider = entity.GetComponent<BoxColliderComponent>();
@@ -782,6 +784,7 @@ namespace Coffee
             }
             ImGui::PopID(); // end Unic ID
         }
+
         if (entity.HasComponent<SphereColliderComponent>())
         {
             auto& sphereCollider = entity.GetComponent<SphereColliderComponent>();
@@ -815,6 +818,7 @@ namespace Coffee
             }
             ImGui::PopID(); // end Unic ID
         }
+
         if (entity.HasComponent<CapsuleColliderComponent>())
         {
             auto& capsuleCollider = entity.GetComponent<CapsuleColliderComponent>();
@@ -863,8 +867,9 @@ namespace Coffee
             }
             ImGui::PopID(); // end Unic ID
         }
+
         if (entity.HasComponent<CylinderColliderComponent>())
-        {
+            {
             auto& cylinderCollider = entity.GetComponent<CylinderColliderComponent>();
             bool isCollapsingHeaderOpen = true;
 
@@ -911,6 +916,7 @@ namespace Coffee
             }
             ImGui::PopID(); // end Unic ID
         }
+
         if (entity.HasComponent<PlaneColliderComponent>())
         {
             auto& planeCollider = entity.GetComponent<PlaneColliderComponent>();
@@ -937,6 +943,7 @@ namespace Coffee
             }
             ImGui::PopID(); // end Unic ID
         }
+
         if (entity.HasComponent<MeshColliderComponent>())
         {
             auto& meshCollider = entity.GetComponent<MeshColliderComponent>();
@@ -1143,7 +1150,6 @@ namespace Coffee
             ImGui::PopID();
         }
 
-
         if (entity.HasComponent<DistanceJoint2DComponent>())
         {
             auto& distanceJoint = entity.GetComponent<DistanceJoint2DComponent>();
@@ -1223,7 +1229,6 @@ namespace Coffee
 
             ImGui::PopID();
         }
-
 
         if (entity.HasComponent<SliderJoint2DComponent>())
         {
@@ -1326,9 +1331,6 @@ namespace Coffee
 
             ImGui::PopID();
         }
-
-
-
 
         ImGui::Separator();
 

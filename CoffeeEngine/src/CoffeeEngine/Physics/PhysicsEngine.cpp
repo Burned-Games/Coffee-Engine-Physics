@@ -16,7 +16,6 @@ namespace Coffee {
     btDispatcher* PhysicsEngine::m_dispatcher = nullptr;
     btBroadphaseInterface* PhysicsEngine::m_broad_phase = nullptr;
     btConstraintSolver* PhysicsEngine::m_solver = nullptr;
-    btVehicleRaycaster* PhysicsEngine::m_vehicle_raycaster = nullptr;
 
     
     std::vector<btCollisionObject*> PhysicsEngine::m_CollisionObjects;
@@ -118,14 +117,12 @@ namespace Coffee {
         delete m_broad_phase;
         delete m_dispatcher;
         delete m_collision_conf;
-        delete m_vehicle_raycaster;
 
         m_world = nullptr;
         m_solver = nullptr;
         m_broad_phase = nullptr;
         m_dispatcher = nullptr;
         m_collision_conf = nullptr;
-        m_vehicle_raycaster = nullptr;
     }
 
     void PhysicsEngine::SetGravity(const glm::vec3& gravity)
