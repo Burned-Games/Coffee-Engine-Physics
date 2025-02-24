@@ -51,34 +51,35 @@ namespace Coffee {
     {
        if (!Scene::m_RigidbodyEntities.empty())
        {
-           //COFFEE_CORE_INFO("Entities with RigidbodyComponent found.");
            for (auto entity : Scene::m_RigidbodyEntities)
            {
                if (rigidbodyComponent.cfg.type == RigidBodyType::Static)
                    continue;
 
                rigidbodyComponent.m_RigidBody->GetConfig(rigidbodyComponent.cfg);
-               if (rigidbodyComponent.cfg.UseGravity && 
-                   rigidbodyComponent.cfg.type == RigidBodyType::Dynamic && 
-                   !rigidbodyComponent.cfg.FreezeY) 
+               
+               if (rigidbodyComponent.cfg.type == RigidBodyType::Dynamic) 
                {
-                   glm::vec3 gravity = GetGravity(); //(0.0f, -9.81f, 0.0f);
-                   gravity *= 0.1f; 
-                   if (rigidbodyComponent.cfg.shapeConfig.mass > 0.0f)
+                   if (rigidbodyComponent.cfg.UseGravity && !rigidbodyComponent.cfg.FreezeY) 
                    {
-                       rigidbodyComponent.cfg.Acceleration += gravity;   
-
-                       rigidbodyComponent.ApplyDrag(); 
+                       glm::vec3 gravity = GetGravity();
+                       gravity *= 0.1f; 
+                       if (rigidbodyComponent.cfg.shapeConfig.mass > 0.0f)
+                       {
+                           rigidbodyComponent.cfg.Acceleration += gravity;   
+                           rigidbodyComponent.ApplyDrag(); 
+                       }
                    }
+                   
                    if (rigidbodyComponent.cfg.type == RigidBodyType::Kinematic)
                    {
                        transformComponent.Position += rigidbodyComponent.cfg.Velocity * dt;
                        return;
                    }
+                   
                    rigidbodyComponent.cfg.Velocity +=
-                       rigidbodyComponent.cfg.Acceleration * dt; // Update velocity with acceleration
-                   transformComponent.Position += rigidbodyComponent.cfg.Velocity * dt; 
-
+                       rigidbodyComponent.cfg.Acceleration * dt;
+                       
                    if (!rigidbodyComponent.cfg.FreezeX)
                        transformComponent.Position.x += rigidbodyComponent.cfg.Velocity.x * dt;
                    if (!rigidbodyComponent.cfg.FreezeY)

@@ -11,6 +11,10 @@ namespace Coffee {
         m_Callbacks.rigidBody = this;
         config.shapeConfig.type = CollisionShapeType::SPHERE;
         this->m_RigidBody = PhysicsEngine::CreateRigidBody(&m_Callbacks, config);
+        
+        if (!config.UseGravity) {
+            m_RigidBody->setGravity(btVector3(0, 0, 0));
+        }
     }
     
     RigidBody::~RigidBody()
