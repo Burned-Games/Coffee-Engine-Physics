@@ -14,7 +14,7 @@
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "src/CoffeeEngine/IO/Serialization/BulletSerialization.h"
-//#include "CoffeeEngine/Physics/PhysicsEngine.h"
+#include "CoffeeEngine/Physics/PhysicsEngine.h"
 #include "src/CoffeeEngine/Physics/Collider.h"
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
@@ -32,6 +32,7 @@
 
 namespace Coffee
 {
+    
     /**
      * @brief Component representing a tag.
      * @ingroup scene
