@@ -1,31 +1,31 @@
 #include "PhysicsEngine.h"
 #include "PhysUtils.h"
 
-
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Scene/Components.h"
 
 #include <entt/entity/entity.hpp>
 
-namespace Coffee {
 
+namespace Coffee
+{
+    std::vector<PhysicsEngine::DebugDrawCommand> PhysicsEngine::debugDrawList;
     using namespace Coffee;
-    
+
     btDynamicsWorld* PhysicsEngine::m_world = nullptr;
     btCollisionConfiguration* PhysicsEngine::m_collision_conf = nullptr;
     btDispatcher* PhysicsEngine::m_dispatcher = nullptr;
     btBroadphaseInterface* PhysicsEngine::m_broad_phase = nullptr;
     btConstraintSolver* PhysicsEngine::m_solver = nullptr;
 
-    
     std::vector<btCollisionObject*> PhysicsEngine::m_CollisionObjects;
     std::vector<btCollisionShape*> PhysicsEngine::m_CollisionShapes;
-    //std::shared_ptr<Scene> PhysicsEngine::m_ActiveScene = nullptr;
+    // std::shared_ptr<Scene> PhysicsEngine::m_ActiveScene = nullptr;
 
     void PhysicsEngine::Init()
     {
         COFFEE_CORE_INFO("Initializing Physics Engine");
-        
+
         m_collision_conf = new btDefaultCollisionConfiguration();
         m_dispatcher = new btCollisionDispatcher(m_collision_conf);
         m_broad_phase = new btDbvtBroadphase();
@@ -33,11 +33,10 @@ namespace Coffee {
 
         m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broad_phase, m_solver, m_collision_conf);
 
-
         SetGravity(glm::vec3(0.0f, -0.981f, 0.0f));
     }
 
-   void PhysicsEngine::Update(float dt)
+    void PhysicsEngine::Update(float dt)
     {
         if (m_world)
         {
@@ -45,59 +44,89 @@ namespace Coffee {
             m_world->debugDrawWorld();
         }
 
+      
+
+        if (debugDrawList.empty())
+            return;
+
+        // 遍历列表绘制所有碰撞体
+        for (const auto& cmd : debugDrawList)
+        {
+            switch (cmd.type)
+            {
+            case CollisionShapeType::BOX:
+                printf("yeeee");
+                Coffee::DebugRenderer::DrawBox(cmd.position, cmd.rotation,
+                                               cmd.size, // 全尺寸
+                                               cmd.color);
+                break;
+
+            case CollisionShapeType::SPHERE:
+                // 假设 DrawSphere 接受半径（size.x）
+                Coffee::DebugRenderer::DrawSphere(cmd.position,
+                                                  cmd.size.x, // 半径
+                                                  cmd.color);
+                break;
+
+                // 其他类型...
+            }
+        }
+
+        //// 清空列表（避免重复绘制）
+        //debugDrawList.clear();
     }
 
-   void PhysicsEngine::ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent, float dt)
+    void PhysicsEngine::ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent,
+                                       float dt)
     {
-       if (!Scene::m_RigidbodyEntities.empty())
-       {
-           for (auto entity : Scene::m_RigidbodyEntities)
-           {
-               if (rigidbodyComponent.cfg.type == RigidBodyType::Static)
-                   continue;
+        if (!Scene::m_RigidbodyEntities.empty())
+        {
+            for (auto entity : Scene::m_RigidbodyEntities)
+            {
+                if (rigidbodyComponent.cfg.type == RigidBodyType::Static)
+                    continue;
 
-               rigidbodyComponent.m_RigidBody->GetConfig(rigidbodyComponent.cfg);
-               
-               if (rigidbodyComponent.cfg.type == RigidBodyType::Dynamic) 
-               {
-                   if (rigidbodyComponent.cfg.UseGravity && !rigidbodyComponent.cfg.FreezeY) 
-                   {
-                       glm::vec3 gravity = GetGravity();
-                       //gravity *= 0.1f;
-                       if (rigidbodyComponent.cfg.shapeConfig.mass > 0.0f)
-                       {
-                           rigidbodyComponent.cfg.Acceleration += gravity;   
-                           rigidbodyComponent.ApplyDrag(); 
-                       }
-                   }
-                   
-                   if (rigidbodyComponent.cfg.type == RigidBodyType::Kinematic)
-                   {
-                       transformComponent.Position += rigidbodyComponent.cfg.Velocity * dt;
-                       return;
-                   }
-                   
-                   rigidbodyComponent.cfg.Velocity +=
-                       rigidbodyComponent.cfg.Acceleration * dt;
-                       
-                   if (!rigidbodyComponent.cfg.FreezeX)
-                       transformComponent.Position.x += rigidbodyComponent.cfg.Velocity.x * dt;
-                   if (!rigidbodyComponent.cfg.FreezeY)
-                       transformComponent.Position.y += rigidbodyComponent.cfg.Velocity.y * dt;
-                   if (!rigidbodyComponent.cfg.FreezeZ)
-                       transformComponent.Position.z += rigidbodyComponent.cfg.Velocity.z * dt;
-                   if (rigidbodyComponent.cfg.FreezeRotX)
-                       rigidbodyComponent.cfg.Velocity.x = 0.0f;
-                   if (rigidbodyComponent.cfg.FreezeRotY)
-                       rigidbodyComponent.cfg.Velocity.y = 0.0f;
-                   if (rigidbodyComponent.cfg.FreezeRotZ)
-                       rigidbodyComponent.cfg.Velocity.z = 0.0f;
-                  
-                   rigidbodyComponent.ApplyAngularDrag(); 
-               }
-           }
-       }
-   }
+                rigidbodyComponent.m_RigidBody->GetConfig(rigidbodyComponent.cfg);
+
+                if (rigidbodyComponent.cfg.type == RigidBodyType::Dynamic)
+                {
+                    if (rigidbodyComponent.cfg.UseGravity && !rigidbodyComponent.cfg.FreezeY)
+                    {
+                        glm::vec3 gravity = GetGravity();
+                        // gravity *= 0.1f;
+                        if (rigidbodyComponent.cfg.shapeConfig.mass > 0.0f)
+                        {
+                            rigidbodyComponent.cfg.Acceleration += gravity;
+                            rigidbodyComponent.ApplyDrag();
+                        }
+                    }
+
+                    if (rigidbodyComponent.cfg.type == RigidBodyType::Kinematic)
+                    {
+                        transformComponent.Position += rigidbodyComponent.cfg.Velocity * dt;
+                        return;
+                    }
+
+                    rigidbodyComponent.cfg.Velocity += rigidbodyComponent.cfg.Acceleration * dt;
+
+                    if (!rigidbodyComponent.cfg.FreezeX)
+                        transformComponent.Position.x += rigidbodyComponent.cfg.Velocity.x * dt;
+                    if (!rigidbodyComponent.cfg.FreezeY)
+                        transformComponent.Position.y += rigidbodyComponent.cfg.Velocity.y * dt;
+                    if (!rigidbodyComponent.cfg.FreezeZ)
+                        transformComponent.Position.z += rigidbodyComponent.cfg.Velocity.z * dt;
+                    if (rigidbodyComponent.cfg.FreezeRotX)
+                        rigidbodyComponent.cfg.Velocity.x = 0.0f;
+                    if (rigidbodyComponent.cfg.FreezeRotY)
+                        rigidbodyComponent.cfg.Velocity.y = 0.0f;
+                    if (rigidbodyComponent.cfg.FreezeRotZ)
+                        rigidbodyComponent.cfg.Velocity.z = 0.0f;
+
+                    rigidbodyComponent.ApplyAngularDrag();
+                }
+            }
+        }
+    }
     void PhysicsEngine::Destroy()
     {
         for (auto* obj : m_CollisionObjects)
@@ -143,9 +172,9 @@ namespace Coffee {
         return glm::vec3(0.0f);
     }
 
-    //void PhysicsEngine::ProcessTriggerEvents()
+    // void PhysicsEngine::ProcessTriggerEvents()
     //{
-    //    if (m_world == nullptr) return;
+    //     if (m_world == nullptr) return;
 
     //    // TODO cuando haya colliders descomentar esto y adaptarlo correctamente
     //    /*
@@ -155,7 +184,6 @@ namespace Coffee {
     //        btPersistentManifold* contactManifold = m_world->getDispatcher()->getManifoldByIndexInternal(i);
     //        auto* obA = (btCollisionObject*)(contactManifold->getBody0());
     //        auto* obB = (btCollisionObject*)(contactManifold->getBody1());
-
 
     //        int numContacts = contactManifold->getNumContacts();
     //        if(numContacts > 0)
@@ -184,28 +212,35 @@ namespace Coffee {
     btCollisionShape* PhysicsEngine::CreateCollisionShape(const CollisionShapeConfig& config)
     {
         btCollisionShape* shape = nullptr;
-        
+
         switch (config.type)
         {
-            case CollisionShapeType::BOX:
-                shape = new btBoxShape(PhysUtils::GlmToBullet(config.size * 0.5f));
-                break;
-            case CollisionShapeType::SPHERE:
-                shape = new btSphereShape(config.size.x);
-                break;
-            case CollisionShapeType::CAPSULE:
-                shape = new btCapsuleShape(config.size.x, config.size.y);
-                break;
-            case CollisionShapeType::CYLINDER:
-                shape = new btCylinderShape(PhysUtils::GlmToBullet(config.size));
-                break;
-            default:
-                shape = new btBoxShape(PhysUtils::GlmToBullet(config.size * 0.5f));
-                break;
+        case CollisionShapeType::BOX:
+            shape = new btBoxShape(PhysUtils::GlmToBullet(config.size * 0.5f));
+            break;
+        case CollisionShapeType::SPHERE:
+            shape = new btSphereShape(config.size.x);
+            break;
+        case CollisionShapeType::CAPSULE:
+            shape = new btCapsuleShape(config.size.x, config.size.y);
+            break;
+        case CollisionShapeType::CYLINDER:
+            shape = new btCylinderShape(PhysUtils::GlmToBullet(config.size));
+            break;
+        default:
+            shape = new btBoxShape(PhysUtils::GlmToBullet(config.size * 0.5f));
+            break;
         }
 
         m_CollisionShapes.push_back(shape);
         return shape;
+    }
+
+    void PhysicsEngine::AddDebugDrawCommand(CollisionShapeType type, const glm::vec3& position,
+                                            const glm::quat& rotation, const glm::vec3& size, const glm::vec4& color)
+    {
+        printf("yeeee");
+        debugDrawList.push_back({position, rotation, size, color, type});
     }
 
     btCollisionObject* PhysicsEngine::CreateCollisionObject(const CollisionShapeConfig& config,
@@ -282,21 +317,18 @@ namespace Coffee {
             m_world->addCollisionObject(object);
         }
 
-        
         m_CollisionObjects.push_back(object);
 
         return object;
     }
 
-
-
-
     void PhysicsEngine::DestroyCollisionObject(btCollisionObject* object)
     {
-        if (!object) return;
+        if (!object)
+            return;
 
         m_world->removeCollisionObject(object);
-        
+
         auto it = std::find(m_CollisionObjects.begin(), m_CollisionObjects.end(), object);
         if (it != m_CollisionObjects.end())
         {
@@ -344,9 +376,6 @@ namespace Coffee {
         }
     }
 
-
-
-
     void PhysicsEngine::SetPosition(btCollisionObject* object, const glm::vec3& position)
     {
         if (!object)
@@ -357,7 +386,6 @@ namespace Coffee {
         object->setWorldTransform(transform);
     }
 
-
     glm::vec3 PhysicsEngine::GetPosition(btCollisionObject* object)
     {
         if (!object)
@@ -367,21 +395,20 @@ namespace Coffee {
         return PhysUtils::BulletToGlm(transform.getOrigin());
     }
 
-
     int PhysicsEngine::GetRigidbodyFlags(const RigidBodyConfig& config)
     {
         int flags = 0;
         switch (config.type)
         {
-            case RigidBodyType::Static:
-                flags |= btCollisionObject::CF_STATIC_OBJECT;
-                break;
-            case RigidBodyType::Kinematic:
-                flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
-                break;
-            case RigidBodyType::Dynamic:
-                flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
-                break;
+        case RigidBodyType::Static:
+            flags |= btCollisionObject::CF_STATIC_OBJECT;
+            break;
+        case RigidBodyType::Kinematic:
+            flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
+            break;
+        case RigidBodyType::Dynamic:
+            flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
+            break;
         }
         return flags;
     }
@@ -403,7 +430,6 @@ namespace Coffee {
         // Set object type
         body->setFlags(body->getFlags() | GetRigidbodyFlags(config));
 
-        
         body->setUserPointer(colCallbacks);
         m_world->addRigidBody(body);
 

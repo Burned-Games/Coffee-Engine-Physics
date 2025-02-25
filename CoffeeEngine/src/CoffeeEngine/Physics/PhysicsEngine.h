@@ -3,24 +3,23 @@
  * @brief Declares the PhysicsEngine class for managing physics simulation.
  */
 
-
 #pragma once
 
+#include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Scene/Entity.h"
+#include "Collider.h"
+#include "CollisionCallbacks.h"
 #include <bullet/btBulletDynamicsCommon.h>
+#include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <vector>
-#include "Collider.h"
-#include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/Scene/Components.h"
-#include "CollisionCallbacks.h"
-#include <entt/entt.hpp>
 
-
-namespace Coffee{
+namespace Coffee
+{
 
     class RigidbodyComponent;
     class TransformComponent;
-    
+
     /**
      * @enum PhysicsType
      * @brief Defines different types of physics simulations.
@@ -33,14 +32,24 @@ namespace Coffee{
         CONTINUOUS ///< Continuous collision detection.
     };
 
-    
+
+
     /**
      * @class PhysicsEngine
      * @brief Manages the physics world and updates simulation.
      */
     class PhysicsEngine
     {
-    public:
+      public:
+        struct DebugDrawCommand
+        {
+            glm::vec3 position;      // position
+            glm::quat rotation;      // rotation
+            glm::vec3 size;          // Size
+            glm::vec4 color;         // Color
+            CollisionShapeType type; // Åö×²ÌåÀàÐÍ
+        };
+
 
         /** @brief Initializes the physics engine. */
         static void Init();
@@ -54,7 +63,8 @@ namespace Coffee{
          * @param transformComponent The transform component.
          * @param dt Delta time.
          */
-        static void ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent, float dt);
+        static void ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent,
+                                   float dt);
         /** @brief Gets the physics world. */
         static btDynamicsWorld* GetWorld() { return m_world; }
         /** @brief Sets the gravity of the physics world. */
@@ -72,12 +82,19 @@ namespace Coffee{
         static int GetRigidbodyFlags(const RigidBodyConfig& config);
 
         // Create + Destroy collision objects
-       /* static btCollisionObject* CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3& position);*/
+        /* static btCollisionObject* CreateCollisionObject(const CollisionShapeConfig& config, const glm::vec3&
+         * position);*/
         /** @brief Destroys a collision object. */
         static void DestroyCollisionObject(btCollisionObject* object);
-        
+
         /** @brief Creates a collision shape based on configuration. */
         static btCollisionShape* CreateCollisionShape(const CollisionShapeConfig& config);
+
+        
+
+        static void AddDebugDrawCommand(CollisionShapeType type, const glm::vec3& position, const glm::quat& rotation,
+                                        const glm::vec3& size,
+                                        const glm::vec4& color = glm::vec4(0, 1, 0, 1));
 
         /**
          * @brief Creates a collision object.
@@ -101,6 +118,10 @@ namespace Coffee{
         /** @brief Removes a rigid body from the physics world. */
         static void RemoveRigidBody(btRigidBody* rigidBody);
 
+            
+
+
+
       private:
         static btDynamicsWorld* m_world; ///< Pointer to the Bullet physics world.
 
@@ -109,6 +130,8 @@ namespace Coffee{
         static btBroadphaseInterface* m_broad_phase;       ///< Broadphase collision detection.
         static btConstraintSolver* m_solver;               ///< Constraint solver.
 
+        static std::vector<DebugDrawCommand> debugDrawList;
+
         static std::vector<btCollisionObject*> m_CollisionObjects; ///< List of collision objects.
         static std::vector<btCollisionShape*> m_CollisionShapes;   ///< List of collision shapes.
 
@@ -116,4 +139,4 @@ namespace Coffee{
 
         friend class RigidBody; ///< Grant RigidBody access to private members.
     };
-}
+} // namespace Coffee

@@ -391,6 +391,8 @@ namespace Coffee
 
             // Crear el Collider usando el nuevo constructor
             m_Collider = std::make_shared<Collider>(config, position, rotation, scale);
+
+
         }
 
         ~BoxColliderComponent() = default;
