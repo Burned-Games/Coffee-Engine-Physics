@@ -121,7 +121,7 @@ namespace Coffee
             
 
 
-
+        static std::vector<DebugDrawCommand> debugDrawList;
       private:
         static btDynamicsWorld* m_world; ///< Pointer to the Bullet physics world.
 
@@ -130,7 +130,7 @@ namespace Coffee
         static btBroadphaseInterface* m_broad_phase;       ///< Broadphase collision detection.
         static btConstraintSolver* m_solver;               ///< Constraint solver.
 
-        static std::vector<DebugDrawCommand> debugDrawList;
+        
 
         static std::vector<btCollisionObject*> m_CollisionObjects; ///< List of collision objects.
         static std::vector<btCollisionShape*> m_CollisionShapes;   ///< List of collision shapes.

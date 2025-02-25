@@ -7,15 +7,15 @@ namespace Coffee
 
     Collider::Collider(const CollisionShapeConfig& config, const glm::vec3& position, const glm::quat& rotation,
                        const glm::vec3& scale)
-        : m_isTrigger(config.isTrigger), m_mass(config.mass), m_position(position)
+        : m_isTrigger(config.isTrigger), m_mass(config.mass), m_position(position), m_scale(scale)
     {
         // Usar la función CreateCollisionObject para crear el btCollisionObject
         m_collisionObject = PhysicsEngine::CreateCollisionObject(config, position, scale, rotation);
 
 
-        PhysicsEngine::AddDebugDrawCommand(CollisionShapeType::BOX, position, rotation,
-                                           scale, // fullsize
-                                           glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        //PhysicsEngine::AddDebugDrawCommand(CollisionShapeType::BOX, position, rotation,
+        //                                   scale, // fullsize
+        //                                   glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
         // Añadir el objeto al mundo físico (ya se hace en CreateCollisionObject)
     }
@@ -26,12 +26,18 @@ namespace Coffee
         delete m_collisionObject;
     }
 
-    void Collider::SetPosition(const glm::vec3& position)
+    void Collider::SetPosition(const glm::vec3& position, const glm::vec3& offset)
     {
-        m_position = position;
-        btTransform transform = m_collisionObject->getWorldTransform();
-        transform.setOrigin(PhysUtils::GlmToBullet(m_position));
-        m_collisionObject->setWorldTransform(transform);
+        if (this != nullptr)
+        {
+            m_offset = offset;
+            m_position = position + m_offset;
+            btTransform transform = m_collisionObject->getWorldTransform();
+            transform.setOrigin(PhysUtils::GlmToBullet(m_position));
+            m_collisionObject->setWorldTransform(transform);
+            Coffee::DebugRenderer::DrawBox(m_position, glm::vec3(0, 0, 0), m_scale);
+        }
+        
     }
 
     glm::vec3 Collider::GetPosition() const

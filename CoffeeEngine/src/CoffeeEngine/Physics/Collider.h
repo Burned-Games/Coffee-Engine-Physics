@@ -7,7 +7,7 @@
 
 namespace Coffee
 {
-
+    
     /**
      * @enum CollisionShapeType
      * @brief Defines the types of collision shapes.
@@ -41,6 +41,7 @@ namespace Coffee
      */
     class Collider
     {
+
       public:
         using CollisionCallback = std::function<void(Collider* other)>;
 
@@ -61,7 +62,7 @@ namespace Coffee
          * @brief Sets the position of the collider.
          * @param position The new position.
          */
-        void SetPosition(const glm::vec3& position);
+        void SetPosition(const glm::vec3& position, const glm::vec3& offset = glm::vec3(0,0,0));
         /**
          * @brief Gets the current position of the collider.
          * @return The collider's position.
@@ -103,6 +104,8 @@ namespace Coffee
 
         btCollisionObject* m_collisionObject; /**< Bullet collision object */
         glm::vec3 m_position;                 /**< Collider position */
+        glm::vec3 m_scale;                 /**< Collider position */
+        glm::vec3 m_offset;                 /**< Collider position */
         bool m_isTrigger;                     /**< Whether the collider is a trigger */
         float m_mass;                         /**< Mass of the collider */
 

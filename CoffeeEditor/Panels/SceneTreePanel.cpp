@@ -811,8 +811,8 @@ namespace Coffee
                 if (ImGui::DragFloat3("##BoxOffset", glm::value_ptr(boxCollider.Offset), 0.1f))
                 {
                     // Update collider position
-                    glm::vec3 position = boxCollider.Offset;
-                    boxCollider.m_Collider->SetPosition(position);
+                    glm::vec3 offset = boxCollider.Offset;
+                    boxCollider.m_Collider->SetPosition(entity.GetComponent<TransformComponent>().Position, offset);
                 }
 
                 // Is Trigger
@@ -836,6 +836,8 @@ namespace Coffee
                     // Add properties for layer overrides here
                     ImGui::TreePop();
                 }
+                boxCollider.m_Collider->SetPosition(entity.GetComponent<TransformComponent>().Position,
+                                                    boxCollider.Offset);      
             }
 
             if (!isCollapsingHeaderOpen)

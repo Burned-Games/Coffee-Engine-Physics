@@ -53,7 +53,7 @@ namespace Coffee
             switch (cmd.type)
             {
             case CollisionShapeType::BOX:
-                Coffee::DebugRenderer::DrawBox(cmd.position, cmd.rotation,
+                Coffee::DebugRenderer::DrawBox(cmd.position + glm::vec3(10,0,0), cmd.rotation,
                                                cmd.size, 
                                                cmd.color);
                 break;
@@ -416,6 +416,7 @@ namespace Coffee
             new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
 
         btRigidBody::btRigidBodyConstructionInfo rbInfo(config.shapeConfig.mass, motionState, shape, localInertia);
+
 
         btRigidBody* body = new btRigidBody(rbInfo);
 
