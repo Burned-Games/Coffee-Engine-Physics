@@ -1518,7 +1518,10 @@ namespace Coffee
                 else if (items[item_current] == "BoxCollider Component")
                 {
                     if (!entity.HasComponent<BoxColliderComponent>())
-                        entity.AddComponent<BoxColliderComponent>();
+                    {
+                        auto& t = entity.GetComponent<TransformComponent>();
+                        entity.AddComponent<BoxColliderComponent>(t);
+                    }
                     ImGui::CloseCurrentPopup();
                 }
                 else if (items[item_current] == "SphereCollider Component")
