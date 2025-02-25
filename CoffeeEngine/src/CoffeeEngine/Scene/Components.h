@@ -285,7 +285,6 @@ namespace Coffee
             cfg.transform = transform.GetWorldTransform();
             cfg.type = RigidBodyType::Dynamic;
             m_RigidBody = std::make_shared<RigidBody>(cfg);
-            
         }
 
         ~RigidbodyComponent()
@@ -388,12 +387,11 @@ namespace Coffee
             glm::vec3 position = glm::vec3(transform.GetWorldTransform()[3]) + Offset;
             glm::quat rotation = glm::quat(glm::vec3(0.0f)); // Sin rotaci�n inicial
             glm::vec3 scale = glm::vec3(1.0f);               // Escala por defecto
-
             // Crear el Collider usando el nuevo constructor
             m_Collider = std::make_shared<Collider>(config, position, rotation, scale);
-
-
         }
+
+       //TransformComponent& transform;
 
         ~BoxColliderComponent() = default;
 
@@ -420,6 +418,8 @@ namespace Coffee
                 glm::vec3 position = Offset;
                 glm::quat rotation = glm::quat(glm::vec3(0.0f));
                 glm::vec3 scale = glm::vec3(1.0f);
+
+    
 
                 m_Collider = std::make_shared<Collider>(config, position, rotation, scale);
             }

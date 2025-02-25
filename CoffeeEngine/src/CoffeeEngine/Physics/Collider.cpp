@@ -11,8 +11,6 @@ namespace Coffee
     {
         // Usar la función CreateCollisionObject para crear el btCollisionObject
         m_collisionObject = PhysicsEngine::CreateCollisionObject(config, position, scale, rotation);
-
-
         PhysicsEngine::AddDebugDrawCommand(CollisionShapeType::BOX, position, rotation,
                                            scale, // fullsize
                                            glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
