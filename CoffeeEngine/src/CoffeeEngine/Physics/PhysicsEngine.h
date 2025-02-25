@@ -47,7 +47,7 @@ namespace Coffee
             glm::quat rotation;      // rotation
             glm::vec3 size;          // Size
             glm::vec4 color;         // Color
-            CollisionShapeType type; // ≈ˆ◊≤ÃÂ¿‡–Õ
+            CollisionShapeType type; // Collider Type
         };
 
 

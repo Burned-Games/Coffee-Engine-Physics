@@ -48,32 +48,25 @@ namespace Coffee
 
         if (debugDrawList.empty())
             return;
-
-        // 遍历列表绘制所有碰撞体
         for (const auto& cmd : debugDrawList)
         {
             switch (cmd.type)
             {
             case CollisionShapeType::BOX:
-                printf("yeeee");
                 Coffee::DebugRenderer::DrawBox(cmd.position, cmd.rotation,
-                                               cmd.size, // 全尺寸
+                                               cmd.size, 
                                                cmd.color);
                 break;
 
             case CollisionShapeType::SPHERE:
-                // 假设 DrawSphere 接受半径（size.x）
                 Coffee::DebugRenderer::DrawSphere(cmd.position,
-                                                  cmd.size.x, // 半径
+                                                  cmd.size.x, 
                                                   cmd.color);
                 break;
 
-                // 其他类型...
             }
         }
 
-        //// 清空列表（避免重复绘制）
-        //debugDrawList.clear();
     }
 
     void PhysicsEngine::ApplyRigidbody(RigidbodyComponent& rigidbodyComponent, TransformComponent& transformComponent,
@@ -239,7 +232,6 @@ namespace Coffee
     void PhysicsEngine::AddDebugDrawCommand(CollisionShapeType type, const glm::vec3& position,
                                             const glm::quat& rotation, const glm::vec3& size, const glm::vec4& color)
     {
-        printf("yeeee");
         debugDrawList.push_back({position, rotation, size, color, type});
     }
 
