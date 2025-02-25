@@ -26,11 +26,11 @@ namespace Coffee
         delete m_collisionObject;
     }
 
-    void Collider::SetPosition(const glm::vec3& position, const glm::vec3& offset)
+    void Collider::SetPosition(const glm::vec3& position, const glm::vec3& positionOffset)
     {
         if (this != nullptr)
         {
-            m_offset = offset;
+            m_offset = positionOffset;
             m_position = position + m_offset;
             btTransform transform = m_collisionObject->getWorldTransform();
             transform.setOrigin(PhysUtils::GlmToBullet(m_position));
@@ -39,6 +39,35 @@ namespace Coffee
         }
         
     }
+
+    void Collider::SetSize(const glm::vec3& size, const glm::vec3& sizeOffset)
+    {
+        if (this != nullptr)
+        {
+            
+            /*m_scale = size + sizeOffset;
+
+            
+            btTransform transform = m_collisionObject->getWorldTransform();
+
+            
+            btCollisionShape* shape = m_collisionObject->getCollisionShape();
+            if (shape)
+            {
+                
+                btBoxShape* boxShape = dynamic_cast<btBoxShape*>(shape);
+                if (boxShape)
+                {
+                    boxShape->setImplicitShapeDimensions(
+                        PhysUtils::GlmToBullet(m_scale * 0.5f)); 
+                }
+            }
+
+            
+            m_collisionObject->setWorldTransform(transform);*/
+        }
+    }
+
 
     glm::vec3 Collider::GetPosition() const
     {

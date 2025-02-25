@@ -67,6 +67,7 @@ namespace Coffee
          * @brief Gets the current position of the collider.
          * @return The collider's position.
          */
+        void SetSize(const glm::vec3& size, const glm::vec3& sizeOffset);
         glm::vec3 GetPosition() const;
 
         /**
@@ -98,7 +99,7 @@ namespace Coffee
          * @return Pointer to the Bullet collision object.
          */
         btCollisionObject* GetCollisionObject() const { return m_collisionObject; }
-
+        RigidBody* rigidBodyLink = nullptr;
       protected:
         void UpdateCollisionShape(); /**< Implemented by derived classes */
 
@@ -108,7 +109,7 @@ namespace Coffee
         glm::vec3 m_offset;                 /**< Collider position */
         bool m_isTrigger;                     /**< Whether the collider is a trigger */
         float m_mass;                         /**< Mass of the collider */
-
+        
       private:
         std::vector<CollisionCallback> m_collisionListeners;  /**< List of collision listeners */
     };
