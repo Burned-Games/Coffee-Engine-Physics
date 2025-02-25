@@ -33,7 +33,7 @@ namespace Coffee
 
         m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broad_phase, m_solver, m_collision_conf);
 
-        SetGravity(glm::vec3(0.0f, -0.981f, 0.0f));
+        SetGravity(glm::vec3(0.0f, -9.81f, 0.0f));
     }
 
     void PhysicsEngine::Update(float dt)
@@ -86,10 +86,11 @@ namespace Coffee
                     if (rigidbodyComponent.cfg.UseGravity && !rigidbodyComponent.cfg.FreezeY)
                     {
                         glm::vec3 gravity = GetGravity();
-                        // gravity *= 0.1f;
+                        // gravity *= 0.1f; 
+                        
                         if (rigidbodyComponent.cfg.shapeConfig.mass > 0.0f)
                         {
-                            rigidbodyComponent.cfg.Acceleration += gravity;
+                            rigidbodyComponent.cfg.Acceleration += gravity * dt;
                             rigidbodyComponent.ApplyDrag();
                         }
                     }

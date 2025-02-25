@@ -9,12 +9,9 @@ namespace Coffee {
     RigidBody::RigidBody(RigidBodyConfig& config)
     {
         m_Callbacks.rigidBody = this;
-        config.shapeConfig.type = CollisionShapeType::SPHERE;
         this->m_RigidBody = PhysicsEngine::CreateRigidBody(&m_Callbacks, config);
         
-        if (!config.UseGravity) {
-            m_RigidBody->setGravity(btVector3(0, 0, 0));
-        }
+        UpdateGravity(config);
     }
     
     RigidBody::~RigidBody()
@@ -65,5 +62,18 @@ namespace Coffee {
         
         m_RigidBody->applyImpulse(btImpulse, btPoint);
         m_RigidBody->activate(true);
+    }
+
+    void RigidBody::UpdateGravity(const RigidBodyConfig& config)
+    {
+        if (m_RigidBody)
+        {
+            if (!config.UseGravity || config.type != RigidBodyType::Dynamic) {
+                m_RigidBody->setGravity(btVector3(0, 0, 0));
+            }
+            else {
+                m_RigidBody->setGravity(PhysUtils::GlmToBullet(PhysicsEngine::GetGravity()));
+            }
+        }
     }
 } // Coffee
