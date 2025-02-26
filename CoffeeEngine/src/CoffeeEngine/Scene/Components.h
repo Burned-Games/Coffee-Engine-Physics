@@ -365,6 +365,45 @@ namespace Coffee
             if (m_RigidBody)
                 m_RigidBody->ApplyShape(shape);
         }
+
+        void SetVelocity(const glm::vec3& velocity)
+        {
+            if (m_RigidBody)
+            {
+                m_RigidBody->SetVelocity(velocity);
+                cfg.Velocity = velocity;
+            }
+        }
+
+        void SetAngularVelocity(const glm::vec3& angularVelocity)
+        {
+            if (m_RigidBody)
+            {
+                m_RigidBody->SetAngularVelocity(angularVelocity);
+            }
+        }
+
+        glm::vec3 GetVelocity() const
+        {
+            if (m_RigidBody)
+                return m_RigidBody->GetVelocity();
+            return cfg.Velocity;
+        }
+
+        glm::vec3 GetAngularVelocity() const 
+        {
+            if (m_RigidBody)
+                return m_RigidBody->GetAngularVelocity();
+            return glm::vec3(0.0f);
+        }
+
+        void AddVelocity(const glm::vec3& velocityChange)
+        {
+            if (m_RigidBody)
+            {
+                m_RigidBody->AddVelocity(velocityChange);
+            }
+        }
     };
 
    

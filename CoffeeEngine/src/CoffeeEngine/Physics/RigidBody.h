@@ -43,6 +43,12 @@ namespace Coffee {
         void ApplyImpulse(const glm::vec3& impulse, const glm::vec3& point = glm::vec3(0.0f));
         void ApplyShape(btCollisionShape* shape);
         void UpdateGravity(const RigidBodyConfig& config);
+
+        void SetVelocity(const glm::vec3& velocity);
+        void SetAngularVelocity(const glm::vec3& angularVelocity);
+        glm::vec3 GetVelocity() const;
+        glm::vec3 GetAngularVelocity() const;
+        void AddVelocity(const glm::vec3& velocity);
         
     private:
         btRigidBody* m_RigidBody;

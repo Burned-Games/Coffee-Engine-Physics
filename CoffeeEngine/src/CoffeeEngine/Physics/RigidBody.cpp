@@ -84,4 +84,51 @@ namespace Coffee {
             }
         }
     }
+
+    void RigidBody::SetVelocity(const glm::vec3& velocity)
+    {
+        if (m_RigidBody)
+        {
+            m_RigidBody->setLinearVelocity(PhysUtils::GlmToBullet(velocity));
+            m_RigidBody->activate(true);
+        }
+    }
+
+    void RigidBody::AddVelocity(const glm::vec3& velocity)
+    {
+        if (m_RigidBody)
+        {
+            btVector3 currentVel = m_RigidBody->getLinearVelocity();
+            btVector3 additionalVel = PhysUtils::GlmToBullet(velocity);
+            m_RigidBody->setLinearVelocity(currentVel + additionalVel);
+            m_RigidBody->activate(true);
+        }
+    }
+
+    void RigidBody::SetAngularVelocity(const glm::vec3& angularVelocity)
+    {
+        if (m_RigidBody)
+        {
+            m_RigidBody->setAngularVelocity(PhysUtils::GlmToBullet(angularVelocity));
+            m_RigidBody->activate(true);
+        }
+    }
+
+    glm::vec3 RigidBody::GetVelocity() const 
+    {
+        if (m_RigidBody)
+        {
+            return PhysUtils::BulletToGlm(m_RigidBody->getLinearVelocity());
+        }
+        return glm::vec3(0.0f);
+    }
+
+    glm::vec3 RigidBody::GetAngularVelocity() const
+    {
+        if (m_RigidBody)
+        {
+            return PhysUtils::BulletToGlm(m_RigidBody->getAngularVelocity());
+        }
+        return glm::vec3(0.0f);
+    }
 } // Coffee

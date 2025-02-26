@@ -751,12 +751,12 @@ namespace Coffee
                     // Y-Axis Impulses
                     if (ImGui::Button("Impulse Up", ImVec2(120, 30)))
                     {
-                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, 5.0f, 0.0f));
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, 0.5f, 0.0f));
                     }
                     ImGui::SameLine();
                     if (ImGui::Button("Impulse Down", ImVec2(120, 30)))
                     {
-                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, -5.0f, 0.0f));
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, -0.5f, 0.0f));
                     }
 
                     ImGui::Separator();
@@ -764,12 +764,12 @@ namespace Coffee
                     // Z-Axis Impulses
                     if (ImGui::Button("Impulse Forward", ImVec2(120, 30)))
                     {
-                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, 0.0f, 5.0f));
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, 0.0f, 0.5f));
                     }
                     ImGui::SameLine();
                     if (ImGui::Button("Impulse Back", ImVec2(120, 30)))
                     {
-                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, 0.0f, -5.0f));
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.0f, 0.0f, -0.5f));
                     }
 
                     ImGui::Separator();
@@ -777,12 +777,98 @@ namespace Coffee
                     // X-Axis Impulses
                     if (ImGui::Button("Impulse Right", ImVec2(120, 30)))
                     {
-                        rigidbodyComponent.ApplyImpulse(glm::vec3(5.0f, 0.0f, 0.0f));
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(0.5f, 0.0f, 0.0f));
                     }
                     ImGui::SameLine();
                     if (ImGui::Button("Impulse Left", ImVec2(120, 30)))
                     {
-                        rigidbodyComponent.ApplyImpulse(glm::vec3(-5.0f, 0.0f, 0.0f));
+                        rigidbodyComponent.ApplyImpulse(glm::vec3(-0.5f, 0.0f, 0.0f));
+                    }
+
+                    ImGui::PopStyleVar();
+                }
+
+                // Velocity Test Buttons Section
+                if (ImGui::CollapsingHeader("Velocity Tests"))
+                {
+                    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 8));
+                    
+                    // Linear Velocity Tests
+                    ImGui::Text("Linear Velocity");
+                    
+                    // Y-Axis Velocities
+                    if (ImGui::Button("Vel Up", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetVelocity(glm::vec3(0.0f, 0.5f, 0.0f));
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Vel Down", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetVelocity(glm::vec3(0.0f, -0.5f, 0.0f));
+                    }
+
+                    ImGui::Separator();
+
+                    // Z-Axis Velocities
+                    if (ImGui::Button("Vel Forward", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetVelocity(glm::vec3(0.0f, 0.0f, 0.5f));
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Vel Back", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetVelocity(glm::vec3(0.0f, 0.0f, -0.5f));
+                    }
+
+                    ImGui::Separator();
+
+                    // X-Axis Velocities 
+                    if (ImGui::Button("Vel Right", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetVelocity(glm::vec3(0.5f, 0.0f, 0.0f));
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Vel Left", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetVelocity(glm::vec3(-0.5f, 0.0f, 0.0f));
+                    }
+
+                    ImGui::Separator();
+
+                    // Angular Velocity Tests
+                    ImGui::Text("Angular Velocity");
+                    
+                    // Rotation around Y axis
+                    if (ImGui::Button("Rotate Y+", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetAngularVelocity(glm::vec3(0.0f, 0.5f, 0.0f));
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Rotate Y-", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetAngularVelocity(glm::vec3(0.0f, -0.5f, 0.0f));
+                    }
+
+                    // Rotation around X axis
+                    if (ImGui::Button("Rotate X+", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetAngularVelocity(glm::vec3(0.5f, 0.0f, 0.0f));
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Rotate X-", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetAngularVelocity(glm::vec3(-0.5f, 0.0f, 0.0f));
+                    }
+
+                    // Rotation around Z axis
+                    if (ImGui::Button("Rotate Z+", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetAngularVelocity(glm::vec3(0.0f, 0.0f, 0.5f));
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Rotate Z-", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.SetAngularVelocity(glm::vec3(0.0f, 0.0f, -0.5f));
                     }
 
                     ImGui::PopStyleVar();
