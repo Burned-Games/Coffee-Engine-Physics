@@ -63,6 +63,12 @@ namespace Coffee
          * @param position The new position.
          */
         void SetPosition(const glm::vec3& position, const glm::vec3& offset = glm::vec3(0,0,0));
+
+
+        void ColliderUpdate(const glm::vec3& position = glm::vec3(0, 0, 0), 
+                            const glm::vec3& rotation = glm::vec3(0, 0, 0), 
+                            const glm::vec3& size = glm::vec3(0, 0, 0),
+                            const glm::vec3& offset = glm::vec3(0, 0, 0));
         /**
          * @brief Gets the current position of the collider.
          * @return The collider's position.

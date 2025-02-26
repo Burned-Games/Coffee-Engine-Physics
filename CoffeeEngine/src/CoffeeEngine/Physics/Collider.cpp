@@ -55,6 +55,43 @@ namespace Coffee
         }
     }
 
+    void Collider::ColliderUpdate(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& size,
+                                  const glm::vec3& offset)
+    {
+        if (this != nullptr && m_collisionObject)
+        {
+            // Actualizar la posición interna
+            m_offset = offset;
+            m_position = position + m_offset;
+            m_scale = size;
+            
+
+            // Obtener la transformación actual del objeto de colisión
+            btTransform transform = m_collisionObject->getWorldTransform();
+            transform.setOrigin(PhysUtils::GlmToBullet(m_position));
+
+            // Si el objeto es un btRigidBody, actualizar su estado de interpolación
+            btRigidBody* rigidBody = btRigidBody::upcast(m_collisionObject);
+            if (rigidBody)
+            {
+                rigidBody->setWorldTransform(transform);
+                rigidBody->getMotionState()->setWorldTransform(transform);
+            }
+            else
+            {
+                m_collisionObject->setWorldTransform(transform);
+            }
+
+            // Redibujar la caja en la nueva posición para depuración
+            Coffee::DebugRenderer::DrawBox(m_position, rotation, m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f),
+                                           true, 2.0f);
+        }
+    }
+
+
+
+
+
     void Collider::SetSize(const glm::vec3& size, const glm::vec3& sizeOffset)
     {
         if (this != nullptr)

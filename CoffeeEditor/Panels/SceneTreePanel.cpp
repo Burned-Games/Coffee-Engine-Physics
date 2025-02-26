@@ -894,7 +894,12 @@ namespace Coffee
                 if (ImGui::DragFloat3("##BoxSize", glm::value_ptr(boxCollider.Size), 0.1f, 0.0f, 100.0f))
                 {
                     // Update collider size
-                    boxCollider.m_Collider->SetPosition(boxCollider.Offset);
+                    //boxCollider.m_Collider->SetPosition(boxCollider.Offset);
+                    boxCollider.m_Collider->ColliderUpdate(
+                        entity.GetComponent<TransformComponent>().Position,
+                        entity.GetComponent<TransformComponent>().Rotation,
+                                                           boxCollider.Size);
+                    printf("\n x:%f, y:%f, z:%f ", boxCollider.Size.x, boxCollider.Size.y, boxCollider.Size.z);
                 }
 
                 // Offset
@@ -903,7 +908,11 @@ namespace Coffee
                 {
                     // Update collider position
                     glm::vec3 offset = boxCollider.Offset;
-                    boxCollider.m_Collider->SetPosition(entity.GetComponent<TransformComponent>().Position, offset);
+                    //boxCollider.m_Collider->SetPosition(entity.GetComponent<TransformComponent>().Position, offset);
+
+                    boxCollider.m_Collider->ColliderUpdate(entity.GetComponent<TransformComponent>().Position,
+                                                           entity.GetComponent<TransformComponent>().Rotation,
+                                                           boxCollider.Size, offset);
                 }
 
                 // Is Trigger
