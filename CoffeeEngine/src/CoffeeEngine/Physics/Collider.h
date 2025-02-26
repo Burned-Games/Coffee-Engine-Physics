@@ -99,7 +99,7 @@ namespace Coffee
          * @return Pointer to the Bullet collision object.
          */
         btCollisionObject* GetCollisionObject() const { return m_collisionObject; }
-        RigidBody* rigidBodyLink = nullptr;
+       
       protected:
         void UpdateCollisionShape(); /**< Implemented by derived classes */
 
