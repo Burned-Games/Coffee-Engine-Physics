@@ -787,6 +787,11 @@ namespace Coffee
 
                     ImGui::PopStyleVar();
                 }
+                //if (entity.HasComponent<BoxColliderComponent>())
+                //{
+                //    /*rigidbodyComponent.ApplyShape()*/
+                //}
+
             }
         }
 

@@ -360,6 +360,11 @@ namespace Coffee
             if (m_RigidBody)
                 m_RigidBody->ApplyImpulse(impulse, point);
         }
+        void ApplyShape(btCollisionShape* shape)
+        {
+            if (m_RigidBody)
+                m_RigidBody->ApplyShape(shape);
+        }
     };
 
    

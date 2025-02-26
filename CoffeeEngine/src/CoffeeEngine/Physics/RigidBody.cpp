@@ -64,6 +64,14 @@ namespace Coffee {
         m_RigidBody->activate(true);
     }
 
+    void RigidBody::ApplyShape(btCollisionShape* shape)
+    {
+        if (!m_RigidBody)
+            return;
+
+        
+    }
+
     void RigidBody::UpdateGravity(const RigidBodyConfig& config)
     {
         if (m_RigidBody)
