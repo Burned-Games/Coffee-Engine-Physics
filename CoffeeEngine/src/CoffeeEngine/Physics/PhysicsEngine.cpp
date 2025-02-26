@@ -46,7 +46,7 @@ namespace Coffee
 
       
 
-        if (debugDrawList.empty())
+        /*if (debugDrawList.empty())
             return;
         for (const auto& cmd : debugDrawList)
         {
@@ -65,7 +65,7 @@ namespace Coffee
                 break;
 
             }
-        }
+        }*/
 
     }
 
