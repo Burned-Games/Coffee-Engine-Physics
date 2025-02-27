@@ -4,11 +4,30 @@
 #include "PhysicsEngine.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace Coffee {
     RigidBody::RigidBody(RigidBodyConfig& config)
     {
         m_Callbacks.rigidBody = this;
+
+        // Decompose the transform to get the position, rotation, and scale
+        glm::vec3 position;
+        glm::quat rotation;
+        glm::vec3 scale;
+        glm::vec3 skew;
+        glm::vec4 perspective;
+        glm::decompose(config.transform, scale, rotation, position, skew, perspective);
+
+        btTransform startTransform;
+        startTransform.setIdentity();
+        startTransform.setOrigin(PhysUtils::GlmToBullet(position));
+        startTransform.setRotation(PhysUtils::GlmToBullet(rotation));
+
+        config.transform = glm::translate(glm::mat4(1.0f), position) * 
+                          glm::mat4_cast(rotation) * 
+                          glm::scale(glm::mat4(1.0f), scale);
+
         this->m_RigidBody = PhysicsEngine::CreateRigidBody(&m_Callbacks, config);
         
         UpdateGravity(config);
@@ -78,7 +97,7 @@ namespace Coffee {
         btVector3 localInertia(0, 0, 0);
         shape->calculateLocalInertia(1.0f, localInertia);
 
-        // Crear la nueva transformación con los valores pasados
+        // Crear la nueva transformaciï¿½n con los valores pasados
         btTransform newTransform;
         newTransform.setIdentity();
         newTransform.setOrigin(PhysUtils::GlmToBullet(position));
@@ -91,10 +110,10 @@ namespace Coffee {
             boxShape->setImplicitShapeDimensions(PhysUtils::GlmToBullet(size * 0.5f));
         }*/
 
-        // Crear el nuevo motion state con la transformación proporcionada
+        // Crear el nuevo motion state con la transformaciï¿½n proporcionada
         btDefaultMotionState* motionState = new btDefaultMotionState(newTransform);
 
-        // Crear la nueva configuración del rigidbody con la forma y transformación correctas
+        // Crear la nueva configuraciï¿½n del rigidbody con la forma y transformaciï¿½n correctas
         btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0f, motionState, shape, localInertia);
         btRigidBody* newBody = new btRigidBody(rbInfo);
 
@@ -102,15 +121,36 @@ namespace Coffee {
         newBody->setFlags(newBody->getFlags() | btCollisionObject::CF_DYNAMIC_OBJECT);
         newBody->setUserPointer(&m_Callbacks);
 
-        // Agregarlo de nuevo al mundo físico
+        // Agregarlo de nuevo al mundo fï¿½sico
         PhysicsEngine::GetWorld()->addRigidBody(newBody);
 
         // Reemplazar el puntero del rigidbody anterior con el nuevo
         m_RigidBody = newBody;
     }
 
+    void RigidBody::SetTransform(const glm::mat4& transform)
+    {
+        if (!m_RigidBody) return;
 
+        glm::vec3 position;
+        glm::quat rotation;
+        glm::vec3 scale;
+        glm::vec3 skew;
+        glm::vec4 perspective;
+        glm::decompose(transform, scale, rotation, position, skew, perspective);
 
+        btTransform btTrans;
+        btTrans.setIdentity();
+        btTrans.setOrigin(PhysUtils::GlmToBullet(position));
+        btTrans.setRotation(PhysUtils::GlmToBullet(rotation));
+        
+        m_RigidBody->setWorldTransform(btTrans);
+        if (m_RigidBody->getMotionState())
+        {
+            m_RigidBody->getMotionState()->setWorldTransform(btTrans);
+        }
+        m_RigidBody->activate(true);
+    }
 
     void RigidBody::UpdateGravity(const RigidBodyConfig& config)
     {
@@ -170,5 +210,21 @@ namespace Coffee {
             return PhysUtils::BulletToGlm(m_RigidBody->getAngularVelocity());
         }
         return glm::vec3(0.0f);
+    }
+
+    void RigidBody::Activate(bool forceActivation)
+    {
+        if (m_RigidBody)
+        {
+            m_RigidBody->activate(forceActivation);
+        }
+    }
+
+    void RigidBody::SetWorldTransform(const btTransform& worldTrans)
+    {
+        if (m_RigidBody)
+        {
+            m_RigidBody->setWorldTransform(worldTrans);
+        }
     }
 } // Coffee

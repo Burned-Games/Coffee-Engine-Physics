@@ -20,6 +20,7 @@
 #include "entt/entity/snapshot.hpp"
 #include "CoffeeEngine/Physics/PhysicsEngine.h"
 #include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/PhysUtils.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -156,6 +157,17 @@ namespace Coffee {
             lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
             Renderer::Submit(lightComponent);
+        }
+
+        auto rbView = m_Registry.view<RigidbodyComponent, TransformComponent>();
+        for (auto entity : rbView)
+        {
+            auto [rb, transform] = rbView.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.m_RigidBody)
+            {
+                glm::mat4 worldTransform = transform.GetWorldTransform();
+                rb.m_RigidBody->SetTransform(worldTransform);
+            }
         }
 
         Renderer::EndScene();

@@ -50,6 +50,10 @@ namespace Coffee {
         glm::vec3 GetVelocity() const;
         glm::vec3 GetAngularVelocity() const;
         void AddVelocity(const glm::vec3& velocity);
+        void SetTransform(const glm::mat4& transform);
+        void Activate(bool forceActivation = true);
+        btMotionState* GetMotionState() const { return m_RigidBody ? m_RigidBody->getMotionState() : nullptr; }
+        void SetWorldTransform(const btTransform& worldTrans);
         
     private:
         btRigidBody* m_RigidBody;
