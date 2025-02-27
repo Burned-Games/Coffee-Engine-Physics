@@ -75,6 +75,7 @@ namespace Coffee
         void SetSize(const glm::vec3& size, const glm::vec3& sizeOffset);
         glm::vec3 GetPosition() const;
 
+        btCollisionShape* GetShape();
         /**
          * @brief Enables or disables the collider.
          * @param enabled True to enable, false to disable.

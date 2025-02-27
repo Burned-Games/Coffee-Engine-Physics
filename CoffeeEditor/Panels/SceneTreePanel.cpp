@@ -200,7 +200,7 @@ namespace Coffee
             ImGui::TreePop();
         }
     }
-
+    bool setshape = false;
     void SceneTreePanel::DrawComponents(Entity entity)
     {
         if (entity.HasComponent<TagComponent>())
@@ -670,9 +670,11 @@ namespace Coffee
                 }
             }
         }
+        
 
         if (entity.HasComponent<RigidbodyComponent>())
         {
+            
             auto& rigidbodyComponent = entity.GetComponent<RigidbodyComponent>();
 
             if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
@@ -873,10 +875,11 @@ namespace Coffee
 
                     ImGui::PopStyleVar();
                 }
-                //if (entity.HasComponent<BoxColliderComponent>())
-                //{
-                //    /*rigidbodyComponent.ApplyShape()*/
-                //}
+                if (entity.HasComponent<BoxColliderComponent>() && !setshape)
+                {
+                    rigidbodyComponent.ApplyShape(entity.GetComponent<BoxColliderComponent>().m_Collider->GetShape());
+                    setshape = true;
+                }
 
             }
         }

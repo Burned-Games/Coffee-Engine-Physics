@@ -69,6 +69,8 @@ namespace Coffee {
         if (!m_RigidBody)
             return;
 
+        m_RigidBody->setCollisionShape(shape);
+
         
     }
 

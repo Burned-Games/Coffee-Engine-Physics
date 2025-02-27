@@ -437,12 +437,13 @@ namespace Coffee
 
 
         btRigidBody* body = new btRigidBody(rbInfo);
-
+        
         // Set object type
         body->setFlags(body->getFlags() | GetRigidbodyFlags(config));
 
         body->setUserPointer(colCallbacks);
         m_world->addRigidBody(body);
+
 
         return body;
     }

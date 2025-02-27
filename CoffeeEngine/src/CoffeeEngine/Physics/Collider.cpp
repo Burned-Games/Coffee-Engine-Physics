@@ -89,6 +89,8 @@ namespace Coffee
             // Redraw the box in the new position for debugging
             Coffee::DebugRenderer::DrawBox(m_position, m_rotation, m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), true,
                                            2.0f);
+
+
         }
     }
 
@@ -126,6 +128,12 @@ namespace Coffee
         return m_position;
     }
 
+    btCollisionShape* Collider::GetShape()
+    {
+
+        return m_collisionObject->getCollisionShape();
+    }
+
     void Collider::SetEnabled(bool enabled)
     {
         if (enabled)
@@ -157,6 +165,8 @@ namespace Coffee
             listener(other);
         }
     }
+
+
 
     // BOX COLLIDER
 
