@@ -61,17 +61,20 @@ namespace Coffee
     {
         if (this != nullptr && m_collisionObject)
         {
-            // Actualizar la posición interna
+            // Update the internal position
             m_offset = offset;
             m_position = position + m_offset;
             m_scale = size;
-            // m_rotation = glm::quat(glm::radians(rotation));
 
-            // Obtener la transformación actual del objeto de colisión
+            // Update the rotation
+            m_rotation = rotation;
+
+            // Get the current transformation of the collision object
             btTransform transform = m_collisionObject->getWorldTransform();
             transform.setOrigin(PhysUtils::GlmToBullet(m_position));
+            transform.setRotation(PhysUtils::GlmToBullet(m_rotation));
 
-            // Si el objeto es un btRigidBody, actualizar su estado de interpolación
+            // If the object is a btRigidBody, update its interpolation state
             btRigidBody* rigidBody = btRigidBody::upcast(m_collisionObject);
             if (rigidBody)
             {
@@ -83,13 +86,12 @@ namespace Coffee
                 m_collisionObject->setWorldTransform(transform);
             }
 
-            printf("\n x:%f, y:%f, z:%f ", rotation.x, rotation.y, rotation.z);
-
-            // Redibujar la caja en la nueva posición para depuración
-            Coffee::DebugRenderer::DrawBox(m_position, rotation, m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), true,
+            // Redraw the box in the new position for debugging
+            Coffee::DebugRenderer::DrawBox(m_position, m_rotation, m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), true,
                                            2.0f);
         }
     }
+
 
     void Collider::SetSize(const glm::vec3& size, const glm::vec3& sizeOffset)
     {
