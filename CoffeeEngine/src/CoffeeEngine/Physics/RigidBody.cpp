@@ -64,15 +64,53 @@ namespace Coffee {
         m_RigidBody->activate(true);
     }
 
-    void RigidBody::ApplyShape(btCollisionShape* shape)
+    void RigidBody::ApplyShape(btCollisionShape* shape, glm::vec3 position,
+                            glm::quat rotation,
+                            glm::vec3 size)
     {
-        if (!m_RigidBody)
+        if (!m_RigidBody || !shape)
             return;
 
-        m_RigidBody->setCollisionShape(shape);
+        // Remover el rigidbody del mundo antes de modificarlo
+        PhysicsEngine::GetWorld()->removeRigidBody(m_RigidBody);
 
-        
+        // Calcular la nueva inercia basada en la nueva forma
+        btVector3 localInertia(0, 0, 0);
+        shape->calculateLocalInertia(1.0f, localInertia);
+
+        // Crear la nueva transformación con los valores pasados
+        btTransform newTransform;
+        newTransform.setIdentity();
+        newTransform.setOrigin(PhysUtils::GlmToBullet(position));
+        newTransform.setRotation(PhysUtils::GlmToBullet(rotation));
+
+        // Si el shape es un btBoxShape, ajustar la escala manualmente
+        /*btBoxShape* boxShape = dynamic_cast<btBoxShape*>(shape);
+        if (boxShape)
+        {
+            boxShape->setImplicitShapeDimensions(PhysUtils::GlmToBullet(size * 0.5f));
+        }*/
+
+        // Crear el nuevo motion state con la transformación proporcionada
+        btDefaultMotionState* motionState = new btDefaultMotionState(newTransform);
+
+        // Crear la nueva configuración del rigidbody con la forma y transformación correctas
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0f, motionState, shape, localInertia);
+        btRigidBody* newBody = new btRigidBody(rbInfo);
+
+        // Mantener las propiedades del objeto
+        newBody->setFlags(newBody->getFlags() | btCollisionObject::CF_DYNAMIC_OBJECT);
+        newBody->setUserPointer(&m_Callbacks);
+
+        // Agregarlo de nuevo al mundo físico
+        PhysicsEngine::GetWorld()->addRigidBody(newBody);
+
+        // Reemplazar el puntero del rigidbody anterior con el nuevo
+        m_RigidBody = newBody;
     }
+
+
+
 
     void RigidBody::UpdateGravity(const RigidBodyConfig& config)
     {

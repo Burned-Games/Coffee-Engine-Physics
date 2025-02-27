@@ -74,6 +74,8 @@ namespace Coffee
          */
         void SetSize(const glm::vec3& size, const glm::vec3& sizeOffset);
         glm::vec3 GetPosition() const;
+        glm::quat GetRotation() const;
+        glm::vec3 GetSize() const;
 
         btCollisionShape* GetShape();
         /**

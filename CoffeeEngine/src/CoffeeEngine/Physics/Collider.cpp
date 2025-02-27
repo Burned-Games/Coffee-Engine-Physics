@@ -127,6 +127,17 @@ namespace Coffee
     {
         return m_position;
     }
+    glm::quat Collider::GetRotation() const
+    {
+        return m_rotation;
+    }
+    
+    
+    glm::vec3 Collider::GetSize() const
+    {
+        return m_scale;
+    }
+    
 
     btCollisionShape* Collider::GetShape()
     {

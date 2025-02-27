@@ -835,6 +835,15 @@ namespace Coffee
                         rigidbodyComponent.SetVelocity(glm::vec3(-5.0f, 0.0f, 0.0f));
                     }
 
+                    if (ImGui::Button("Apply Collider", ImVec2(120, 30)))
+                    {
+                        rigidbodyComponent.ApplyShape(
+                            entity.GetComponent<BoxColliderComponent>().m_Collider->GetShape(),
+                            entity.GetComponent<BoxColliderComponent>().m_Collider->GetPosition(),
+                            entity.GetComponent<BoxColliderComponent>().m_Collider->GetRotation(),
+                            entity.GetComponent<BoxColliderComponent>().m_Collider->GetSize());
+                    }
+
                     ImGui::Separator();
 
                     // Angular Velocity Tests
@@ -875,11 +884,15 @@ namespace Coffee
 
                     ImGui::PopStyleVar();
                 }
-                if (entity.HasComponent<BoxColliderComponent>() && !setshape)
+                /*if (entity.HasComponent<BoxColliderComponent>() && !setshape)
                 {
-                    rigidbodyComponent.ApplyShape(entity.GetComponent<BoxColliderComponent>().m_Collider->GetShape());
+
+                    rigidbodyComponent.ApplyShape(entity.GetComponent<BoxColliderComponent>().m_Collider->GetShape(),
+                                                  entity.GetComponent<BoxColliderComponent>().m_Collider->GetPosition(),
+                                                  entity.GetComponent<BoxColliderComponent>().m_Collider->GetRotation(),
+                                                  entity.GetComponent<BoxColliderComponent>().m_Collider->GetSize());
                     setshape = true;
-                }
+                }*/
 
             }
         }
@@ -944,6 +957,7 @@ namespace Coffee
                 glm::mat4 transformMatrix = entity.GetComponent<TransformComponent>().GetLocalTransform();
                 glm::quat rotation = glm::quat_cast(transformMatrix);
 
+                glm::vec3 test = entity.GetComponent<TransformComponent>().Position;
                 boxCollider.m_Collider->ColliderUpdate(entity.GetComponent<TransformComponent>().Position,
                                                        rotation, 
                                                        boxCollider.Size, offset);

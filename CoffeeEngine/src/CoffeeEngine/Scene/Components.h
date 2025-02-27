@@ -360,10 +360,11 @@ namespace Coffee
             if (m_RigidBody)
                 m_RigidBody->ApplyImpulse(impulse, point);
         }
-        void ApplyShape(btCollisionShape* shape)
+        void ApplyShape(btCollisionShape* shape, const glm::vec3 position,
+                        const glm::quat rotation, const glm::vec3 size)
         {
             if (m_RigidBody)
-                m_RigidBody->ApplyShape(shape);
+                m_RigidBody->ApplyShape(shape, position, rotation, size);
         }
 
         void SetVelocity(const glm::vec3& velocity)
