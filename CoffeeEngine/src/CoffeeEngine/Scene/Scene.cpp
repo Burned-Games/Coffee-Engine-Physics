@@ -167,6 +167,11 @@ namespace Coffee {
 
         m_SceneTree->Update();
 
+        // Physics Update
+        {
+            ZoneScopedN("Physics Update");
+            PhysicsEngine::Update(dt);
+        }
 
         Camera* camera = nullptr;
         glm::mat4 cameraTransform;
@@ -255,6 +260,9 @@ namespace Coffee {
         }
         // Get all entities with RigidbodyComponent
         auto rigidbodyView = m_Registry.view<RigidbodyComponent, TransformComponent>();
+
+        // Clear the vector at the start of each frame
+        m_RigidbodyEntities.clear();
 
         // Loop through each entity with the specified components
         for (auto& entity : rigidbodyView)

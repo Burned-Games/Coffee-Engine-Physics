@@ -42,6 +42,23 @@ namespace Coffee
         {
             m_world->stepSimulation(dt, 10);
             m_world->debugDrawWorld();
+
+            // Debug print positions of all rigidbodies
+            int numCollisionObjects = m_world->getNumCollisionObjects();
+            for (int i = 0; i < numCollisionObjects; i++) 
+            {
+                btCollisionObject* obj = m_world->getCollisionObjectArray()[i];
+                btRigidBody* body = btRigidBody::upcast(obj);
+                
+                if (body && body->getMotionState())
+                {
+                    btTransform trans;
+                    body->getMotionState()->getWorldTransform(trans);
+                    btVector3 pos = trans.getOrigin();
+                    COFFEE_CORE_INFO("Rigidbody {0} position: ({1}, {2}, {3})", 
+                        i, pos.x(), pos.y(), pos.z());
+                }
+            }
         }
 
       
