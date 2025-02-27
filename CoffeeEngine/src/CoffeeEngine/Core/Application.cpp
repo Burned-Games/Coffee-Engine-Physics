@@ -92,11 +92,11 @@ namespace Coffee
             //Poll and handle events
             ProcessEvents();
 
-            // Physics Update
-            {
-                ZoneScopedN("Physics Update");
-                PhysicsEngine::Update(deltaTime);
-            }
+            // // Physics Update --> Not used for now, updated in scene.cpp
+            // {
+            //     ZoneScopedN("Physics Update");
+            //     PhysicsEngine::Update(deltaTime);
+            // }
 
             //Update and render
             {
