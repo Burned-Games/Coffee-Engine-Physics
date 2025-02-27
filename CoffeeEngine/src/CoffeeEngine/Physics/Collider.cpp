@@ -25,38 +25,39 @@ namespace Coffee
         delete m_collisionObject;
     }
 
-    void Collider::SetPosition(const glm::vec3& position, const glm::vec3& positionOffset)
-    {
-        if (this != nullptr && m_collisionObject)
-        {
-            // Actualizar la posición interna
-            m_offset = positionOffset;
-            m_position = position + m_offset;
+    //void Collider::SetPosition(const glm::vec3& position, const glm::vec3& positionOffset)
+    //{
+    //    if (this != nullptr && m_collisionObject)
+    //    {
+    //        // Actualizar la posición interna
+    //        m_offset = positionOffset;
+    //        m_position = position + m_offset;
 
-            // Obtener la transformación actual del objeto de colisión
-            btTransform transform = m_collisionObject->getWorldTransform();
-            transform.setOrigin(PhysUtils::GlmToBullet(m_position));
+    //        // Obtener la transformación actual del objeto de colisión
+    //        btTransform transform = m_collisionObject->getWorldTransform();
+    //        transform.setOrigin(PhysUtils::GlmToBullet(m_position));
 
-            // Si el objeto es un btRigidBody, actualizar su estado de interpolación
-            btRigidBody* rigidBody = btRigidBody::upcast(m_collisionObject);
-            if (rigidBody)
-            {
-                rigidBody->setWorldTransform(transform);
-                rigidBody->getMotionState()->setWorldTransform(transform);
-            }
-            else
-            {
-                m_collisionObject->setWorldTransform(transform);
-            }
+    //        // Si el objeto es un btRigidBody, actualizar su estado de interpolación
+    //        btRigidBody* rigidBody = btRigidBody::upcast(m_collisionObject);
+    //        if (rigidBody)
+    //        {
+    //            rigidBody->setWorldTransform(transform);
+    //            rigidBody->getMotionState()->setWorldTransform(transform);
+    //        }
+    //        else
+    //        {
+    //            m_collisionObject->setWorldTransform(transform);
+    //        }
 
-            // Redibujar la caja en la nueva posición para depuración
-            Coffee::DebugRenderer::DrawBox(m_position, glm::vec3(0, 0, 0), m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f),
-                                           true, 2.0f);
-        }
-    }
+    //        // Redibujar la caja en la nueva posición para depuración
+    //        Coffee::DebugRenderer::DrawBox(m_position, glm::vec3(0, 0, 0), m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f),
+    //                                       true, 2.0f);
+    //    }
+    //}
 
-    void Collider::ColliderUpdate(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& size,
-                                  const glm::vec3& offset)
+
+    void Collider::ColliderUpdate(const glm::vec3 position, const glm::quat rotation, const glm::vec3 size,
+                                  const glm::vec3 offset)
     {
         if (this != nullptr && m_collisionObject)
         {
@@ -64,7 +65,7 @@ namespace Coffee
             m_offset = offset;
             m_position = position + m_offset;
             m_scale = size;
-            
+            // m_rotation = glm::quat(glm::radians(rotation));
 
             // Obtener la transformación actual del objeto de colisión
             btTransform transform = m_collisionObject->getWorldTransform();
@@ -82,15 +83,13 @@ namespace Coffee
                 m_collisionObject->setWorldTransform(transform);
             }
 
+            printf("\n x:%f, y:%f, z:%f ", rotation.x, rotation.y, rotation.z);
+
             // Redibujar la caja en la nueva posición para depuración
-            Coffee::DebugRenderer::DrawBox(m_position, rotation, m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f),
-                                           true, 2.0f);
+            Coffee::DebugRenderer::DrawBox(m_position, rotation, m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), true,
+                                           2.0f);
         }
     }
-
-
-
-
 
     void Collider::SetSize(const glm::vec3& size, const glm::vec3& sizeOffset)
     {

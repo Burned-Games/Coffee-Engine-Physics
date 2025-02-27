@@ -4,15 +4,17 @@
 #include <functional>
 #include <glm/glm.hpp>
 #include <vector>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Coffee
 {
-    
+
     /**
      * @enum CollisionShapeType
      * @brief Defines the types of collision shapes.
      */
-    enum class CollisionShapeType {
+    enum class CollisionShapeType
+    {
         BOX,      /**< Box shape */
         SPHERE,   /**< Sphere shape */
         CAPSULE,  /**< Capsule shape */
@@ -24,16 +26,13 @@ namespace Coffee
      * @struct CollisionShapeConfig
      * @brief Configuration for a collision shape.
      */
-    struct CollisionShapeConfig {
-        CollisionShapeType type = CollisionShapeType::BOX;  /**< Type of the collision shape */
-        glm::vec3 size = glm::vec3(1.0f);                   /**< Size of the shape */
-        bool isTrigger = false;                             /**< Whether the shape is a trigger */
-        float mass = 1.0f;                                  /**< Mass of the object */
+    struct CollisionShapeConfig
+    {
+        CollisionShapeType type = CollisionShapeType::BOX; /**< Type of the collision shape */
+        glm::vec3 size = glm::vec3(1.0f);                  /**< Size of the shape */
+        bool isTrigger = false;                            /**< Whether the shape is a trigger */
+        float mass = 1.0f;                                 /**< Mass of the object */
     };
-      
-
-
-
 
     /**
      * @class Collider
@@ -62,13 +61,13 @@ namespace Coffee
          * @brief Sets the position of the collider.
          * @param position The new position.
          */
-        void SetPosition(const glm::vec3& position, const glm::vec3& offset = glm::vec3(0,0,0));
+        // void SetPosition(const glm::vec3& position, const glm::vec3& offset = glm::vec3(0,0,0));
 
+        void ColliderUpdate(const glm::vec3 position = glm::vec3(0, 0, 0),
+                            const glm::quat rotation = glm::quat(1, 0, 0, 0), 
+                            const glm::vec3 size = glm::vec3(0, 0, 0),
+                            const glm::vec3 offset = glm::vec3(0, 0, 0));
 
-        void ColliderUpdate(const glm::vec3& position = glm::vec3(0, 0, 0), 
-                            const glm::vec3& rotation = glm::vec3(0, 0, 0), 
-                            const glm::vec3& size = glm::vec3(0, 0, 0),
-                            const glm::vec3& offset = glm::vec3(0, 0, 0));
         /**
          * @brief Gets the current position of the collider.
          * @return The collider's position.
@@ -105,31 +104,33 @@ namespace Coffee
          * @return Pointer to the Bullet collision object.
          */
         btCollisionObject* GetCollisionObject() const { return m_collisionObject; }
-       
+
       protected:
         void UpdateCollisionShape(); /**< Implemented by derived classes */
 
         btCollisionObject* m_collisionObject; /**< Bullet collision object */
         glm::vec3 m_position;                 /**< Collider position */
-        glm::vec3 m_scale;                 /**< Collider position */
-        glm::vec3 m_offset;                 /**< Collider position */
-        bool m_isTrigger;                     /**< Whether the collider is a trigger */
-        float m_mass;                         /**< Mass of the collider */
-        
+        glm::quat m_rotation;                 /**< Collider rotation */
+        glm::vec3 m_scale;                    /**< Collider scale */
+        glm::vec3 m_offset;                   /**< Collider offset  */
+
+        bool m_isTrigger; /**< Whether the collider is a trigger */
+        float m_mass;     /**< Mass of the collider */
+
       private:
-        std::vector<CollisionCallback> m_collisionListeners;  /**< List of collision listeners */
+        std::vector<CollisionCallback> m_collisionListeners; /**< List of collision listeners */
     };
 
     /**
      * @class BoxCollider
      * @brief Represents a box-shaped collider.
      */
-    //class BoxCollider : public Collider
+    // class BoxCollider : public Collider
     //{
-    //  public:
-    //    BoxCollider(const glm::vec3& size, const glm::vec3& position, bool isTrigger = false,
-    //                float mass = 1.0f);
-    //    ~BoxCollider();
+    //   public:
+    //     BoxCollider(const glm::vec3& size, const glm::vec3& position, bool isTrigger = false,
+    //                 float mass = 1.0f);
+    //     ~BoxCollider();
 
     //  protected:
     //    void UpdateCollisionShape() override;
@@ -142,7 +143,7 @@ namespace Coffee
     // * @class CapsuleCollider
     // * @brief Represents a capsule-shaped collider.
     // */
-    //class CapsuleCollider : public Collider
+    // class CapsuleCollider : public Collider
     //{
     //  public:
     //    CapsuleCollider(float radius, float height, const glm::vec3& position,
@@ -168,7 +169,7 @@ namespace Coffee
     // * @class CylinderCollider
     // * @brief Represents a cylinder-shaped collider.
     // */
-    //class CylinderCollider : public Collider
+    // class CylinderCollider : public Collider
     //{
     //  public:
     //    CylinderCollider(const glm::vec3& dimensions, const glm::vec3& position,
@@ -190,7 +191,7 @@ namespace Coffee
     // * @class SphereCollider
     // * @brief Represents a sphere-shaped collider.
     // */
-    //class SphereCollider : public Collider
+    // class SphereCollider : public Collider
     //{
     //  public:
     //    SphereCollider(float radius, const glm::vec3& position, bool isTrigger = false,
@@ -212,7 +213,7 @@ namespace Coffee
     // * @class PlaneCollider
     // * @brief Represents a plane collider.
     // */
-    //class PlaneCollider : public Collider
+    // class PlaneCollider : public Collider
     //{
     //  public:
     //    PlaneCollider(const glm::vec3& normal, float constant, const glm::vec3& position = glm::vec3(0.0f));

@@ -895,11 +895,11 @@ namespace Coffee
                 {
                     // Update collider size
                     //boxCollider.m_Collider->SetPosition(boxCollider.Offset);
-                    boxCollider.m_Collider->ColliderUpdate(
+                    /*boxCollider.m_Collider->ColliderUpdate(
                         entity.GetComponent<TransformComponent>().Position,
                         entity.GetComponent<TransformComponent>().Rotation,
                                                            boxCollider.Size);
-                    printf("\n x:%f, y:%f, z:%f ", boxCollider.Size.x, boxCollider.Size.y, boxCollider.Size.z);
+                    printf("\n x:%f, y:%f, z:%f ", boxCollider.Size.x, boxCollider.Size.y, boxCollider.Size.z);*/
                 }
 
                 // Offset
@@ -910,9 +910,9 @@ namespace Coffee
                     glm::vec3 offset = boxCollider.Offset;
                     //boxCollider.m_Collider->SetPosition(entity.GetComponent<TransformComponent>().Position, offset);
 
-                    boxCollider.m_Collider->ColliderUpdate(entity.GetComponent<TransformComponent>().Position,
+                   /* boxCollider.m_Collider->ColliderUpdate(entity.GetComponent<TransformComponent>().Position,
                                                            entity.GetComponent<TransformComponent>().Rotation,
-                                                           boxCollider.Size, offset);
+                                                           boxCollider.Size, offset);*/
                 }
 
                 // Is Trigger
@@ -936,8 +936,15 @@ namespace Coffee
                     // Add properties for layer overrides here
                     ImGui::TreePop();
                 }
-                boxCollider.m_Collider->SetPosition(entity.GetComponent<TransformComponent>().Position,
-                                                    boxCollider.Offset);      
+          
+                glm::vec3 offset = boxCollider.Offset;
+                glm::mat4 transformMatrix = entity.GetComponent<TransformComponent>().GetLocalTransform();
+                glm::quat rotation = glm::quat_cast(transformMatrix);
+
+                boxCollider.m_Collider->ColliderUpdate(entity.GetComponent<TransformComponent>().Position,
+                                                       rotation, 
+                                                       boxCollider.Size, offset);
+
             }
 
             if (!isCollapsingHeaderOpen)
