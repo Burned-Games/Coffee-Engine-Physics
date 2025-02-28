@@ -437,7 +437,9 @@ namespace Coffee
             new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
 
         btRigidBody::btRigidBodyConstructionInfo rbInfo(config.shapeConfig.mass, motionState, shape, localInertia);
-
+        
+        rbInfo.m_linearDamping = config.LinearDrag;
+        rbInfo.m_angularDamping = config.AngularDrag;
 
         btRigidBody* body = new btRigidBody(rbInfo);
         
@@ -446,7 +448,6 @@ namespace Coffee
 
         body->setUserPointer(colCallbacks);
         m_world->addRigidBody(body);
-
 
         return body;
     }

@@ -30,6 +30,8 @@ namespace Coffee {
 
         this->m_RigidBody = PhysicsEngine::CreateRigidBody(&m_Callbacks, config);
         
+        m_RigidBody->setDamping(config.LinearDrag, config.AngularDrag);
+        
         UpdateGravity(config);
     }
     
