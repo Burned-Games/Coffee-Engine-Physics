@@ -118,6 +118,8 @@ namespace Coffee
         /** @brief Removes a rigid body from the physics world. */
         static void RemoveRigidBody(btRigidBody* rigidBody);
 
+
+        static glm::vec3 GlobalGravity;
             
 
 

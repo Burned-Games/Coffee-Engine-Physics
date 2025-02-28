@@ -248,6 +248,28 @@ namespace Coffee {
                 }
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu("World"))
+            {
+                if (ImGui::SliderFloat("Gravity X", &PhysicsEngine::GlobalGravity.x, -50.0f, 50.0f, "%.2f"))
+                {
+                    PhysicsEngine::SetGravity(PhysicsEngine::GlobalGravity);
+                }
+
+
+                if (ImGui::SliderFloat("Gravity Y", &PhysicsEngine::GlobalGravity.y, -50.0f, 50.0f, "%.2f"))
+                {
+                    PhysicsEngine::SetGravity(PhysicsEngine::GlobalGravity);
+                }
+
+
+                if (ImGui::SliderFloat("Gravity Z", &PhysicsEngine::GlobalGravity.z, -50.0f, 50.0f, "%.2f"))
+                {
+                    PhysicsEngine::SetGravity(PhysicsEngine::GlobalGravity);
+                }
+
+                ImGui::EndMenu();
+            
+            }
 
             //Play and Stop buttons
             ImGui::SetCursorPosX(ImGui::GetWindowWidth() * 0.5f - 50);

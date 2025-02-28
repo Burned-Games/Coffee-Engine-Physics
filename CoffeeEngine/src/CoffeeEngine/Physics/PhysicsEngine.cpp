@@ -12,6 +12,8 @@ namespace Coffee
     std::vector<PhysicsEngine::DebugDrawCommand> PhysicsEngine::debugDrawList;
     using namespace Coffee;
 
+    glm::vec3 PhysicsEngine::GlobalGravity = glm::vec3(0.0f, -9.81f, 0.0f);
+
     btDynamicsWorld* PhysicsEngine::m_world = nullptr;
     btCollisionConfiguration* PhysicsEngine::m_collision_conf = nullptr;
     btDispatcher* PhysicsEngine::m_dispatcher = nullptr;
@@ -33,7 +35,7 @@ namespace Coffee
 
         m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broad_phase, m_solver, m_collision_conf);
 
-        SetGravity(glm::vec3(0.0f, -9.81f, 0.0f));
+        SetGravity(GlobalGravity);
     }
 
     void PhysicsEngine::Update(float dt)
@@ -168,6 +170,7 @@ namespace Coffee
 
     void PhysicsEngine::SetGravity(const glm::vec3& gravity)
     {
+        
         if (m_world)
         {
             m_world->setGravity(PhysUtils::GlmToBullet(gravity));
