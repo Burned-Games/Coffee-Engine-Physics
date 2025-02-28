@@ -567,63 +567,29 @@ namespace Coffee {
         if (entity.HasComponent<AnimatorComponent>())
         {
             auto& animatorComponent = entity.GetComponent<AnimatorComponent>();
-            std::shared_ptr<AnimationSystem> animSystem = animatorComponent.GetAnimationSystem();
 
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                const char* animationName = animSystem->GetAnimationController()->GetAnimation(animSystem->GetCurrentAnimationIndex())->GetName().c_str();
+                const char* animationName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.CurrentAnimation)->GetAnimationName().c_str();
 
                 if (ImGui::BeginCombo("Animation", animationName))
                 {
-                    for (auto& [name, animation] : animSystem->GetAnimationController()->GetAnimationMap())
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
                         if (ImGui::Selectable(name.c_str()) && name != animationName)
                         {
-                            animSystem->SetCurrentAnimation(name);
+                            animatorComponent.GetAnimationSystem()->SetCurrentAnimation(name, &animatorComponent);
                         }
                     }
                     ImGui::EndCombo();
                 }
 
-                float blendDuration = animSystem->GetBlendDuration();
-                float blendThreshold = animSystem->GetBlendThreshold();
-                float animationSpeed = animSystem->GetAnimationSpeed();
-                bool isPlaying = animSystem->IsPlaying();
-                bool isLooping = animSystem->IsLooping();
-                bool isFinished = animSystem->IsFinished();
+                ImGui::DragFloat("Blend Duration", &animatorComponent.BlendDuration, 0.01f, 0.01f, 2.0f, "%.2f");
 
-                if (ImGui::DragFloat("Blend Duration", &blendDuration, 0.01f, 0.01f, 2.0f, "%.2f"))
-                {
-                    animSystem->SetBlendDuration(blendDuration);
-                }
+                ImGui::DragFloat("Blend Threshold", &animatorComponent.BlendThreshold, 0.01f, 0.01f, 1.0f, "%.2f");
 
-                if (ImGui::DragFloat("Blend Threshold", &blendThreshold, 0.01f, 0.00f, 1.0f, "%.2f"))
-                {
-                    animSystem->SetBlendThreshold(blendThreshold);
-                }
-
-                if (ImGui::DragFloat("Animation Speed", &animationSpeed, 0.01f, 0.1f, 5.0f, "%.2f"))
-                {
-                    animSystem->SetAnimationSpeed(animationSpeed);
-                }
-
-                if (ImGui::Checkbox("Is Playing", &isPlaying))
-                {
-                    animSystem->SetPlaying(isPlaying);
-                }
-
-                if (ImGui::Checkbox("Is Looping", &isLooping))
-                {
-                    animSystem->SetLooping(isLooping);
-                }
-
-                if (ImGui::Checkbox("Is Finished", &isFinished))
-                {
-                    animSystem->SetFinished(isFinished);
-                }
-
-
+                ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
 
             }
         }

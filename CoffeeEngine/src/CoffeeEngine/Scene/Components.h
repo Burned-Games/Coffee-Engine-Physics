@@ -158,39 +158,44 @@ namespace Coffee {
      */
     struct AnimatorComponent
     {
-
         AnimatorComponent() {}
         AnimatorComponent(const AnimatorComponent&) = default;
-        AnimatorComponent(Ref<AnimationSystem> animationSystem) : animationSystem(animationSystem) {}
-
-
-        /**
-         * @brief Gets the animation system.
-         * @return The animation system.
-         */
-        Ref<AnimationSystem> GetAnimationSystem() const { return animationSystem; }
-
-      private:
-        Ref<AnimationSystem> animationSystem;
-        friend class cereal::access;
-        /**
-         * @brief Serializes the AnimatorComponent.
-         * @tparam Archive The type of the archive.
-         * @param archive The archive to serialize to.
-         */
-        template <class Archive> void save(Archive& archive) const
+        AnimatorComponent(Ref<Skeleton> skeleton, Ref<AnimationController> animationController, Ref<AnimationSystem> animationSystem)
+        : m_Skeleton(skeleton), m_AnimationController(animationController), m_AnimationSystem(animationSystem)
         {
-            archive(cereal::make_nvp("animationSystem", animationSystem->GetUUID()));
+            m_BlendJob.layers = ozz::make_span(m_BlendLayers);
+            JointMatrices = m_Skeleton->GetJointMatrices();
         }
 
-        template <class Archive> void load(Archive& archive)
-        {
-            UUID animationSystemUUID;
-            archive(cereal::make_nvp("animationSystem", animationSystemUUID));
+        Ref<Skeleton> GetSkeleton() const { return m_Skeleton; }
+        Ref<AnimationController> GetAnimationController() const { return m_AnimationController; }
+        Ref<AnimationSystem> GetAnimationSystem() const { return m_AnimationSystem; }
 
-            Ref<AnimationSystem> animationSystem = ResourceRegistry::Get<AnimationSystem>(animationSystemUUID);
-            this->animationSystem = animationSystem;
-        }
+        ozz::animation::SamplingJob::Context& GetContext() { return m_Context; }
+        ozz::animation::BlendingJob::Layer* GetBlendLayers() { return m_BlendLayers; }
+        ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
+
+    public:
+        bool IsBlending = false;
+        unsigned int CurrentAnimation = 0;
+        unsigned int NextAnimation = 0;
+        float AnimationTime = 0.f;
+        float NextAnimationTime = 0.f;
+        float BlendTime = 0.f;
+        float BlendDuration = 0.25f;
+        float BlendThreshold = 0.8;
+        float AnimationSpeed = 1.0f;
+
+        std::vector<glm::mat4> JointMatrices;
+
+    private:
+        Ref<Skeleton> m_Skeleton;
+        Ref<AnimationController> m_AnimationController;
+        Ref<AnimationSystem> m_AnimationSystem;
+
+        ozz::animation::SamplingJob::Context m_Context;
+        ozz::animation::BlendingJob::Layer m_BlendLayers[2];
+        ozz::animation::BlendingJob m_BlendJob;
     };
 
     /**

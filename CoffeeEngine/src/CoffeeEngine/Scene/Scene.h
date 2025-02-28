@@ -12,6 +12,7 @@
 #include <vector>
 
 namespace Coffee {
+    class AnimationSystem;
 
     /**
      * @defgroup scene Scene
@@ -110,6 +111,8 @@ namespace Coffee {
         static void Save(const std::filesystem::path& path, Ref<Scene> scene);
 
         const std::filesystem::path& GetFilePath() { return m_FilePath; }
+
+        static const Ref<AnimationSystem> GetAnimationSystem() { return m_AnimationSystem; }
     private:
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
@@ -117,6 +120,8 @@ namespace Coffee {
 
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;
+
+        static Ref<AnimationSystem> m_AnimationSystem;
 
         friend class Entity;
         friend class SceneTree;
