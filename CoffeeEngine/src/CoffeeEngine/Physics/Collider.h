@@ -29,7 +29,7 @@ namespace Coffee
     struct CollisionShapeConfig
     {
         CollisionShapeType type = CollisionShapeType::BOX; /**< Type of the collision shape */
-        glm::vec3 size = glm::vec3(1.0f);                  /**< Size of the shape */
+        glm::vec3 size = glm::vec3(0.0f);                  /**< Size of the shape */
         bool isTrigger = false;                            /**< Whether the shape is a trigger */
         float mass = 1.0f;                                 /**< Mass of the object */
         float radius = 0.5f;                               // Para Sphere, Capsule y Cylinder
