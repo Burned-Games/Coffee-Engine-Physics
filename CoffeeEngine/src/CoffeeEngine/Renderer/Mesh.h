@@ -45,7 +45,7 @@ namespace Coffee {
             template<class Archive>
             void serialize(Archive& archive)
             {
-                archive(Position, TexCoords, Normals, Tangent, Bitangent);
+                archive(Position, TexCoords, Normals, Tangent, Bitangent, BoneIDs, BoneWeights);
             }
     };
 

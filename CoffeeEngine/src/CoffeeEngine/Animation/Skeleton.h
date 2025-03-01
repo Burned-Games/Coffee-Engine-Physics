@@ -5,64 +5,52 @@
 #include <ozz/base/memory/unique_ptr.h>
 #include <glm/mat4x4.hpp>
 
-#include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
-
-#include <cereal/access.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/polymorphic.hpp>
-
-
-
 
 #include <string>
 #include <vector>
 
-namespace ozz::math
-{
-    template <class Archive> void serialize(Archive& archive, Float3& vec)
-    {
-        archive(vec.x, vec.y, vec.z);
-    }
-
-    template <class Archive> void serialize(Archive& archive, Quaternion& quat)
-    {
-        archive(quat.x, quat.y, quat.z, quat.w);
-    }
+namespace cereal {
+    class access;
 }
-
 
 namespace Coffee {
 
-
-
-
-struct Joint
+    struct Joint
     {
         std::string name;
         int parentIndex;
         ozz::math::Transform localTransform;
         glm::mat4 invBindPose;
 
-      private:
+    private:
         friend class cereal::access;
 
-        template <class Archive> void serialize(Archive& archive)
+        template<class Archive>
+        void serialize(Archive& archive)
         {
-            archive(name, parentIndex, localTransform.translation, localTransform.rotation, localTransform.scale,
-                    invBindPose);
+            archive(name, parentIndex);
+
+            archive(localTransform.translation.x,
+                   localTransform.translation.y,
+                   localTransform.translation.z);
+
+            archive(localTransform.rotation.x,
+                   localTransform.rotation.y,
+                   localTransform.rotation.z,
+                   localTransform.rotation.w);
+
+            archive(localTransform.scale.x,
+                   localTransform.scale.y,
+                   localTransform.scale.z);
+
+            archive(invBindPose);
         }
     };
 
-
-    class Skeleton : public Resource
+    class Skeleton
     {
     public:
         Skeleton() = default;
-        Skeleton(std::vector<Joint> joints, unsigned int numJoints, std::vector<glm::mat4> jointMatrices);
-
         ~Skeleton() = default;
 
         void SetSkeleton(ozz::unique_ptr<ozz::animation::Skeleton> skeleton);
@@ -74,37 +62,8 @@ struct Joint
         unsigned int GetNumJoints() const { return m_NumJoints; }
         const std::vector<glm::mat4>& GetJointMatrices() const { return m_JointMatrices; }
 
-
-    private:
-        friend class cereal::access;
-
-        template <class Archive> void save(Archive& archive) const
-        {
-
-            archive(m_Joints, m_NumJoints, m_JointMatrices, cereal::base_class<Resource>(this));
-        }
-
-        template <class Archive> void load(Archive& archive)
-        {
-
-            archive(m_Joints, m_NumJoints, m_JointMatrices, cereal::base_class<Resource>(this));
-        }
-
-        template <class Archive> static void load_and_construct(Archive& data, cereal::construct<Skeleton>& construct)
-        {
-
-
-            std::vector<Joint> joints;
-            unsigned int numJoints;
-            std::vector<glm::mat4> jointMatrices;
-
-            data(joints, numJoints, jointMatrices, cereal::base_class<Resource>(construct.ptr()));
-
-            construct(joints, numJoints, jointMatrices);
-
-        }
-
-
+        void Save(ozz::io::OArchive& archive) const;
+        void Load(ozz::io::IArchive& archive, std::vector<Joint>& joints);
 
     private:
         ozz::unique_ptr<ozz::animation::Skeleton> m_Skeleton;
@@ -114,5 +73,3 @@ struct Joint
     };
 
 } // Coffee
-CEREAL_REGISTER_TYPE(Coffee::Skeleton);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Resource, Coffee::Skeleton);
