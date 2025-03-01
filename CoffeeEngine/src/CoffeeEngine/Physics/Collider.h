@@ -32,6 +32,8 @@ namespace Coffee
         glm::vec3 size = glm::vec3(1.0f);                  /**< Size of the shape */
         bool isTrigger = false;                            /**< Whether the shape is a trigger */
         float mass = 1.0f;                                 /**< Mass of the object */
+        float radius = 0.5f;                               // Para Sphere, Capsule y Cylinder
+        float height = 1.0f;  
     };
 
     /**
@@ -64,9 +66,10 @@ namespace Coffee
         // void SetPosition(const glm::vec3& position, const glm::vec3& offset = glm::vec3(0,0,0));
 
         void ColliderUpdate(const glm::vec3 position = glm::vec3(0, 0, 0),
+                            const glm::vec3 offset = glm::vec3(0, 0, 0),
                             const glm::quat rotation = glm::quat(1, 0, 0, 0), 
-                            const glm::vec3 size = glm::vec3(0, 0, 0),
-                            const glm::vec3 offset = glm::vec3(1, 0, 0));
+                            const glm::vec3 size = glm::vec3(0, 0, 0));
+
 
         /**
          * @brief Gets the current position of the collider.

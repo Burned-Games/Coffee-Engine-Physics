@@ -56,43 +56,49 @@ namespace Coffee
     //}
 
 
-    void Collider::ColliderUpdate(const glm::vec3 position, const glm::quat rotation, const glm::vec3 size,
-                                  const glm::vec3 offset)
+    void Collider::ColliderUpdate(const glm::vec3 position, const glm::vec3 offset, const glm::quat rotation,
+                                  const glm::vec3 size)
     {
-        if (this != nullptr && m_collisionObject)
+        if (!m_collisionObject)
+            return;
+
+        // Actualizar las propiedades internas
+        m_offset = offset;
+        m_position = position + m_offset;
+        m_rotation = rotation;
+
+        // Obtener y actualizar la transformación del objeto de colisión
+        btTransform transform = m_collisionObject->getWorldTransform();
+        transform.setOrigin(PhysUtils::GlmToBullet(m_position));
+        transform.setRotation(PhysUtils::GlmToBullet(m_rotation));
+
+        // Aplicar transformación si es un cuerpo rígido
+        btRigidBody* rigidBody = btRigidBody::upcast(m_collisionObject);
+        if (rigidBody)
         {
-            // Update the internal position
-            m_offset = offset;
-            m_position = position + m_offset;
-            m_scale = size;
-
-            // Update the rotation
-            m_rotation = rotation;
-
-            // Get the current transformation of the collision object
-            btTransform transform = m_collisionObject->getWorldTransform();
-            transform.setOrigin(PhysUtils::GlmToBullet(m_position));
-            transform.setRotation(PhysUtils::GlmToBullet(m_rotation));
-
-            // If the object is a btRigidBody, update its interpolation state
-            btRigidBody* rigidBody = btRigidBody::upcast(m_collisionObject);
-            if (rigidBody)
-            {
-                rigidBody->setWorldTransform(transform);
+            rigidBody->setWorldTransform(transform);
+            if (rigidBody->getMotionState()) // Verificación agregada
                 rigidBody->getMotionState()->setWorldTransform(transform);
-            }
-            else
-            {
-                m_collisionObject->setWorldTransform(transform);
-            }
-
-            // Redraw the box in the new position for debugging
-            Coffee::DebugRenderer::DrawBox(m_position, m_rotation, m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), true,
-                                           2.0f);
-
-
         }
+        else
+        {
+            m_collisionObject->setWorldTransform(transform);
+        }
+
+        // Actualizar la escala del collider si es necesario
+        if (size != m_scale)
+        {
+            m_scale = size;
+            if (m_collisionObject->getCollisionShape())
+            {
+                m_collisionObject->getCollisionShape()->setLocalScaling(PhysUtils::GlmToBullet(m_scale));
+            }
+        }
+
+        Coffee::DebugRenderer::DrawBox(m_position, m_rotation, m_scale, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), true, 2.0f);
+
     }
+
 
 
     void Collider::SetSize(const glm::vec3& size, const glm::vec3& sizeOffset)

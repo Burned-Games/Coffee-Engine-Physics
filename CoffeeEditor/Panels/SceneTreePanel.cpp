@@ -716,24 +716,6 @@ namespace Coffee
                 ImGui::Text("Angular Drag");
                 ImGui::DragFloat("##Angular Drag", &rigidbodyComponent.cfg.AngularDrag, 0.1f, 0.001f, 10.0f,
                                  "Angular Drag: %.3f");
-                
-                // Friction
-                ImGui::Text("Friction");
-                if (ImGui::DragFloat("##Friction", &rigidbodyComponent.cfg.friction, 0.05f, 0.0f, 1.0f, 
-                                    "Friction: %.2f"))
-                {
-                    if (rigidbodyComponent.m_RigidBody)
-                        rigidbodyComponent.m_RigidBody->SetFriction(rigidbodyComponent.cfg.friction);
-                }
-                
-                // Restitution (Bounce)
-                ImGui::Text("Restitution (Bounce)");
-                if (ImGui::DragFloat("##Restitution", &rigidbodyComponent.cfg.restitution, 0.05f, 0.0f, 1.0f, 
-                                    "Restitution: %.2f"))
-                {
-                    if (rigidbodyComponent.m_RigidBody)
-                        rigidbodyComponent.m_RigidBody->SetRestitution(rigidbodyComponent.cfg.restitution);
-                }
 
                 // Velocity
                 ImGui::Text("Velocity");
@@ -856,10 +838,10 @@ namespace Coffee
                     if (ImGui::Button("Apply Collider", ImVec2(120, 30)))
                     {
                         rigidbodyComponent.ApplyShape(
-                            entity.GetComponent<BoxColliderComponent>().m_Collider->GetShape(),
-                            entity.GetComponent<BoxColliderComponent>().m_Collider->GetPosition(),
-                            entity.GetComponent<BoxColliderComponent>().m_Collider->GetRotation(),
-                            entity.GetComponent<BoxColliderComponent>().m_Collider->GetSize());
+                            entity.GetComponent<ColliderComponent>().m_Collider->GetShape(),
+                            entity.GetComponent<ColliderComponent>().m_Collider->GetPosition(),
+                            entity.GetComponent<ColliderComponent>().m_Collider->GetRotation(),
+                            entity.GetComponent<ColliderComponent>().m_Collider->GetSize());
                     }
 
                     ImGui::Separator();
@@ -902,126 +884,84 @@ namespace Coffee
 
                     ImGui::PopStyleVar();
                 }
-                /*if (entity.HasComponent<BoxColliderComponent>() && !setshape)
+                /*if (entity.HasComponent<ColliderComponent>() && !setshape)
                 {
 
-                    rigidbodyComponent.ApplyShape(entity.GetComponent<BoxColliderComponent>().m_Collider->GetShape(),
-                                                  entity.GetComponent<BoxColliderComponent>().m_Collider->GetPosition(),
-                                                  entity.GetComponent<BoxColliderComponent>().m_Collider->GetRotation(),
-                                                  entity.GetComponent<BoxColliderComponent>().m_Collider->GetSize());
+                    rigidbodyComponent.ApplyShape(entity.GetComponent<ColliderComponent>().m_Collider->GetShape(),
+                                                  entity.GetComponent<ColliderComponent>().m_Collider->GetPosition(),
+                                                  entity.GetComponent<ColliderComponent>().m_Collider->GetRotation(),
+                                                  entity.GetComponent<ColliderComponent>().m_Collider->GetSize());
                     setshape = true;
                 }*/
 
             }
         }
-
-       if (entity.HasComponent<BoxColliderComponent>())
+        
+       if (entity.HasComponent<ColliderComponent>())
         {
-            auto& boxCollider = entity.GetComponent<BoxColliderComponent>();
+            auto& collider = entity.GetComponent<ColliderComponent>();
             bool isCollapsingHeaderOpen = true;
-
-            ImGui::PushID("BoxCollider"); // Unique ID
-            if (ImGui::CollapsingHeader("Box Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            ImGui::PushID("Collider"); // Unique ID
+             if (ImGui::CollapsingHeader("Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // Size
-                ImGui::Text("Size");
-                if (ImGui::DragFloat3("##BoxSize", glm::value_ptr(boxCollider.Size), 0.1f, 0.0f, 100.0f))
+                const char* colliderTypes[] = {"Box", "Sphere", "Capsule", "Cylinder"};
+                int currentShape = static_cast<int>(collider.Shape);
+
+                // Selección del tipo de collider
+                if (ImGui::Combo("Shape", &currentShape, colliderTypes, IM_ARRAYSIZE(colliderTypes)))
                 {
-                    // Update collider size
-                    //boxCollider.m_Collider->SetPosition(boxCollider.Offset);
-                    /*boxCollider.m_Collider->ColliderUpdate(
-                        entity.GetComponent<TransformComponent>().Position,
-                        entity.GetComponent<TransformComponent>().Rotation,
-                                                           boxCollider.Size);
-                    printf("\n x:%f, y:%f, z:%f ", boxCollider.Size.x, boxCollider.Size.y, boxCollider.Size.z);*/
+                    collider.Shape = static_cast<ColliderShape>(currentShape);
                 }
 
-                // Offset
-                ImGui::Text("Offset");
-                if (ImGui::DragFloat3("##BoxOffset", glm::value_ptr(boxCollider.Offset), 0.1f))
+                glm::vec3 offset = collider.Offset;
+                glm::quat rotationOffset = {0, 0, 0, 0};
+                // Propiedades dinámicas según el tipo de collider
+                switch (collider.Shape)
                 {
-                    // Update collider position
-                    glm::vec3 offset = boxCollider.Offset;
-                    //boxCollider.m_Collider->SetPosition(entity.GetComponent<TransformComponent>().Position, offset);
+                case ColliderShape::Box:
+                    ImGui::Text("Size");
+                    glm::vec3 sizeOffset = collider.Size;
+                    ImGui::DragFloat3("##BoxSize", glm::value_ptr(collider.Size), 0.1f, 0.0f, 100.0f);
+                    glm::vec3 test = entity.GetComponent<TransformComponent>().Position;
+                    collider.m_Collider->ColliderUpdate(test, offset,
+                                                        rotationOffset, collider.Size);
+                    break;
 
-                   /* boxCollider.m_Collider->ColliderUpdate(entity.GetComponent<TransformComponent>().Position,
-                                                           entity.GetComponent<TransformComponent>().Rotation,
-                                                           boxCollider.Size, offset);*/
+                case ColliderShape::Sphere:
+                    ImGui::Text("Radius");
+                    ImGui::DragFloat("##SphereRadius", &collider.Radius, 0.1f, 0.0f, 100.0f);
+                    break;
+
+                case ColliderShape::Capsule:
+                case ColliderShape::Cylinder:
+                    ImGui::Text("Radius");
+                    ImGui::DragFloat("##CapsuleCylinderRadius", &collider.Radius, 0.1f, 0.0f, 100.0f);
+                    ImGui::Text("Height");
+                    ImGui::DragFloat("##CapsuleCylinderHeight", &collider.Height, 0.1f, 0.0f, 100.0f);
+                    break;
                 }
+            
+                ImGui::Text("Position");
+                ImGui::DragFloat3("##ColliderOffset", glm::value_ptr(collider.Offset), 0.1f);
 
-                // Is Trigger
-                if (ImGui::Checkbox("Is Trigger", &boxCollider.IsTrigger))
+                ImGui::Checkbox("Is Trigger", &collider.IsTrigger);
+
+                
+                
+                
+
+               
+               
+                
+                if (!isCollapsingHeaderOpen)
                 {
-                    // Update trigger state
-                    boxCollider.m_Collider->SetEnabled(!boxCollider.IsTrigger);
+                    entity.RemoveComponent<ColliderComponent>();
                 }
-
-                // Mass
-                ImGui::Text("Mass");
-                ImGui::DragFloat("##Mass", &boxCollider.Mass, 0.1f, 0.001f, 1000.0f);
-
-                // Material
-                ImGui::Text("Material");
-                ImGui::Combo("Material", &boxCollider.MaterialIndex, "None\0Physic Material\0\0");
-
-                // Layer Overrides
-                if (ImGui::TreeNode("Layer Overrides"))
-                {
-                    // Add properties for layer overrides here
-                    ImGui::TreePop();
-                }
-          
-                glm::vec3 offset = boxCollider.Offset;
-                glm::mat4 transformMatrix = entity.GetComponent<TransformComponent>().GetLocalTransform();
-                glm::quat rotation = glm::quat_cast(transformMatrix);
-
-                glm::vec3 test = entity.GetComponent<TransformComponent>().Position;
-                boxCollider.m_Collider->ColliderUpdate(entity.GetComponent<TransformComponent>().Position,
-                                                       rotation, 
-                                                       boxCollider.Size, offset);
-
+                ImGui::PopID(); // End Unique ID
+               
             }
-
-            if (!isCollapsingHeaderOpen)
-            {
-                entity.RemoveComponent<BoxColliderComponent>();
-            }
-            ImGui::PopID(); // End Unique ID
         }
 
-        if (entity.HasComponent<SphereColliderComponent>())
-        {
-            auto& sphereCollider = entity.GetComponent<SphereColliderComponent>();
-            bool isCollapsingHeaderOpen = true;
-
-            ImGui::PushID("SphereCollider"); // Unic ID
-            if (ImGui::CollapsingHeader("Sphere Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                // center
-                ImGui::Text("Center");
-                ImGui::DragFloat3("##SphereCenter", glm::value_ptr(sphereCollider.Center), 0.1f, 0.0f, 100.0f);
-
-                // radius
-                ImGui::Text("Radius");
-                ImGui::DragFloat("##SphereRadius", &sphereCollider.Radius, 0.1f, 0.0f, 100.0f);
-
-                // is trigger
-                ImGui::Checkbox("Is Trigger", &sphereCollider.IsTrigger);
-
-                // provides contacts
-                ImGui::Checkbox("Provides Contacts", &sphereCollider.ProvidesContacts);
-
-                // material
-                ImGui::Text("Material");
-                ImGui::Combo("Material", &sphereCollider.MaterialIndex, "None\0Physic Material\0\0");
-            }
-
-            if (!isCollapsingHeaderOpen)
-            {
-                entity.RemoveComponent<SphereColliderComponent>();
-            }
-            ImGui::PopID(); // end Unic ID
-        }
 
         if (entity.HasComponent<CapsuleColliderComponent>())
         {
@@ -1565,12 +1505,7 @@ namespace Coffee
                 "Camera Component",
                 "Lua Script Component",
                 "Rigidbody Component",
-                "BoxCollider Component",
-                "SphereCollider Component",
-                "CapsuleCollider Component",
-                "CylinderCollider Component",
-                "PlaneCollider Component",
-                "MeshCollider Component",
+                "Collider Component",
                 "Distance2DJoint Component",
                 "FixedJoint Component",
                 "SpringJoint Component",
@@ -1659,43 +1594,13 @@ namespace Coffee
                     ImGui::CloseCurrentPopup();
                 }
                 // Collider
-                else if (items[item_current] == "BoxCollider Component")
+                else if (items[item_current] == "Collider Component")
                 {
-                    if (!entity.HasComponent<BoxColliderComponent>())
+                    if (!entity.HasComponent<ColliderComponent>())
                     {
                         auto& t = entity.GetComponent<TransformComponent>();
-                        entity.AddComponent<BoxColliderComponent>(t);
+                        entity.AddComponent<ColliderComponent>(t);
                     }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "SphereCollider Component")
-                {
-                    if (!entity.HasComponent<SphereColliderComponent>())
-                        entity.AddComponent<SphereColliderComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "CapsuleCollider Component")
-                {
-                    if (!entity.HasComponent<CapsuleColliderComponent>())
-                        entity.AddComponent<CapsuleColliderComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "CylinderCollider Component")
-                {
-                    if (!entity.HasComponent<CylinderColliderComponent>())
-                        entity.AddComponent<CylinderColliderComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "PlaneCollider Component")
-                {
-                    if (!entity.HasComponent<PlaneColliderComponent>())
-                        entity.AddComponent<PlaneColliderComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "MeshCollider Component")
-                {
-                    if (!entity.HasComponent<MeshColliderComponent>())
-                        entity.AddComponent<MeshColliderComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else if (items[item_current] == "Distance2DJoint Component")
