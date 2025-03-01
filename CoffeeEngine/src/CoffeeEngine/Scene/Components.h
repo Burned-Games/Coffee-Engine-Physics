@@ -408,68 +408,90 @@ namespace Coffee
     };
 
    
-    struct BoxColliderComponent
+    enum class ColliderShape
     {
-        glm::vec3 Size = {1.0f, 1.0f, 1.0f};   // Tama�o del collider
-        glm::vec3 Offset = {0.0f, 0.0f, 0.0f}; // Offset del collider
-        bool IsTrigger = false;                // Es un trigger
-        float Mass = 0.0f;                     // Masa del collider
-        int MaterialIndex = 0;                 // �ndice del material
+        Box = 0,
+        Sphere,
+        Capsule,
+        Cylinder
+    };
 
-        Ref<Collider> m_Collider = nullptr; // Usando Collider en lugar de BoxCollider
+    struct ColliderComponent
+    {
+        ColliderShape Shape = ColliderShape::Box; // Tipo de collider
+        glm::vec3 Offset = {0.0f, 0.0f, 0.0f};    // Offset del collider
 
-        BoxColliderComponent() = default;
+        // Propiedades específicas según la Shape
+        glm::vec3 Size = {1.0f, 1.0f, 1.0f}; // Para Box
+        float Radius = 0.5f;                 // Para Sphere, Capsule y Cylinder
+        float Height = 1.0f;                 // Para Capsule y Cylinder
 
-        explicit BoxColliderComponent(TransformComponent& transform)
+        bool IsTrigger = false; // Es un trigger
+        float Mass = 0.0f;      // Masa del collider
+        int MaterialIndex = 0;  // Índice del material
+
+        Ref<Collider> m_Collider = nullptr; // Referencia al Collider
+
+        ColliderComponent() = default;
+
+        explicit ColliderComponent(TransformComponent& transform) { UpdateCollider(transform); }
+
+        ~ColliderComponent() = default;
+
+        void UpdateCollider(TransformComponent& transform)
         {
-            // Crear la configuraci�n del collider
+            // Configurar el Collider según la forma seleccionada
             CollisionShapeConfig config;
-            config.type = CollisionShapeType::BOX;
-            config.size = Size;
             config.isTrigger = IsTrigger;
             config.mass = Mass;
 
+            switch (Shape)
+            {
+            case ColliderShape::Box:
+                config.type = CollisionShapeType::BOX;
+                config.size = Size;
+                break;
+            case ColliderShape::Sphere:
+                config.type = CollisionShapeType::SPHERE;
+                config.radius = Radius;
+                break;
+            case ColliderShape::Capsule:
+                config.type = CollisionShapeType::CAPSULE;
+                config.radius = Radius;
+                config.height = Height;
+                break;
+            case ColliderShape::Cylinder:
+                config.type = CollisionShapeType::CYLINDER;
+                config.radius = Radius;
+                config.height = Height;
+                break;
+            }
+
             glm::vec3 position = glm::vec3(transform.GetWorldTransform()[3]) + Offset;
-            glm::quat rotation = glm::quat(glm::vec3(0.0f)); // Sin rotaci�n inicial
-            glm::vec3 scale = glm::vec3(1.0f);               // Escala por defecto
-            // Crear el Collider usando el nuevo constructor
+            glm::quat rotation = glm::quat(glm::vec3(0.0f));
+            glm::vec3 scale = glm::vec3(1.0f);
+
             m_Collider = std::make_shared<Collider>(config, position, rotation, scale);
         }
 
-       //TransformComponent& transform;
-
-        ~BoxColliderComponent() = default;
-
         /**
-         * @brief Serializes the BoxColliderComponent.
-         * @tparam Archive The type of the archive.
-         * @param archive The archive to serialize to.
+         * @brief Serializes the ColliderComponent.
          */
         template <class Archive> void serialize(Archive& archive)
         {
-            archive(cereal::make_nvp("Size", Size), cereal::make_nvp("Offset", Offset),
-                    cereal::make_nvp("IsTrigger", IsTrigger), cereal::make_nvp("Mass", Mass),
-                    cereal::make_nvp("MaterialIndex", MaterialIndex));
+            archive(cereal::make_nvp("Shape", Shape), cereal::make_nvp("Size", Size),
+                    cereal::make_nvp("Offset", Offset), cereal::make_nvp("Radius", Radius),
+                    cereal::make_nvp("Height", Height), cereal::make_nvp("IsTrigger", IsTrigger),
+                    cereal::make_nvp("Mass", Mass), cereal::make_nvp("MaterialIndex", MaterialIndex));
 
             if (Archive::is_loading::value)
             {
-                // Al cargar, recrear el Collider
-                CollisionShapeConfig config;
-                config.type = CollisionShapeType::BOX;
-                config.size = Size;
-                config.isTrigger = IsTrigger;
-                config.mass = Mass;
-
-                glm::vec3 position = Offset;
-                glm::quat rotation = glm::quat(glm::vec3(0.0f));
-                glm::vec3 scale = glm::vec3(1.0f);
-
-    
-
-                m_Collider = std::make_shared<Collider>(config, position, rotation, scale);
+                TransformComponent dummyTransform; // Necesario para crear el Collider
+                UpdateCollider(dummyTransform);
             }
         }
     };
+
 
 
     struct SphereColliderComponent

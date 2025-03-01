@@ -323,7 +323,7 @@ namespace Coffee {
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
             .get<RigidbodyComponent>(archive)
-            .get<BoxColliderComponent>(archive);
+            .get<ColliderComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -359,7 +359,7 @@ namespace Coffee {
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
             .get<RigidbodyComponent>(archive)
-            .get<BoxColliderComponent>(archive);
+            .get<ColliderComponent>(archive);
         
         scene->m_FilePath = path;
 
