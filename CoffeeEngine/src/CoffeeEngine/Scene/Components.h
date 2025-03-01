@@ -303,7 +303,9 @@ namespace Coffee
                     cereal::make_nvp("Velocity", cfg.Velocity),
                     cereal::make_nvp("Acceleration", cfg.Acceleration),
                     cereal::make_nvp("LinearDrag", cfg.LinearDrag),
-                    cereal::make_nvp("AngularDrag", cfg.AngularDrag));
+                    cereal::make_nvp("AngularDrag", cfg.AngularDrag),
+                    cereal::make_nvp("Friction", cfg.friction),
+                    cereal::make_nvp("Restitution", cfg.restitution));
             if (Archive::is_loading::value)
             {
                 m_RigidBody = std::make_shared<RigidBody>(cfg);

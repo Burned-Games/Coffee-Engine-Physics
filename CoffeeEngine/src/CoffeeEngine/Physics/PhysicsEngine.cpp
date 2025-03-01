@@ -440,6 +440,8 @@ namespace Coffee
         
         rbInfo.m_linearDamping = config.LinearDrag;
         rbInfo.m_angularDamping = config.AngularDrag;
+        rbInfo.m_friction = config.friction;
+        rbInfo.m_restitution = config.restitution;
 
         btRigidBody* body = new btRigidBody(rbInfo);
         

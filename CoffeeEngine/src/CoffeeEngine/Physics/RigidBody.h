@@ -22,6 +22,8 @@ namespace Coffee {
         // Physics Material
         float LinearDrag = 0.1f; ///< The linear drag of the rigidbody.
         float AngularDrag = 0.1f;
+        float friction = 0.5f;   ///< The friction of the rigidbody.
+        float restitution = 0.2f; ///< The bounciness of the rigidbody (0-1).
 
         // Constraints
         bool FreezeX = false;
@@ -54,6 +56,9 @@ namespace Coffee {
         void Activate(bool forceActivation = true);
         btMotionState* GetMotionState() const { return m_RigidBody ? m_RigidBody->getMotionState() : nullptr; }
         void SetWorldTransform(const btTransform& worldTrans);
+        void SetFriction(float friction);
+        void SetRestitution(float restitution);
+        float GetRestitution() const;
         
     private:
         btRigidBody* m_RigidBody;
