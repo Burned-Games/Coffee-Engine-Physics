@@ -716,6 +716,15 @@ namespace Coffee
                 ImGui::Text("Angular Drag");
                 ImGui::DragFloat("##Angular Drag", &rigidbodyComponent.cfg.AngularDrag, 0.1f, 0.001f, 10.0f,
                                  "Angular Drag: %.3f");
+                
+                // Friction
+                ImGui::Text("Friction");
+                if (ImGui::DragFloat("##Friction", &rigidbodyComponent.cfg.friction, 0.05f, 0.0f, 1.0f, 
+                                    "Friction: %.2f"))
+                {
+                    if (rigidbodyComponent.m_RigidBody)
+                        rigidbodyComponent.m_RigidBody->SetFriction(rigidbodyComponent.cfg.friction);
+                }
 
                 // Velocity
                 ImGui::Text("Velocity");

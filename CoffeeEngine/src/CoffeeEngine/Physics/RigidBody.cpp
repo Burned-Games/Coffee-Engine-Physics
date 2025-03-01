@@ -31,6 +31,7 @@ namespace Coffee {
         this->m_RigidBody = PhysicsEngine::CreateRigidBody(&m_Callbacks, config);
         
         m_RigidBody->setDamping(config.LinearDrag, config.AngularDrag);
+        m_RigidBody->setFriction(config.friction);
         
         UpdateGravity(config);
     }
@@ -58,6 +59,7 @@ namespace Coffee {
         config.Acceleration = PhysUtils::BulletToGlm(m_RigidBody->getTotalForce());
         config.LinearDrag = m_RigidBody->getLinearDamping();
         config.AngularDrag = m_RigidBody->getAngularDamping();
+        config.friction = m_RigidBody->getFriction();
         // Constraints
         // TODO usar joints para esto? No hay opcion para ello en el rigidbody
         
@@ -227,6 +229,14 @@ namespace Coffee {
         if (m_RigidBody)
         {
             m_RigidBody->setWorldTransform(worldTrans);
+        }
+    }
+
+    void RigidBody::SetFriction(float friction)
+    {
+        if (m_RigidBody)
+        {
+            m_RigidBody->setFriction(friction);
         }
     }
 } // Coffee
