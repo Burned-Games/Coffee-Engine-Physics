@@ -676,9 +676,8 @@ namespace Coffee
         {
             
             auto& rigidbodyComponent = entity.GetComponent<RigidbodyComponent>();
-            bool isCollapsingHeaderOpen = true;
 
-            if (ImGui::CollapsingHeader("Rigidbody", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 // RigidBody type
                 const char* bodyTypeStrings[] = { "Static", "Dynamic", "Kinematic" };
@@ -717,24 +716,6 @@ namespace Coffee
                 ImGui::Text("Angular Drag");
                 ImGui::DragFloat("##Angular Drag", &rigidbodyComponent.cfg.AngularDrag, 0.1f, 0.001f, 10.0f,
                                  "Angular Drag: %.3f");
-                
-                // Friction
-                ImGui::Text("Friction");
-                if (ImGui::DragFloat("##Friction", &rigidbodyComponent.cfg.friction, 0.05f, 0.0f, 1.0f, 
-                                    "Friction: %.2f"))
-                {
-                    if (rigidbodyComponent.m_RigidBody)
-                        rigidbodyComponent.m_RigidBody->SetFriction(rigidbodyComponent.cfg.friction);
-                }
-                
-                // Restitution (Bounce)
-                ImGui::Text("Restitution (Bounce)");
-                if (ImGui::DragFloat("##Restitution", &rigidbodyComponent.cfg.restitution, 0.05f, 0.0f, 1.0f, 
-                                    "Restitution: %.2f"))
-                {
-                    if (rigidbodyComponent.m_RigidBody)
-                        rigidbodyComponent.m_RigidBody->SetRestitution(rigidbodyComponent.cfg.restitution);
-                }
 
                 // Velocity
                 ImGui::Text("Velocity");
@@ -913,11 +894,6 @@ namespace Coffee
                     setshape = true;
                 }*/
 
-            }
-
-            if (!isCollapsingHeaderOpen)
-            {
-                entity.RemoveComponent<RigidbodyComponent>();
             }
         }
         
@@ -1520,15 +1496,22 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = {"Tag Component",        "Transform Component", "Mesh Component",
-                                   "Material Component",   "Light Component",     "Camera Component",
-                                   "Lua Script Component", "Rigidbody Component", "Collider Component"};
-                /*"Distance2DJoint Component",
+            std::string items[] = {
+                "Tag Component",
+                "Transform Component",
+                "Mesh Component",
+                "Material Component",
+                "Light Component",
+                "Camera Component",
+                "Lua Script Component",
+                "Rigidbody Component",
+                "Collider Component",
+                "Distance2DJoint Component",
                 "FixedJoint Component",
                 "SpringJoint Component",
                 "SlideJoint Component",
                 "AxisJoint Component",
-                "CustomJoint Component"};*/
+                "CustomJoint Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
