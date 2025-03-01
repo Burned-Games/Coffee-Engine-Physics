@@ -66,7 +66,7 @@ namespace Coffee
         // void SetPosition(const glm::vec3& position, const glm::vec3& offset = glm::vec3(0,0,0));
 
         void ColliderUpdate(const glm::vec3 position = glm::vec3(0, 0, 0),
-                            const glm::vec3 offset = glm::vec3(0, 0, 0),
+                            const glm::vec3 offset = glm::vec3(1, 0, 0),
                             const glm::quat rotation = glm::quat(1, 0, 0, 0), 
                             const glm::vec3 size = glm::vec3(0, 0, 0));
 

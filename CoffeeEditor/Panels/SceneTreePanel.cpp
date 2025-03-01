@@ -914,7 +914,7 @@ namespace Coffee
                 }
 
                 glm::vec3 offset = collider.Offset;
-                glm::quat rotationOffset = {0, 0, 0, 0};
+                glm::quat rotationOffset = {1, 0, 0, 0};
                 // Propiedades dinámicas según el tipo de collider
                 switch (collider.Shape)
                 {
