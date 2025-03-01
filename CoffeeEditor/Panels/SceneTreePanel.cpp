@@ -725,6 +725,15 @@ namespace Coffee
                     if (rigidbodyComponent.m_RigidBody)
                         rigidbodyComponent.m_RigidBody->SetFriction(rigidbodyComponent.cfg.friction);
                 }
+                
+                // Restitution (Bounce)
+                ImGui::Text("Restitution (Bounce)");
+                if (ImGui::DragFloat("##Restitution", &rigidbodyComponent.cfg.restitution, 0.05f, 0.0f, 1.0f, 
+                                    "Restitution: %.2f"))
+                {
+                    if (rigidbodyComponent.m_RigidBody)
+                        rigidbodyComponent.m_RigidBody->SetRestitution(rigidbodyComponent.cfg.restitution);
+                }
 
                 // Velocity
                 ImGui::Text("Velocity");

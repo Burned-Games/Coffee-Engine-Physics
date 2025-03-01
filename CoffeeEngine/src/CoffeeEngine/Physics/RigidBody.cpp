@@ -32,6 +32,7 @@ namespace Coffee {
         
         m_RigidBody->setDamping(config.LinearDrag, config.AngularDrag);
         m_RigidBody->setFriction(config.friction);
+        m_RigidBody->setRestitution(config.restitution);
         
         UpdateGravity(config);
     }
@@ -60,6 +61,7 @@ namespace Coffee {
         config.LinearDrag = m_RigidBody->getLinearDamping();
         config.AngularDrag = m_RigidBody->getAngularDamping();
         config.friction = m_RigidBody->getFriction();
+        config.restitution = m_RigidBody->getRestitution();
         // Constraints
         // TODO usar joints para esto? No hay opcion para ello en el rigidbody
         
@@ -238,5 +240,22 @@ namespace Coffee {
         {
             m_RigidBody->setFriction(friction);
         }
+    }
+
+    void RigidBody::SetRestitution(float restitution)
+    {
+        if (m_RigidBody)
+        {
+            m_RigidBody->setRestitution(restitution);
+        }
+    }
+
+    float RigidBody::GetRestitution() const
+    {
+        if (m_RigidBody)
+        {
+            return m_RigidBody->getRestitution();
+        }
+        return 0.0f;
     }
 } // Coffee
