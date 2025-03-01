@@ -1,15 +1,43 @@
 {
-    "value0": 1,
-    "value1": 1,
+    "value0": 3,
+    "value1": 3,
     "value2": 0,
     "value3": 1,
-    "value4": 0,
-    "value5": {
+    "value4": 2,
+    "value5": 3,
+    "value6": 0,
+    "value7": {
         "Tag": "Primitive"
     },
-    "value6": 1,
-    "value7": 0,
-    "value8": {
+    "value8": 1,
+    "value9": {
+        "Tag": "Primitive"
+    },
+    "value10": 2,
+    "value11": {
+        "Tag": "Camera"
+    },
+    "value12": 3,
+    "value13": 0,
+    "value14": {
+        "Position": {
+            "x": 0.0,
+            "y": -4.008491516113281,
+            "z": 0.0
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value15": 1,
+    "value16": {
         "Position": {
             "x": 0.0,
             "y": 0.0,
@@ -26,34 +54,126 @@
             "z": 1.0
         }
     },
-    "value9": 1,
-    "value10": 0,
-    "value11": {
+    "value17": 2,
+    "value18": {
+        "Position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 40.571170806884769
+        },
+        "Rotation": {
+            "x": 0.0,
+            "y": -0.0,
+            "z": 0.0
+        },
+        "Scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        }
+    },
+    "value19": 3,
+    "value20": 0,
+    "value21": {
         "Parent": 4294967295,
         "First": 4294967295,
         "Next": 4294967295,
         "Prev": 4294967295
     },
-    "value12": 0,
-    "value13": 1,
-    "value14": 0,
-    "value15": {
+    "value22": 1,
+    "value23": {
+        "Parent": 4294967295,
+        "First": 4294967295,
+        "Next": 4294967295,
+        "Prev": 4294967295
+    },
+    "value24": 2,
+    "value25": {
+        "Parent": 4294967295,
+        "First": 4294967295,
+        "Next": 4294967295,
+        "Prev": 4294967295
+    },
+    "value26": 1,
+    "value27": 2,
+    "value28": {
+        "Camera": {
+            "FOV": 45.0,
+            "AspectRatio": 1.7777777910232545,
+            "NearClip": 0.10000000149011612,
+            "FarClip": 1000.0,
+            "ProjectionType": 0,
+            "ViewportWidth": 1280.0,
+            "ViewportHeight": 720.0
+        }
+    },
+    "value29": 2,
+    "value30": 0,
+    "value31": {
         "Mesh": {
             "value0": 10461761509487286199
         }
     },
-    "value16": 1,
-    "value17": 0,
-    "value18": {
-        "Material": {
-            "value0": 16906299880367724498
+    "value32": 1,
+    "value33": {
+        "Mesh": {
+            "value0": 10461761509487286199
         }
     },
-    "value19": 0,
-    "value20": 0,
-    "value21": 1,
-    "value22": 0,
-    "value23": {
+    "value34": 2,
+    "value35": 0,
+    "value36": {
+        "Material": {
+            "value0": 5571860587908787698
+        }
+    },
+    "value37": 1,
+    "value38": {
+        "Material": {
+            "value0": 5571860587908787698
+        }
+    },
+    "value39": 0,
+    "value40": 1,
+    "value41": 1,
+    "value42": {
+        "Type": 1,
+        "UseGravity": true,
+        "Mass": 1.0,
+        "Velocity": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "Acceleration": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "LinearDrag": 0.10000000149011612,
+        "AngularDrag": 0.10000000149011612,
+        "Friction": 0.5,
+        "Restitution": 0.20000000298023225
+    },
+    "value43": 2,
+    "value44": 0,
+    "value45": {
+        "Size": {
+            "x": 9.899999618530274,
+            "y": 1.0,
+            "z": 10.399999618530274
+        },
+        "Offset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "IsTrigger": false,
+        "Mass": 0.0,
+        "MaterialIndex": 0
+    },
+    "value46": 1,
+    "value47": {
         "Size": {
             "x": 1.0,
             "y": 1.0,
