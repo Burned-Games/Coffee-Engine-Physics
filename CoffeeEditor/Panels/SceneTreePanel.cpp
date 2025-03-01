@@ -676,8 +676,9 @@ namespace Coffee
         {
             
             auto& rigidbodyComponent = entity.GetComponent<RigidbodyComponent>();
+            bool isCollapsingHeaderOpen = true;
 
-            if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Rigidbody", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 // RigidBody type
                 const char* bodyTypeStrings[] = { "Static", "Dynamic", "Kinematic" };
@@ -912,6 +913,11 @@ namespace Coffee
                     setshape = true;
                 }*/
 
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<RigidbodyComponent>();
             }
         }
 
