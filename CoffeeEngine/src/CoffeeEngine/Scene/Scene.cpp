@@ -168,10 +168,10 @@ namespace Coffee {
         });
 
         // Add floor to physics world
-        physicsWorld.addRigidBody(floorRb.rb->GetNativeBody());
+        m_PhysicsWorld.addRigidBody(floorRb.rb->GetNativeBody());
 
         // Create spheres
-        const int NUM_SPHERES = 10;
+        const int NUM_SPHERES = 0;
         for(int i = 0; i < NUM_SPHERES; i++) {
             Entity sphereEntity = CreateEntity("Sphere_" + std::to_string(i));
 
@@ -204,7 +204,7 @@ namespace Coffee {
             });
 
             // Add to physics world
-            physicsWorld.addRigidBody(sphereRb.rb->GetNativeBody());
+            m_PhysicsWorld.addRigidBody(sphereRb.rb->GetNativeBody());
         }
         // ------------------------- END Physics testing ------------------------
 
@@ -321,8 +321,8 @@ namespace Coffee {
 
         // ------------------------------ TEMPORAL ------------------------------
         // --------------------------- Physics testing --------------------------
-        physicsWorld.stepSimulation(dt);
-        physicsWorld.drawCollisionShapes();
+        m_PhysicsWorld.stepSimulation(dt);
+        m_PhysicsWorld.drawCollisionShapes();
 
         // Update transforms from physics
         auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
@@ -369,7 +369,7 @@ namespace Coffee {
             });
 
             // Add to physics world
-            physicsWorld.addRigidBody(sphereRb.rb->GetNativeBody());
+            m_PhysicsWorld.addRigidBody(sphereRb.rb->GetNativeBody());
 
             spawnedSpheres.push_back(sphereEntity);
         }
@@ -379,7 +379,7 @@ namespace Coffee {
             spawnedSpheres.pop_back();
 
             auto& sphereRb = sphereEntity.GetComponent<RigidbodyComponent>();
-            physicsWorld.removeRigidBody(sphereRb.rb->GetNativeBody());
+            m_PhysicsWorld.removeRigidBody(sphereRb.rb->GetNativeBody());
 
             DestroyEntity(sphereEntity);
         }
@@ -450,26 +450,26 @@ namespace Coffee {
         for (auto entity : view) {
             auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb) {
-                physicsWorld.removeRigidBody(rb.rb->GetNativeBody());
-        
+                // Remove from physics world first
+                m_PhysicsWorld.removeRigidBody(rb.rb->GetNativeBody());
+
                 Entity e{entity, this};
                 if (e.GetComponent<TagComponent>().Tag == "Sphere") {
-                    transform.Position = {0.0f, 5.0f, 0.0f}; 
+                    transform.Position = {0.0f, 5.0f, 0.0f};
                 }
                 else if (e.GetComponent<TagComponent>().Tag == "Floor") {
                     transform.Position = {0.0f, -0.25f, 0.0f};
                 }
-        
-                // Reset physics state through RigidBody interface
+
                 rb.rb->SetPosition(transform.Position);
                 rb.rb->SetRotation({0.0f, 0.0f, 0.0f});
                 rb.rb->ResetVelocity();
                 rb.rb->ClearForces();
-        
-                // Re-add to physics world
-                physicsWorld.addRigidBody(rb.rb->GetNativeBody());
             }
         }
+
+        // Clear collision system state
+        CollisionSystem::Shutdown();
     }
 
     Ref<Scene> Scene::Load(const std::filesystem::path& path)

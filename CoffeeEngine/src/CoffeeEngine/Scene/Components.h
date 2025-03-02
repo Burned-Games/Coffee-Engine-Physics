@@ -328,6 +328,10 @@ namespace Coffee {
         RigidbodyComponent(const RigidBody::Properties& props, Ref<Collider> collider) {
             rb = RigidBody::Create(props, collider);
         }
+
+        ~RigidbodyComponent() {
+            rb.reset();
+        }
     };
 
 }
