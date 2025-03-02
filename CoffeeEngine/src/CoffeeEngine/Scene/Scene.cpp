@@ -290,7 +290,15 @@ namespace Coffee {
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             
-            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
+            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
+        }
+
+        auto animatorView = m_Registry.view<AnimatorComponent>();
+
+        for (auto& entity : animatorView)
+        {
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -344,7 +352,9 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            /*.get<AnimatorComponent>(archive)*/;  //<-- ANIMACION - Descomentar para serializar las animaciones
+            .get<AnimatorComponent>(archive);
+
+        scene->AssignAnimatorsToMeshes(m_AnimationSystem->GetAnimators());
         
         scene->m_FilePath = path;
 
@@ -379,7 +389,7 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            /*.get<AnimatorComponent>(archive)*/; //<--  ANIMACION - Descomentar para serializar las animaciones
+            .get<AnimatorComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -404,6 +414,8 @@ namespace Coffee {
         {
             animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetSkeleton(), model->GetAnimationController(), Scene::GetAnimationSystem());
             animatorComponent->GetAnimationSystem()->SetCurrentAnimation(0, animatorComponent);
+            animatorComponent->modelUUID = model->GetUUID();
+            animatorComponent->animatorUUID = UUID();
         }
 
         if((entt::entity)parent != entt::null)modelEntity.SetParent(parent);
@@ -419,7 +431,10 @@ namespace Coffee {
             entity.AddComponent<MeshComponent>(mesh);
 
             if (animatorComponent)
+            {
                 entity.GetComponent<MeshComponent>().animator = animatorComponent;
+                entity.GetComponent<MeshComponent>().animatorUUID = animatorComponent->animatorUUID;
+            }
 
             if(mesh->GetMaterial())
             {
@@ -439,4 +454,20 @@ namespace Coffee {
         }
     }
 
+    void Scene::AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators)
+    {
+        std::vector<Entity> entities = GetAllEntities();
+        for (auto entity : entities)
+        {
+            if (entity.HasComponent<MeshComponent>())
+            {
+                for (auto animator : animators)
+                {
+                    MeshComponent* meshComponent = &entity.GetComponent<MeshComponent>();
+                    if (meshComponent->animatorUUID == animator->animatorUUID && !meshComponent->animator)
+                        meshComponent->animator = animator;
+                }
+            }
+        }
+    }
 }
