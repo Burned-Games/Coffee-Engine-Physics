@@ -19,6 +19,8 @@
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
@@ -29,6 +31,8 @@
 #include <CoffeeEngine/Physics/CollisionCallback.h>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
+
+
 
 namespace Coffee {
     /**
@@ -320,18 +324,44 @@ namespace Coffee {
     };
 
     struct RigidbodyComponent {
-        Ref<RigidBody> rb;
-        CollisionCallback callback;
+        public:
+            Ref<RigidBody> rb;
+            CollisionCallback callback;
 
-        RigidbodyComponent() = default;
-        RigidbodyComponent(const RigidbodyComponent&) = default;
-        RigidbodyComponent(const RigidBody::Properties& props, Ref<Collider> collider) {
-            rb = RigidBody::Create(props, collider);
-        }
+            RigidbodyComponent() = default;
+            RigidbodyComponent(const RigidbodyComponent&) = default;
+            RigidbodyComponent(const RigidBody::Properties& props, Ref<Collider> collider) {
+                rb = RigidBody::Create(props, collider);
+            }
 
-        ~RigidbodyComponent() {
-            rb.reset();
-        }
+            ~RigidbodyComponent() {
+                rb.reset();
+            }
+
+        private:
+            friend class cereal::access;
+
+            template<class Archive>
+            void save(Archive& archive) const {
+                if (rb) {
+                    archive(
+                        cereal::make_nvp("RigidBody", true),
+                        cereal::make_nvp("RigidBodyData", rb)
+                    );
+                } else {
+                    archive(cereal::make_nvp("RigidBody", false));
+                }
+            }
+
+            template<class Archive>
+            void load(Archive& archive) {
+                bool hasRigidBody;
+                archive(cereal::make_nvp("RigidBody", hasRigidBody));
+                
+                if (hasRigidBody) {
+                    archive(cereal::make_nvp("RigidBodyData", rb));
+                }
+            }
     };
 
 }
