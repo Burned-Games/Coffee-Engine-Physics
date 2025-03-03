@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"

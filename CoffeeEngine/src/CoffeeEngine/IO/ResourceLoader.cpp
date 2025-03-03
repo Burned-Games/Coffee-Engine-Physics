@@ -238,7 +238,7 @@ namespace Coffee {
         try
         {
             cereal::JSONInputArchive archive(importFile);
-            archive(importData);
+            archive(CEREAL_NVP(importData));
         }
         catch (const cereal::Exception& e)
         {
