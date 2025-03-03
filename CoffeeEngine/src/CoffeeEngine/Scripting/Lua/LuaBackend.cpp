@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
+#include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
 #include <fstream>
@@ -296,6 +297,63 @@ namespace Coffee {
         inputTable["mousecode"] = mouseCodeTable;
     }
 
+    void BindControllerCodesToLua(sol::state& lua, sol::table& inputTable)
+    {
+        std::vector<std::pair<std::string, ControllerCode>> controllerCodes = {
+            {"Invalid", Button::Invalid},
+            {"South", Button::South},
+            {"East", Button::East},
+            {"West", Button::West},
+            {"North", Button::North},
+            {"Back", Button::Back},
+            {"Guide", Button::Guide},
+            {"Start", Button::Start},
+            {"LeftStick", Button::LeftStick},
+            {"RightStick", Button::RightStick},
+            {"LeftShoulder", Button::LeftShoulder},
+            {"RightShoulder", Button::RightShoulder},
+            {"DpadUp", Button::DpadUp},
+            {"DpadDown", Button::DpadDown},
+            {"DpadLeft", Button::DpadLeft},
+            {"DpadRight", Button::DpadRight},
+            {"Misc1", Button::Misc1},
+            {"RightPaddle1", Button::RightPaddle1},
+            {"LeftPaddle1", Button::LeftPaddle1},
+            {"RightPaddle2", Button::RightPaddle2},
+            {"Leftpaddle2", Button::Leftpaddle2},
+            {"Touchpad", Button::Touchpad},
+            {"Misc2", Button::Misc2},
+            {"Misc3", Button::Misc3},
+            {"Misc4", Button::Misc4},
+            {"Misc5", Button::Misc5},
+            {"Misc6", Button::Misc6}
+        };
+        sol::table controllerCodeTable = lua.create_table();
+        for (const auto& controllerCode : controllerCodes) {
+            controllerCodeTable[controllerCode.first] = controllerCode.second;
+        }
+        inputTable["controllercode"] = controllerCodeTable;
+    }
+
+    void BindAxisCodesToLua(sol::state& lua, sol::table& inputTable)
+    {
+        std::vector<std::pair<std::string, AxisCode>> axisCodes = {
+            {"Invalid", Axis::Invalid},
+            {"LeftX", Axis::LeftX},
+            {"LeftY", Axis::LeftY},
+            {"RightX", Axis::RightX},
+            {"RightY", Axis::RightY},
+            {"LeftTrigger", Axis::LeftTrigger},
+            {"RightTrigger", Axis::RightTrigger}
+        };
+        sol::table axisCodeTable = lua.create_table();
+        for (const auto& axisCode : axisCodes) {
+            axisCodeTable[axisCode.first] = axisCode.second;
+        }
+        inputTable["axiscode"] = axisCodeTable;
+    }
+
+
     void LuaBackend::Initialize() {
         luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 
@@ -321,6 +379,8 @@ namespace Coffee {
         sol::table inputTable = luaState.create_table();
         BindKeyCodesToLua(luaState, inputTable);
         BindMouseCodesToLua(luaState, inputTable);
+        BindControllerCodesToLua(luaState, inputTable);
+        BindAxisCodesToLua(luaState, inputTable);
 
         inputTable.set_function("is_key_pressed", [](KeyCode key) {
             return Input::IsKeyPressed(key);
@@ -328,6 +388,14 @@ namespace Coffee {
 
         inputTable.set_function("is_mouse_button_pressed", [](MouseCode button) {
             return Input::IsMouseButtonPressed(button);
+        });
+
+        inputTable.set_function("is_button_pressed", [](ButtonCode button) {
+            return Input::GetButtonRaw(button);
+        });
+
+        inputTable.set_function("get_axis_position", [](AxisCode axis) {
+            return Input::GetAxisRaw(axis);
         });
 
         inputTable.set_function("get_mouse_position", []() {
