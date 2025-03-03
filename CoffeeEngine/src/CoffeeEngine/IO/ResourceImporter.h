@@ -51,6 +51,10 @@ namespace Coffee {
         Ref<Material> ImportMaterial(const std::string& name, const UUID& uuid);
         Ref<Material> ImportMaterial(const std::string& name, const UUID& uuid, MaterialTextures& materialTextures);
         Ref<Material> ImportMaterial(const UUID& uuid);
+
+
+
+
     private:
         /**
          * @brief Loads a resource from the cache.

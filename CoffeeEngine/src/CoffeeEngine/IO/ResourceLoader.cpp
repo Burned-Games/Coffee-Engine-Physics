@@ -181,6 +181,8 @@ namespace Coffee {
 
         const Ref<Model>& model = s_Importer.ImportModel(path, cache);
         model->SetUUID(uuid);
+        model->SaveAnimations(uuid);
+        model->ImportAnimations(uuid);
 
         ResourceRegistry::Add(uuid, model);
         return model;

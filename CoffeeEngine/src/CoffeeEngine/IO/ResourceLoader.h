@@ -11,7 +11,10 @@
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
+#include <CoffeeEngine/Animation/Animation.h>
 #include <filesystem>
+
+
 
 namespace Coffee {
 
@@ -70,6 +73,10 @@ namespace Coffee {
         static Ref<Material> LoadMaterial(const std::string& name);
         static Ref<Material> LoadMaterial(const std::string& name, MaterialTextures& materialTextures);
         static Ref<Material> LoadMaterial(UUID uuid);
+
+     
+
+
 
         static void RemoveResource(UUID uuid);
         static void RemoveResource(const std::filesystem::path& path);

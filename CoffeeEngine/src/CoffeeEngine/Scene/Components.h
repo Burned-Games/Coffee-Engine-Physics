@@ -157,6 +157,156 @@ namespace Coffee {
     };
 
     /**
+     * @brief Component representing an animator.
+     * @ingroup scene
+     */
+    struct AnimatorComponent
+    {
+        AnimatorComponent() = default;
+
+        /**
+         * @brief Copy constructor for AnimatorComponent.
+         * @param other The other AnimatorComponent to copy from.
+         */
+        AnimatorComponent(const AnimatorComponent& other)
+        : IsBlending(other.IsBlending),
+          CurrentAnimation(other.CurrentAnimation),
+          NextAnimation(other.NextAnimation),
+          AnimationTime(other.AnimationTime),
+          NextAnimationTime(other.NextAnimationTime),
+          BlendTime(other.BlendTime),
+          BlendDuration(other.BlendDuration),
+          BlendThreshold(other.BlendThreshold),
+          AnimationSpeed(other.AnimationSpeed),
+          JointMatrices(other.JointMatrices),
+          m_Skeleton(other.m_Skeleton),
+          m_AnimationController(other.m_AnimationController),
+          m_AnimationSystem(other.m_AnimationSystem),
+          modelUUID(other.modelUUID),
+          animatorUUID(other.animatorUUID)
+        {
+            m_BlendJob.layers = ozz::make_span(m_BlendLayers);
+            m_AnimationSystem->SetCurrentAnimation(CurrentAnimation, this);
+            m_AnimationSystem->AddAnimator(this);
+        }
+
+        /**
+         * @brief Constructs an AnimatorComponent with the given skeleton, animation controller, and animation system.
+         * @param skeleton The skeleton reference.
+         * @param animationController The animation controller reference.
+         * @param animationSystem The animation system reference.
+         */
+        AnimatorComponent(Ref<Skeleton> skeleton, Ref<AnimationController> animationController, Ref<AnimationSystem> animationSystem)
+        : m_Skeleton(std::move(skeleton)), m_AnimationController(std::move(animationController)), m_AnimationSystem(std::move(animationSystem))
+        {
+            m_BlendJob.layers = ozz::make_span(m_BlendLayers);
+            JointMatrices = m_Skeleton->GetJointMatrices();
+        }
+
+        /**
+         * @brief Gets the skeleton reference.
+         * @return The skeleton reference.
+         */
+        Ref<Skeleton> GetSkeleton() const { return m_Skeleton; }
+
+        /**
+         * @brief Gets the animation controller reference.
+         * @return The animation controller reference.
+         */
+        Ref<AnimationController> GetAnimationController() const { return m_AnimationController; }
+
+        /**
+         * @brief Gets the animation system reference.
+         * @return The animation system reference.
+         */
+        Ref<AnimationSystem> GetAnimationSystem() const { return m_AnimationSystem; }
+
+        /**
+         * @brief Gets the sampling job context.
+         * @return The sampling job context.
+         */
+        ozz::animation::SamplingJob::Context& GetContext() { return m_Context; }
+
+        /**
+         * @brief Gets the blend layers.
+         * @return The blend layers.
+         */
+        ozz::animation::BlendingJob::Layer* GetBlendLayers() { return m_BlendLayers; }
+
+        /**
+         * @brief Gets the blending job.
+         * @return The blending job.
+         */
+        ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
+
+
+        void SetCurrentAnimation(int index) { m_AnimationSystem->SetCurrentAnimation(index, this);}
+
+        /**
+         * @brief Serializes the AnimatorComponent.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to serialize to.
+         */
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("CurrentAnimation", CurrentAnimation),
+                    cereal::make_nvp("BlendDuration", BlendDuration),
+                    cereal::make_nvp("BlendThreshold", BlendThreshold),
+                    cereal::make_nvp("AnimationSpeed", AnimationSpeed),
+                    cereal::make_nvp("ModelUUID", modelUUID),
+                    cereal::make_nvp("AnimatorUUID", animatorUUID));
+        }
+
+        /**
+         * @brief Deserializes the AnimatorComponent.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to deserialize from.
+         */
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("CurrentAnimation", CurrentAnimation),
+                    cereal::make_nvp("BlendDuration", BlendDuration),
+                    cereal::make_nvp("BlendThreshold", BlendThreshold),
+                    cereal::make_nvp("AnimationSpeed", AnimationSpeed),
+                    cereal::make_nvp("ModelUUID", modelUUID),
+                    cereal::make_nvp("AnimatorUUID", animatorUUID));
+
+            Ref<Model> model = ResourceRegistry::Get<Model>(modelUUID);
+            m_Skeleton = model->GetSkeleton();
+            m_AnimationController = model->GetAnimationController();
+            m_AnimationSystem = Scene::GetAnimationSystem();
+
+            JointMatrices = m_Skeleton->GetJointMatrices();
+        }
+
+    public:
+        bool IsBlending = false; ///< Indicates if the animation is blending.
+        unsigned int CurrentAnimation = -1; ///< The current animation index.
+        unsigned int NextAnimation = 0; ///< The next animation index.
+        float AnimationTime = 0.f; ///< The current animation time.
+        float NextAnimationTime = 0.f; ///< The next animation time.
+        float BlendTime = 0.f; ///< The current blend time.
+        float BlendDuration = 0.25f; ///< The duration of the blend.
+        float BlendThreshold = 0.8; ///< The blend threshold.
+        float AnimationSpeed = 1.0f; ///< The speed of the animation.
+
+        std::vector<glm::mat4> JointMatrices; ///< The joint matrices.
+        UUID modelUUID; ///< The UUID of the model.
+        UUID animatorUUID; ///< The UUID of the animator.
+
+    private:
+        Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
+        Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
+        Ref<AnimationSystem> m_AnimationSystem; ///< The animation system reference.
+
+        ozz::animation::SamplingJob::Context m_Context; ///< The sampling job context.
+        ozz::animation::BlendingJob::Layer m_BlendLayers[2]; ///< The blend layers.
+        ozz::animation::BlendingJob m_BlendJob; ///< The blending job.
+    };
+
+    /**
      * @brief Component representing a mesh.
      * @ingroup scene
      */
@@ -164,6 +314,9 @@ namespace Coffee {
     {
         Ref<Mesh> mesh; ///< The mesh reference.
         bool drawAABB = false; ///< Flag to draw the axis-aligned bounding box (AABB).
+
+        AnimatorComponent* animator = nullptr; ///< The animator component.
+        UUID animatorUUID = 0; ///< The UUID of the animator.
 
         MeshComponent()
         {
@@ -188,14 +341,19 @@ namespace Coffee {
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("Mesh", mesh->GetUUID()));
+            archive(cereal::make_nvp("Mesh", mesh->GetUUID()),
+                    cereal::make_nvp("AnimatorUUID", animatorUUID));
+
+            if (animator && animatorUUID != 0)
+                animator->animatorUUID = animatorUUID;
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
             UUID meshUUID;
-            archive(cereal::make_nvp("Mesh", meshUUID));
+            archive(cereal::make_nvp("Mesh", meshUUID),
+                    cereal::make_nvp("AnimatorUUID", animatorUUID));
 
             Ref<Mesh> mesh = ResourceRegistry::Get<Mesh>(meshUUID);
             this->mesh = mesh;
@@ -546,6 +704,7 @@ namespace Coffee {
 
 
     };
+
 }
 
 /** @} */

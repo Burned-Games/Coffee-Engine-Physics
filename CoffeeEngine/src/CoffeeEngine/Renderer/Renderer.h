@@ -26,6 +26,7 @@ namespace Coffee {
         Ref<Mesh> mesh;
         Ref<Material> material;
         uint32_t entityID;
+        AnimatorComponent* animator;
     };
 
     /**
