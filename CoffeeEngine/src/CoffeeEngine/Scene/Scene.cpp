@@ -254,7 +254,7 @@ namespace Coffee {
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::BeginScene(*camera, cameraTransform);
 
-        m_Octree.DebugDraw();
+        //m_Octree.DebugDraw();
 
         // Get all the static meshes from the Octree
 /* 
