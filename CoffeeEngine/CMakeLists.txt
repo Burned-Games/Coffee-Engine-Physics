@@ -39,6 +39,7 @@ find_package(sol2 CONFIG REQUIRED)
 find_package(Lua REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
+
 add_library(coffee-engine ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
@@ -60,6 +61,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Tracy::TracyClient
     nfd::nfd
     icon_font_cpp_headers
+    Wwise
     ${LUA_LIBRARIES}
     ozz_animation
     ozz_animation_offline
@@ -87,6 +89,7 @@ add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/ImGuizmo)
 add_subdirectory(vendor/IconFontCppHeaders)
 add_subdirectory(vendor/ozz_animation)
+add_subdirectory(vendor/Wwise)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=1)
@@ -95,3 +98,5 @@ else()
 target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=0)
 message(STATUS "COFFEE_DEBUG DISABLED!")
 endif()
+
+add_definitions(-DUNICODE -D_UNICODE)
