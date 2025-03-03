@@ -27,7 +27,7 @@ namespace Coffee {
             return;
         }
 
-        const ResourceType type = GetResourceTypeFromExtension(path);
+        ResourceType type = GetResourceTypeFromExtension(path);
 
         if(type == ResourceType::Unknown and path.extension() != ".import")
         {
@@ -40,6 +40,7 @@ namespace Coffee {
         if(resourcePath.extension() == ".import")
         {
             resourcePath = GetPathFromImportFile(path);
+            type = GetResourceTypeFromExtension(resourcePath);
             COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", resourcePath.string());
         }
         else
@@ -57,22 +58,22 @@ namespace Coffee {
         {
             case ResourceType::Texture2D:
             {
-                LoadTexture2D(path);
+                LoadTexture2D(resourcePath);
                 break;
             }
             case ResourceType::Cubemap:
             {
-                LoadCubemap(path);
+                LoadCubemap(resourcePath);
                 break;
             }
             case ResourceType::Model:
             {
-                LoadModel(path);
+                LoadModel(resourcePath);
                 break;
             }
             case ResourceType::Shader:
             {
-                LoadShader(path);
+                LoadShader(resourcePath);
                 break;
             }
         }
