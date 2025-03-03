@@ -239,6 +239,9 @@ namespace Coffee {
          */
         ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
 
+
+        void SetCurrentAnimation(int index) { m_AnimationSystem->SetCurrentAnimation(index, this);}
+
         /**
          * @brief Serializes the AnimatorComponent.
          * @tparam Archive The type of the archive.
@@ -280,7 +283,7 @@ namespace Coffee {
 
     public:
         bool IsBlending = false; ///< Indicates if the animation is blending.
-        unsigned int CurrentAnimation = 0; ///< The current animation index.
+        unsigned int CurrentAnimation = -1; ///< The current animation index.
         unsigned int NextAnimation = 0; ///< The next animation index.
         float AnimationTime = 0.f; ///< The current animation time.
         float NextAnimationTime = 0.f; ///< The next animation time.

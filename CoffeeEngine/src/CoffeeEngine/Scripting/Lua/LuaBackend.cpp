@@ -465,6 +465,10 @@ namespace Coffee {
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
                 }
+                else if (componentName == "AnimatorComponent")
+                {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<AnimatorComponent>()));
+                }
                 return sol::nil;
             },
             "has_component", [](Entity* self, const std::string& componentName) -> bool {
@@ -482,6 +486,8 @@ namespace Coffee {
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
+                } else if (componentName == "AnimatorComponent") {
+                    return self->HasComponent<AnimatorComponent>();
                 }
                 return false;
             },
@@ -500,7 +506,9 @@ namespace Coffee {
                     self->RemoveComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->RemoveComponent<ScriptComponent>();
-                }
+                }/* else if (componentName == "AnimatorComponent") {
+                    self->RemoveComponent<AnimatorComponent>();
+                }*/
             },
             "set_parent", &Entity::SetParent,
             "get_parent", &Entity::GetParent,
@@ -570,6 +578,13 @@ namespace Coffee {
                 std::dynamic_pointer_cast<LuaScript>(self.script)->CallFunction(functionName);
             }
         );
+
+
+        luaState.new_usertype<AnimatorComponent>(
+            "AnimatorComponent", sol::constructors<AnimatorComponent(), AnimatorComponent()>(),
+            "set_current_animation", &AnimatorComponent::SetCurrentAnimation
+        );
+
         # pragma endregion
 
         # pragma region Bind Scene Functions
