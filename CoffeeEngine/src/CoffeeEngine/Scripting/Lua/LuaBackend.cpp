@@ -515,6 +515,8 @@ namespace Coffee {
                     self->AddComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->AddComponent<ScriptComponent>();
+                } else if (componentName == "AudioSourceComponent") {
+                    self->AddComponent<AudioSourceComponent>();
                 }
             },
             "get_component", [this](Entity* self, const std::string& componentName) -> sol::object {
@@ -532,6 +534,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
+                } else if (componentName == "AudioSourceComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<AudioSourceComponent>()));
                 }
                 else if (componentName == "AnimatorComponent")
                 {
@@ -556,6 +560,8 @@ namespace Coffee {
                     return self->HasComponent<ScriptComponent>();
                 } else if (componentName == "AnimatorComponent") {
                     return self->HasComponent<AnimatorComponent>();
+                } else if (componentName == "AudioSourceComponent") {
+                    return self->HasComponent<AudioSourceComponent>();
                 }
                 return false;
             },
@@ -574,6 +580,8 @@ namespace Coffee {
                     self->RemoveComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->RemoveComponent<ScriptComponent>();
+                } else if (componentName == "AudioSourceComponent") {
+                    self->RemoveComponent<AudioSourceComponent>();
                 }/* else if (componentName == "AnimatorComponent") {
                     self->RemoveComponent<AnimatorComponent>();
                 }*/
@@ -652,6 +660,13 @@ namespace Coffee {
             "AnimatorComponent", sol::constructors<AnimatorComponent(), AnimatorComponent()>(),
             "set_current_animation", &AnimatorComponent::SetCurrentAnimation
         );
+
+        luaState.new_usertype<AudioSourceComponent>("AudioSourceComponent",
+        sol::constructors<AudioSourceComponent(), AudioSourceComponent()>(),
+         "set_volume", &AudioSourceComponent::SetVolume,
+         "play", &AudioSourceComponent::Play,
+         "pause", &AudioSourceComponent::Stop);
+
 
         # pragma endregion
 
