@@ -760,14 +760,14 @@ namespace Coffee {
                         {
                             rbComponent.rb->SetMass(mass);
                         }
-                    }
-                    
-                    // Use gravity
-                    ImGui::Text("Use Gravity");
-                    bool useGravity = rbComponent.rb->GetUseGravity();
-                    if (ImGui::Checkbox("##UseGravity", &useGravity))
-                    {
-                        rbComponent.rb->SetUseGravity(useGravity);
+                        
+                        // Use gravity
+                        ImGui::Text("Use Gravity");
+                        bool useGravity = rbComponent.rb->GetUseGravity();
+                        if (ImGui::Checkbox("##UseGravity", &useGravity))
+                        {
+                            rbComponent.rb->SetUseGravity(useGravity);
+                        }
                     }
                     
                     // Freeze axes

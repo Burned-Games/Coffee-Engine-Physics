@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "Collider.h"
+#include "PhysicsWorld.h"
 
 #include <cereal/cereal.hpp>
 #include <cereal/types/memory.hpp>

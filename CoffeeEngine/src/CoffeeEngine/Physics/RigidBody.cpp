@@ -44,6 +44,14 @@ namespace Coffee {
 
         // Apply linear factor based on freeze settings
         UpdateLinearFactor();
+
+        // Apply gravity based on useGravity property
+        if (props.useGravity) {
+            m_Body->setGravity(btVector3(0, GRAVITY, 0)); // Default gravity
+        } else {
+            m_Body->setFlags(m_Body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+            m_Body->setGravity(btVector3(0, 0, 0)); // No gravity
+        }
     }
 
     RigidBody::~RigidBody() {
@@ -188,7 +196,18 @@ namespace Coffee {
     void RigidBody::SetUseGravity(bool useGravity) 
     {
         m_Properties.useGravity = useGravity;
-        m_Body->activate(true);
+        
+        // Apply or remove gravity effect
+        if (m_Body) {
+            if (useGravity) {
+                m_Body->setFlags(m_Body->getFlags() & ~BT_DISABLE_WORLD_GRAVITY);
+                m_Body->setGravity(btVector3(0, GRAVITY, 0)); // Standard gravity
+            } else {
+                m_Body->setFlags(m_Body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+                m_Body->setGravity(btVector3(0, 0, 0)); // No gravity
+            }
+            m_Body->activate(true);
+        }
     }
 
     void RigidBody::SetFreezeX(bool freezeX) 
