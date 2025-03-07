@@ -27,6 +27,7 @@ namespace Coffee {
 
         //UI functions for scenetree menus
         void ShowCreateEntityMenu();
+        void DrawSelectedEntityCollider();
 
     private:
         Ref<Scene> m_Context;

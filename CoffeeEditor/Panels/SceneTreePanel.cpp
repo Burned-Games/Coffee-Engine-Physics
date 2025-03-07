@@ -114,6 +114,8 @@ namespace Coffee {
         if(m_SelectionContext)
         {
             DrawComponents(m_SelectionContext);
+            
+            DrawSelectedEntityCollider();
         }
 
         ImGui::End();
@@ -1497,6 +1499,69 @@ namespace Coffee {
             }
 
             ImGui::EndPopup();
+        }
+    }
+
+    void SceneTreePanel::DrawSelectedEntityCollider()
+    {
+        if (!m_SelectionContext || !m_SelectionContext.IsValid())
+            return;
+            
+        if (!m_SelectionContext.HasComponent<RigidbodyComponent>())
+            return;
+        
+        if (!m_SelectionContext.HasComponent<TransformComponent>())
+            return;
+            
+        auto& rbComponent = m_SelectionContext.GetComponent<RigidbodyComponent>();
+        auto& transformComponent = m_SelectionContext.GetComponent<TransformComponent>();
+        
+        if (!rbComponent.rb || !rbComponent.rb->GetCollider())
+            return;
+            
+        Ref<Collider> currentCollider = rbComponent.rb->GetCollider();
+        if (!currentCollider)
+            return;
+            
+        btCollisionShape* shape = currentCollider->getShape();
+        if (!shape)
+            return;
+            
+        glm::vec3 position = transformComponent.Position;
+        glm::quat orientation = glm::quat(glm::radians(transformComponent.Rotation));
+        
+        glm::vec4 selectedColliderColor(0.0f, 1.0f, 0.2f, 0.7f);
+        
+        constexpr float margin = 0.05f;
+        switch (shape->getShapeType()) {
+            case BOX_SHAPE_PROXYTYPE: {
+                btBoxShape* boxShape = static_cast<btBoxShape*>(shape);
+                btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
+                glm::vec3 size((halfExtents.x() + margin) * 2.0f, (halfExtents.y() + margin) * 2.0f, (halfExtents.z() + margin) * 2.0f);
+                DebugRenderer::DrawBox(position, orientation, size, selectedColliderColor);
+                break;
+            }
+            case SPHERE_SHAPE_PROXYTYPE: {
+                btSphereShape* sphereShape = static_cast<btSphereShape*>(shape);
+                float radius = sphereShape->getRadius() + margin;
+                DebugRenderer::DrawSphere(position, radius, selectedColliderColor);
+                break;
+            }
+            case CAPSULE_SHAPE_PROXYTYPE: {
+                btCapsuleShape* capsuleShape = static_cast<btCapsuleShape*>(shape);
+                float radius = capsuleShape->getRadius() + margin;
+                float cylinderHeight = capsuleShape->getHalfHeight() * 2.0f + margin;
+                DebugRenderer::DrawCapsule(position, orientation, radius, cylinderHeight, selectedColliderColor);
+                break;
+            }
+            case CYLINDER_SHAPE_PROXYTYPE: {
+                btCylinderShape* cylinderShape = static_cast<btCylinderShape*>(shape);
+                btVector3 halfExtents = cylinderShape->getHalfExtentsWithMargin();
+                float radius = halfExtents.x() + margin;
+                float height = (halfExtents.y() + margin) * 2.0f;
+                DebugRenderer::DrawCylinder(position, orientation, radius, height, selectedColliderColor);
+                break;
+            }
         }
     }
 }
