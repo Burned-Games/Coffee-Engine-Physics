@@ -273,6 +273,8 @@ namespace Coffee {
 
         bool srgb = (type == aiTextureType_DIFFUSE || type == aiTextureType_EMISSIVE);
 
+        
+
         Texture2DImportData importData;
         importData.originalPath = texturePath;
         importData.sRGB = srgb;
