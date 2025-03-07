@@ -100,8 +100,9 @@ namespace Coffee {
                     if (!capsuleShape) continue;
                     
                     const float radius = capsuleShape->getRadius() + margin;
-                    const float height = capsuleShape->getHalfHeight() * 2.0f + margin;
-                    DebugRenderer::DrawBox(position, orientation, glm::vec3(radius * 2.0f, height, radius * 2.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    const float cylinderHeight = capsuleShape->getHalfHeight() * 2.0f + margin;
+                    
+                    DebugRenderer::DrawCapsule(position, orientation, radius, cylinderHeight, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                     break;
                 }
                 default:

@@ -963,22 +963,31 @@ namespace Coffee {
                             case 2: { // Capsule collider properties
                                 btCapsuleShape* capsuleShape = static_cast<btCapsuleShape*>(currentCollider->getShape());
                                 float radius = capsuleShape->getRadius();
-                                float height = capsuleShape->getHalfHeight() * 2.0f;
+                                float cylinderHeight = capsuleShape->getHalfHeight() * 2.0f;
+                                
+                                float totalHeight = cylinderHeight + 2.0f * radius;
                                 
                                 ImGui::Text("Radius");
                                 bool radiusChanged = ImGui::DragFloat("##CapsuleRadius", &radius, 0.1f, 0.01f, 100.0f);
                                 
-                                ImGui::Text("Height");
-                                bool heightChanged = ImGui::DragFloat("##CapsuleHeight", &height, 0.1f, 0.01f, 100.0f);
+                                ImGui::Text("Total Height");
+                                bool heightChanged = ImGui::DragFloat("##CapsuleHeight", &totalHeight, 0.1f, 0.01f, 100.0f);
                                 
                                 if (radiusChanged || heightChanged) {
+                                    if (totalHeight < radius * 2.0f) {
+                                        totalHeight = radius * 2.0f;
+                                    }
+                                    
+                                    float cylinderHeight = totalHeight - 2.0f * radius;
+                                    
                                     // Create new capsule collider with updated parameters
-                                    Ref<Collider> newCollider = CreateRef<CapsuleCollider>(radius, height);
+                                    Ref<Collider> newCollider = CreateRef<CapsuleCollider>(radius, cylinderHeight);
                                     
                                     // Update rigidbody with new collider
                                     RigidBody::Properties props = rbComponent.rb->GetProperties();
                                     glm::vec3 position = rbComponent.rb->GetPosition();
                                     glm::vec3 rotation = rbComponent.rb->GetRotation();
+                                    glm::vec3 velocity = rbComponent.rb->GetVelocity();
                                     
                                     auto scene = static_cast<Scene*>(entity.m_Scene);
                                     scene->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
@@ -986,10 +995,15 @@ namespace Coffee {
                                     rbComponent.rb = RigidBody::Create(props, newCollider);
                                     rbComponent.rb->SetPosition(position);
                                     rbComponent.rb->SetRotation(rotation);
+                                    rbComponent.rb->SetVelocity(velocity);
                                     
                                     scene->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                                     rbComponent.rb->GetNativeBody()->setUserPointer(
                                         reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                                        
+                                    if (!props.useGravity) {
+                                        rbComponent.rb->SetUseGravity(false);
+                                    }
                                 }
                                 break;
                             }

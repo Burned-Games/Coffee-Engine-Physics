@@ -81,8 +81,8 @@ namespace Coffee {
     class CapsuleCollider final : public Collider {
     public:
         CapsuleCollider() = default;
-        explicit CapsuleCollider(const float radius, const float height) {
-            shape = new btCapsuleShape(radius, height * 0.5f);
+        explicit CapsuleCollider(const float radius, const float cylinderHeight) {
+            shape = new btCapsuleShape(radius, cylinderHeight * 0.5f);
         }
 
     private:
