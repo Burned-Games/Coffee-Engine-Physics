@@ -33,14 +33,17 @@ namespace Coffee {
         m_Body->setActivationState(DISABLE_DEACTIVATION);
         m_Body->setUserPointer(nullptr);
 
+        // Apply friction and damping
+        m_Body->setFriction(props.friction);
+        m_Body->setDamping(props.linearDrag, props.angularDrag);
+
         if (props.type == Type::Static) {
             m_Body->setCollisionFlags(m_Body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
             m_Body->setMassProps(0, btVector3(0, 0, 0)); // Zero mass for static objects
         }
 
-        if (props.freezeY) {
-            m_Body->setLinearFactor(btVector3(1, 0, 1));
-        }
+        // Apply linear factor based on freeze settings
+        UpdateLinearFactor();
     }
 
     RigidBody::~RigidBody() {
@@ -64,6 +67,19 @@ namespace Coffee {
     void RigidBody::SetVelocity(const glm::vec3& velocity) const
     {
         m_Body->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
+        m_Body->activate(true); // Asegurarse de que el cuerpo esté activo/
+    }
+    
+    void RigidBody::AddVelocity(const glm::vec3& deltaVelocity) const
+    {
+        btVector3 currentVel = m_Body->getLinearVelocity();
+        btVector3 newVel(
+            currentVel.x() + deltaVelocity.x,
+            currentVel.y() + deltaVelocity.y,
+            currentVel.z() + deltaVelocity.z
+        );
+        m_Body->setLinearVelocity(newVel);
+        m_Body->activate(true); // Asegurarse de que el cuerpo esté activo
     }
 
     glm::vec3 RigidBody::GetPosition() const {
@@ -131,4 +147,106 @@ namespace Coffee {
     {
         m_Body->clearForces();
     }
+
+    void RigidBody::SetBodyType(Type type) 
+    {
+        m_Properties.type = type;
+        
+        if (type == Type::Static) 
+        {
+            m_Body->setCollisionFlags(m_Body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+            m_Body->setMassProps(0, btVector3(0, 0, 0));
+        }
+        else 
+        {
+            m_Body->setCollisionFlags(m_Body->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT);
+            
+            if (type == Type::Dynamic) 
+            {
+                btVector3 inertia(0, 0, 0);
+                m_Collider->getShape()->calculateLocalInertia(m_Properties.mass, inertia);
+                m_Body->setMassProps(m_Properties.mass, inertia);
+            }
+        }
+        
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetMass(float mass) 
+    {
+        m_Properties.mass = mass;
+        
+        if (m_Properties.type == Type::Dynamic) 
+        {
+            btVector3 inertia(0, 0, 0);
+            m_Collider->getShape()->calculateLocalInertia(mass, inertia);
+            m_Body->setMassProps(mass, inertia);
+            m_Body->activate(true);
+        }
+    }
+
+    void RigidBody::SetUseGravity(bool useGravity) 
+    {
+        m_Properties.useGravity = useGravity;
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetFreezeX(bool freezeX) 
+    {
+        m_Properties.freezeX = freezeX;
+        UpdateLinearFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetFreezeY(bool freezeY) 
+    {
+        m_Properties.freezeY = freezeY;
+        UpdateLinearFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetFreezeZ(bool freezeZ) 
+    {
+        m_Properties.freezeZ = freezeZ;
+        UpdateLinearFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::UpdateLinearFactor()
+    {
+        btVector3 linearFactor(
+            m_Properties.freezeX ? 0 : 1,
+            m_Properties.freezeY ? 0 : 1,
+            m_Properties.freezeZ ? 0 : 1
+        );
+        m_Body->setLinearFactor(linearFactor);
+    }
+
+    void RigidBody::SetFriction(float friction) 
+    {
+        m_Properties.friction = friction;
+        if (m_Body) {
+            m_Body->setFriction(friction);
+            m_Body->activate(true);
+        }
+    }
+
+    void RigidBody::SetLinearDrag(float linearDrag) 
+    {
+        m_Properties.linearDrag = linearDrag;
+        if (m_Body) {
+            m_Body->setDamping(linearDrag, m_Properties.angularDrag);
+            m_Body->activate(true);
+        }
+    }
+
+    void RigidBody::SetAngularDrag(float angularDrag) 
+    {
+        m_Properties.angularDrag = angularDrag;
+        if (m_Body) {
+            m_Body->setDamping(m_Properties.linearDrag, angularDrag);
+            m_Body->activate(true);
+        }
+    }
+
 } // namespace Coffee

@@ -732,8 +732,163 @@ namespace Coffee {
             }
         }
 
+        // Add RigidBody component editor UI
+        if (entity.HasComponent<RigidbodyComponent>())
+        {
+            auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Rigidbody", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (rbComponent.rb)
+                {
+                    // Rigidbody type
+                    static const char* typeStrings[] = { "Static", "Dynamic", "Kinematic" };
+                    int currentType = static_cast<int>(rbComponent.rb->GetBodyType());
+                    
+                    ImGui::Text("Type");
+                    if (ImGui::Combo("##Type", &currentType, typeStrings, IM_ARRAYSIZE(typeStrings)))
+                    {
+                        rbComponent.rb->SetBodyType(static_cast<RigidBody::Type>(currentType));
+                    }
+                    
+                    // Mass (only for dynamic bodies)
+                    if (rbComponent.rb->GetBodyType() != RigidBody::Type::Static)
+                    {
+                        ImGui::Text("Mass");
+                        float mass = rbComponent.rb->GetMass();
+                        if (ImGui::DragFloat("##Mass", &mass, 0.1f, 0.001f, 1000.0f))
+                        {
+                            rbComponent.rb->SetMass(mass);
+                        }
+                    }
+                    
+                    // Use gravity
+                    ImGui::Text("Use Gravity");
+                    bool useGravity = rbComponent.rb->GetUseGravity();
+                    if (ImGui::Checkbox("##UseGravity", &useGravity))
+                    {
+                        rbComponent.rb->SetUseGravity(useGravity);
+                    }
+                    
+                    // Freeze axes
+                    ImGui::Text("Freeze Axes");
+                    ImGui::Columns(3, "FreezeAxesColumns", false);
+                    
+                    // X Axis
+                    bool freezeX = rbComponent.rb->GetFreezeX();
+                    if (ImGui::Checkbox("X##FreezeX", &freezeX))
+                    {
+                        rbComponent.rb->SetFreezeX(freezeX);
+                    }
+                    ImGui::NextColumn();
+                    
+                    // Y Axis
+                    bool freezeY = rbComponent.rb->GetFreezeY();
+                    if (ImGui::Checkbox("Y##FreezeY", &freezeY))
+                    {
+                        rbComponent.rb->SetFreezeY(freezeY);
+                    }
+                    ImGui::NextColumn();
+                    
+                    // Z Axis
+                    bool freezeZ = rbComponent.rb->GetFreezeZ();
+                    if (ImGui::Checkbox("Z##FreezeZ", &freezeZ))
+                    {
+                        rbComponent.rb->SetFreezeZ(freezeZ);
+                    }
+                    
+                    ImGui::Columns(1);
+                    
+                    // Is trigger
+                    ImGui::Text("Is Trigger");
+                    bool isTrigger = rbComponent.rb->GetIsTrigger();
+                    if (ImGui::Checkbox("##IsTrigger", &isTrigger))
+                    {
+                        rbComponent.rb->SetTrigger(isTrigger);
+                    }
+                    
+                    // Add friction and drag controls
+                    ImGui::Separator();
+                    
+                    ImGui::Text("Friction");
+                    float friction = rbComponent.rb->GetFriction();
+                    if (ImGui::SliderFloat("##Friction", &friction, 0.0f, 1.0f))
+                    {
+                        rbComponent.rb->SetFriction(friction);
+                    }
+                    
+                    ImGui::Text("Linear Drag");
+                    float linearDrag = rbComponent.rb->GetLinearDrag();
+                    if (ImGui::SliderFloat("##LinearDrag", &linearDrag, 0.0f, 1.0f))
+                    {
+                        rbComponent.rb->SetLinearDrag(linearDrag);
+                    }
+                    
+                    ImGui::Text("Angular Drag");
+                    float angularDrag = rbComponent.rb->GetAngularDrag();
+                    if (ImGui::SliderFloat("##AngularDrag", &angularDrag, 0.0f, 1.0f))
+                    {
+                        rbComponent.rb->SetAngularDrag(angularDrag);
+                    }
+                    
+                    // Show current velocity
+                    glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                    ImGui::Text("Current Velocity: X: %.2f, Y: %.2f, Z: %.2f", 
+                                velocity.x, velocity.y, velocity.z);
+                    
+                    // Add force/impulse controls
+                    static glm::vec3 forceToApply = {0.0f, 0.0f, 0.0f};
+                    ImGui::Separator();
+                    ImGui::Text("Physics Controls");
+                    ImGui::DragFloat3("Vector", glm::value_ptr(forceToApply), 0.1f);
+                    
+                    // Force & Impulse buttons
+                    if (ImGui::Button("Apply Force"))
+                    {
+                        rbComponent.rb->ApplyForce(forceToApply);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Apply Impulse"))
+                    {
+                        rbComponent.rb->ApplyImpulse(forceToApply);
+                    }
+                    
+                    // Velocity buttons
+                    if (ImGui::Button("Set Velocity"))
+                    {
+                        rbComponent.rb->SetVelocity(forceToApply);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Add Velocity"))
+                    {
+                        rbComponent.rb->AddVelocity(forceToApply);
+                    }
+                    
+                    // Reset velocity
+                    if (ImGui::Button("Reset Velocity"))
+                    {
+                        rbComponent.rb->ResetVelocity();
+                    }
+                }
+                else
+                {
+                    ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "RigidBody instance is null!");
+                }
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                // Remove from physics world before removing component
+                if (rbComponent.rb && rbComponent.rb->GetNativeBody())
+                {
+                    auto scene = static_cast<Scene*>(entity.m_Scene);
+                    scene->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                }
+                entity.RemoveComponent<RigidbodyComponent>();
+            }
+        }
         
-        if (entity.HasComponent<ScriptComponent>())
+        if(entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();
             bool isCollapsingHeaderOpen = true;
@@ -871,7 +1026,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -990,7 +1145,6 @@ namespace Coffee {
                                 scriptFile << "end\n\n";
                                 scriptFile << "function on_exit()\n";
                                 scriptFile << "    -- Add cleanup code here\n";
-                                scriptFile << "end\n";
                                 scriptFile.close();
 
                                 // Add the script component to the entity
@@ -1007,6 +1161,54 @@ namespace Coffee {
                         }
                         ImGui::CloseCurrentPopup();
                     }
+                }
+                else if(items[item_current] == "Rigidbody Component")
+                {
+                    if(!entity.HasComponent<RigidbodyComponent>())
+                    {
+                        try {
+                            auto& rbComponent = entity.AddComponent<RigidbodyComponent>();
+                            
+                            Ref<Collider> collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+                            if (!collider || !collider->getShape()) {
+                                COFFEE_CORE_ERROR("Failed to create box collider");
+                                entity.RemoveComponent<RigidbodyComponent>();
+                                ImGui::CloseCurrentPopup();
+                                return;
+                            }
+                            
+                            RigidBody::Properties props;
+                            props.type = RigidBody::Type::Dynamic;
+                            props.mass = 1.0f;
+                            props.useGravity = true;
+                            
+                            rbComponent.rb = RigidBody::Create(props, collider);
+                            
+                            if (!rbComponent.rb || !rbComponent.rb->GetNativeBody()) {
+                                COFFEE_CORE_ERROR("Failed to create rigidbody");
+                                entity.RemoveComponent<RigidbodyComponent>();
+                                ImGui::CloseCurrentPopup();
+                                return;
+                            }
+                            
+                            auto& transform = entity.GetComponent<TransformComponent>();
+                            rbComponent.rb->SetPosition(transform.Position);
+                            rbComponent.rb->SetRotation(transform.Rotation);
+                            
+                            auto scene = entity.GetScene();
+                            scene->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                            
+                            rbComponent.rb->GetNativeBody()->setUserPointer(
+                                reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                        }
+                        catch (const std::exception& e) {
+                            COFFEE_CORE_ERROR("Exception creating rigidbody: {0}", e.what());
+                            if (entity.HasComponent<RigidbodyComponent>()) {
+                                entity.RemoveComponent<RigidbodyComponent>();
+                            }
+                        }
+                    }
+                    ImGui::CloseCurrentPopup();
                 }
                 else
                 {
