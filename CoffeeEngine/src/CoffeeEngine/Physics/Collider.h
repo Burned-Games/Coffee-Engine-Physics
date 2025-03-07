@@ -33,7 +33,14 @@ namespace Coffee {
     public:
         BoxCollider() = default;
         explicit BoxCollider(const glm::vec3& size) {
-            shape = new btBoxShape(btVector3(size.x * 0.5f, size.y * 0.5f, size.z * 0.5f));
+            float minSize = 0.01f;
+            glm::vec3 safeSize(
+                std::max(size.x, minSize),
+                std::max(size.y, minSize),
+                std::max(size.z, minSize)
+            );
+            
+            shape = new btBoxShape(btVector3(safeSize.x * 0.5f, safeSize.y * 0.5f, safeSize.z * 0.5f));
         }
 
     private:
