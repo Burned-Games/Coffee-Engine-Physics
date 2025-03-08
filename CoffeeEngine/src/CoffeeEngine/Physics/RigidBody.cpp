@@ -306,4 +306,28 @@ namespace Coffee {
         m_Body->setAngularFactor(angularFactor);
     }
 
+    void RigidBody::ApplyTorque(const glm::vec3& torque) const
+    {
+        m_Body->activate(true);
+        m_Body->applyTorque(btVector3(torque.x, torque.y, torque.z));
+    }
+
+    void RigidBody::ApplyTorqueImpulse(const glm::vec3& torque) const
+    {
+        m_Body->activate(true);
+        m_Body->applyTorqueImpulse(btVector3(torque.x, torque.y, torque.z));
+    }
+
+    void RigidBody::SetAngularVelocity(const glm::vec3& velocity) const
+    {
+        m_Body->activate(true);
+        m_Body->setAngularVelocity(btVector3(velocity.x, velocity.y, velocity.z));
+    }
+
+    glm::vec3 RigidBody::GetAngularVelocity() const
+    {
+        btVector3 vel = m_Body->getAngularVelocity();
+        return {vel.x(), vel.y(), vel.z()};
+    }
+
 } // namespace Coffee

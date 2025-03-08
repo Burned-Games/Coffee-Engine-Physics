@@ -98,6 +98,12 @@ namespace Coffee {
         glm::vec3 GetRotation() const;
         glm::vec3 GetVelocity() const;
 
+        // Angular movement functions
+        void ApplyTorque(const glm::vec3& torque) const;
+        void ApplyTorqueImpulse(const glm::vec3& torque) const;
+        void SetAngularVelocity(const glm::vec3& velocity) const;
+        glm::vec3 GetAngularVelocity() const;
+
         // Physics
         void ApplyForce(const glm::vec3& force) const;
         void ApplyImpulse(const glm::vec3& impulse) const;
