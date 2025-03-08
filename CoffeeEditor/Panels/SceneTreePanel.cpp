@@ -114,8 +114,6 @@ namespace Coffee {
         if(m_SelectionContext)
         {
             DrawComponents(m_SelectionContext);
-            
-            DrawSelectedEntityCollider();
         }
 
         ImGui::End();
@@ -899,8 +897,7 @@ namespace Coffee {
                             glm::vec3 rotation = rbComponent.rb->GetRotation();
                             
                             // Remove from physics world
-                            auto scene = static_cast<Scene*>(entity.m_Scene);
-                            scene->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                            m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
                             
                             // Create new rigidbody with new collider
                             rbComponent.rb = RigidBody::Create(props, newCollider);
@@ -908,7 +905,7 @@ namespace Coffee {
                             rbComponent.rb->SetRotation(rotation);
                             
                             // Add back to physics world
-                            scene->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                            m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                             
                             // Set user pointer for collision detection
                             rbComponent.rb->GetNativeBody()->setUserPointer(
@@ -937,16 +934,15 @@ namespace Coffee {
                                     glm::vec3 position = rbComponent.rb->GetPosition();
                                     glm::vec3 rotation = rbComponent.rb->GetRotation();
                                     glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                                    
-                                    auto scene = static_cast<Scene*>(entity.m_Scene);
-                                    scene->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+
+                                    m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
                                     
                                     rbComponent.rb = RigidBody::Create(props, newCollider);
                                     rbComponent.rb->SetPosition(position);
                                     rbComponent.rb->SetRotation(rotation);
                                     rbComponent.rb->SetVelocity(velocity);
                                     
-                                    scene->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                                    m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                                     rbComponent.rb->GetNativeBody()->setUserPointer(
                                         reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
                                     
@@ -969,15 +965,14 @@ namespace Coffee {
                                     RigidBody::Properties props = rbComponent.rb->GetProperties();
                                     glm::vec3 position = rbComponent.rb->GetPosition();
                                     glm::vec3 rotation = rbComponent.rb->GetRotation();
-                                    
-                                    auto scene = static_cast<Scene*>(entity.m_Scene);
-                                    scene->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+
+                                    m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
                                     
                                     rbComponent.rb = RigidBody::Create(props, newCollider);
                                     rbComponent.rb->SetPosition(position);
                                     rbComponent.rb->SetRotation(rotation);
                                     
-                                    scene->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                                    m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                                     rbComponent.rb->GetNativeBody()->setUserPointer(
                                         reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
                                 }
@@ -1011,16 +1006,15 @@ namespace Coffee {
                                     glm::vec3 position = rbComponent.rb->GetPosition();
                                     glm::vec3 rotation = rbComponent.rb->GetRotation();
                                     glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                                    
-                                    auto scene = static_cast<Scene*>(entity.m_Scene);
-                                    scene->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+
+                                    m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
                                     
                                     rbComponent.rb = RigidBody::Create(props, newCollider);
                                     rbComponent.rb->SetPosition(position);
                                     rbComponent.rb->SetRotation(rotation);
                                     rbComponent.rb->SetVelocity(velocity);
                                     
-                                    scene->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                                    m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                                     rbComponent.rb->GetNativeBody()->setUserPointer(
                                         reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
                                         
@@ -1107,8 +1101,7 @@ namespace Coffee {
                 // Remove from physics world before removing component
                 if (rbComponent.rb && rbComponent.rb->GetNativeBody())
                 {
-                    auto scene = static_cast<Scene*>(entity.m_Scene);
-                    scene->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                    m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
                 }
                 entity.RemoveComponent<RigidbodyComponent>();
             }
@@ -1420,9 +1413,8 @@ namespace Coffee {
                             auto& transform = entity.GetComponent<TransformComponent>();
                             rbComponent.rb->SetPosition(transform.Position);
                             rbComponent.rb->SetRotation(transform.Rotation);
-                            
-                            auto scene = entity.GetScene();
-                            scene->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+
+                            m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                             
                             rbComponent.rb->GetNativeBody()->setUserPointer(
                                 reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
@@ -1520,69 +1512,6 @@ namespace Coffee {
             }
 
             ImGui::EndPopup();
-        }
-    }
-
-    void SceneTreePanel::DrawSelectedEntityCollider()
-    {
-        if (!m_SelectionContext || !m_SelectionContext.IsValid())
-            return;
-            
-        if (!m_SelectionContext.HasComponent<RigidbodyComponent>())
-            return;
-        
-        if (!m_SelectionContext.HasComponent<TransformComponent>())
-            return;
-            
-        auto& rbComponent = m_SelectionContext.GetComponent<RigidbodyComponent>();
-        auto& transformComponent = m_SelectionContext.GetComponent<TransformComponent>();
-        
-        if (!rbComponent.rb || !rbComponent.rb->GetCollider())
-            return;
-            
-        Ref<Collider> currentCollider = rbComponent.rb->GetCollider();
-        if (!currentCollider)
-            return;
-            
-        btCollisionShape* shape = currentCollider->getShape();
-        if (!shape)
-            return;
-            
-        glm::vec3 position = transformComponent.Position;
-        glm::quat orientation = glm::quat(glm::radians(transformComponent.Rotation));
-        
-        glm::vec4 selectedColliderColor(0.0f, 1.0f, 0.2f, 0.7f);
-        
-        constexpr float margin = 0.05f;
-        switch (shape->getShapeType()) {
-            case BOX_SHAPE_PROXYTYPE: {
-                btBoxShape* boxShape = static_cast<btBoxShape*>(shape);
-                btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
-                glm::vec3 size((halfExtents.x() + margin) * 2.0f, (halfExtents.y() + margin) * 2.0f, (halfExtents.z() + margin) * 2.0f);
-                DebugRenderer::DrawBox(position, orientation, size, selectedColliderColor);
-                break;
-            }
-            case SPHERE_SHAPE_PROXYTYPE: {
-                btSphereShape* sphereShape = static_cast<btSphereShape*>(shape);
-                float radius = sphereShape->getRadius() + margin;
-                DebugRenderer::DrawSphere(position, radius, selectedColliderColor);
-                break;
-            }
-            case CAPSULE_SHAPE_PROXYTYPE: {
-                btCapsuleShape* capsuleShape = static_cast<btCapsuleShape*>(shape);
-                float radius = capsuleShape->getRadius() + margin;
-                float cylinderHeight = capsuleShape->getHalfHeight() * 2.0f + margin;
-                DebugRenderer::DrawCapsule(position, orientation, radius, cylinderHeight, selectedColliderColor);
-                break;
-            }
-            case CYLINDER_SHAPE_PROXYTYPE: {
-                btCylinderShape* cylinderShape = static_cast<btCylinderShape*>(shape);
-                btVector3 halfExtents = cylinderShape->getHalfExtentsWithMargin();
-                float radius = halfExtents.x() + margin;
-                float height = (halfExtents.y() + margin) * 2.0f;
-                DebugRenderer::DrawCylinder(position, orientation, radius, height, selectedColliderColor);
-                break;
-            }
         }
     }
 }

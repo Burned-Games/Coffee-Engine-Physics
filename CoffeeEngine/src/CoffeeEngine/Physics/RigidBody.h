@@ -163,8 +163,6 @@ namespace Coffee {
         Ref<Collider> m_Collider;
         Properties m_Properties;
 
-        friend class SceneTreePanel;
-
     private:
         friend class cereal::access;
         template<class Archive>

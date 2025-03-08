@@ -190,17 +190,9 @@ namespace Coffee {
             return children;
         }
 
-        /**
-         * @brief Get the scene this entity belongs to.
-         * @return Pointer to the scene.
-         */
-        Scene* GetScene() const { return m_Scene; }
-
     private:
         entt::entity m_EntityHandle{ entt::null };
         Scene* m_Scene = nullptr;
-        
-        friend class SceneTreePanel;
     };
 
     /** @} */ // end of scene group
