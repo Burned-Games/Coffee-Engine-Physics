@@ -31,6 +31,9 @@ namespace Coffee {
                 bool freezeX = false;
                 bool freezeY = false;
                 bool freezeZ = false;
+                bool freezeRotX = false;  
+                bool freezeRotY = false;
+                bool freezeRotZ = false;
                 bool isTrigger = false;
                 glm::vec3 velocity = {0.0f, 0.0f, 0.0f};
                 float friction = 0.5f;     // Default friction value
@@ -50,6 +53,9 @@ namespace Coffee {
                         CEREAL_NVP(freezeX),
                         CEREAL_NVP(freezeY),
                         CEREAL_NVP(freezeZ),
+                        CEREAL_NVP(freezeRotX),
+                        CEREAL_NVP(freezeRotY),
+                        CEREAL_NVP(freezeRotZ),
                         CEREAL_NVP(isTrigger),
                         CEREAL_NVP(velocity),
                         CEREAL_NVP(friction),
@@ -67,6 +73,9 @@ namespace Coffee {
                         CEREAL_NVP(freezeX),
                         CEREAL_NVP(freezeY),
                         CEREAL_NVP(freezeZ),
+                        CEREAL_NVP(freezeRotX),
+                        CEREAL_NVP(freezeRotY),
+                        CEREAL_NVP(freezeRotZ),
                         CEREAL_NVP(isTrigger),
                         CEREAL_NVP(velocity),
                         CEREAL_NVP(friction),
@@ -126,6 +135,15 @@ namespace Coffee {
         float GetAngularDrag() const { return m_Properties.angularDrag; }
         void SetAngularDrag(float angularDrag);
 
+        bool GetFreezeRotX() const { return m_Properties.freezeRotX; }
+        void SetFreezeRotX(bool freezeRotX);
+
+        bool GetFreezeRotY() const { return m_Properties.freezeRotY; }
+        void SetFreezeRotY(bool freezeRotY);
+
+        bool GetFreezeRotZ() const { return m_Properties.freezeRotZ; }
+        void SetFreezeRotZ(bool freezeRotZ);
+
         // Access to properties (needed for UI)
         const Properties& GetProperties() const { return m_Properties; }
         Properties& GetPropertiesMutable() { return m_Properties; }
@@ -138,7 +156,8 @@ namespace Coffee {
         void Initialize(const Properties& props, const Ref<Collider>& collider);
 
         void UpdateLinearFactor();
-
+        void UpdateAngularFactor();
+        
         btRigidBody* m_Body = nullptr;
         btMotionState* m_MotionState = nullptr;
         Ref<Collider> m_Collider;

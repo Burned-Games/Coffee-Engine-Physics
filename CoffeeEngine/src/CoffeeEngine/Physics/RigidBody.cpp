@@ -45,6 +45,9 @@ namespace Coffee {
         // Apply linear factor based on freeze settings
         UpdateLinearFactor();
 
+        // Apply angular factor based on freeze rotation settings
+        UpdateAngularFactor();
+
         // Apply gravity based on useGravity property
         if (props.useGravity) {
             m_Body->setGravity(btVector3(0, GRAVITY, 0)); // Default gravity
@@ -75,7 +78,7 @@ namespace Coffee {
     void RigidBody::SetVelocity(const glm::vec3& velocity) const
     {
         m_Body->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
-        m_Body->activate(true); // Asegurarse de que el cuerpo esté activo/
+        m_Body->activate(true);
     }
     
     void RigidBody::AddVelocity(const glm::vec3& deltaVelocity) const
@@ -87,7 +90,7 @@ namespace Coffee {
             currentVel.z() + deltaVelocity.z
         );
         m_Body->setLinearVelocity(newVel);
-        m_Body->activate(true); // Asegurarse de que el cuerpo esté activo
+        m_Body->activate(true); 
     }
 
     glm::vec3 RigidBody::GetPosition() const {
@@ -105,7 +108,10 @@ namespace Coffee {
     {
         btTransform transform = m_Body->getWorldTransform();
         btQuaternion quat;
-        quat.setEulerZYX(rotation.z, rotation.y, rotation.x);
+        
+        glm::vec3 rotationRadians = glm::radians(rotation);
+        quat.setEulerZYX(rotationRadians.z, rotationRadians.y, rotationRadians.x);
+        
         transform.setRotation(quat);
         m_Body->setWorldTransform(transform);
     }
@@ -116,7 +122,8 @@ namespace Coffee {
         const btQuaternion quat = transform.getRotation();
         btScalar x, y, z;
         quat.getEulerZYX(z, y, x);
-        return {x, y, z};
+        
+        return glm::degrees(glm::vec3(x, y, z));
     }
 
     glm::vec3 RigidBody::GetVelocity() const
@@ -266,6 +273,37 @@ namespace Coffee {
             m_Body->setDamping(m_Properties.linearDrag, angularDrag);
             m_Body->activate(true);
         }
+    }
+
+    void RigidBody::SetFreezeRotX(bool freezeRotX) 
+    {
+        m_Properties.freezeRotX = freezeRotX;
+        UpdateAngularFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetFreezeRotY(bool freezeRotY) 
+    {
+        m_Properties.freezeRotY = freezeRotY;
+        UpdateAngularFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetFreezeRotZ(bool freezeRotZ) 
+    {
+        m_Properties.freezeRotZ = freezeRotZ;
+        UpdateAngularFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::UpdateAngularFactor()
+    {
+        btVector3 angularFactor(
+            m_Properties.freezeRotX ? 0 : 1,
+            m_Properties.freezeRotY ? 0 : 1,
+            m_Properties.freezeRotZ ? 0 : 1
+        );
+        m_Body->setAngularFactor(angularFactor);
     }
 
 } // namespace Coffee

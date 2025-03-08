@@ -773,8 +773,8 @@ namespace Coffee {
                     }
                     
                     // Freeze axes
-                    ImGui::Text("Freeze Axes");
-                    ImGui::Columns(3, "FreezeAxesColumns", false);
+                    ImGui::Text("Freeze Position");
+                    ImGui::Columns(3, "FreezePositionColumns", false);
                     
                     // X Axis
                     bool freezeX = rbComponent.rb->GetFreezeX();
@@ -801,13 +801,34 @@ namespace Coffee {
                     
                     ImGui::Columns(1);
                     
-                    // Is trigger
-                    ImGui::Text("Is Trigger");
-                    bool isTrigger = rbComponent.rb->GetIsTrigger();
-                    if (ImGui::Checkbox("##IsTrigger", &isTrigger))
+                    // Freeze rotation axes
+                    ImGui::Text("Freeze Rotation");
+                    ImGui::Columns(3, "FreezeRotationColumns", false);
+                    
+                    // X Rotation Axis
+                    bool freezeRotX = rbComponent.rb->GetFreezeRotX();
+                    if (ImGui::Checkbox("X##FreezeRotX", &freezeRotX))
                     {
-                        rbComponent.rb->SetTrigger(isTrigger);
+                        rbComponent.rb->SetFreezeRotX(freezeRotX);
                     }
+                    ImGui::NextColumn();
+                    
+                    // Y Rotation Axis
+                    bool freezeRotY = rbComponent.rb->GetFreezeRotY();
+                    if (ImGui::Checkbox("Y##FreezeRotY", &freezeRotY))
+                    {
+                        rbComponent.rb->SetFreezeRotY(freezeRotY);
+                    }
+                    ImGui::NextColumn();
+                    
+                    // Z Rotation Axis
+                    bool freezeRotZ = rbComponent.rb->GetFreezeRotZ();
+                    if (ImGui::Checkbox("Z##FreezeRotZ", &freezeRotZ))
+                    {
+                        rbComponent.rb->SetFreezeRotZ(freezeRotZ);
+                    }
+                    
+                    ImGui::Columns(1);
                     
                     // Add collider type selection and configuration
                     ImGui::Separator();
