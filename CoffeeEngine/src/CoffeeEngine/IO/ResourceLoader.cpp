@@ -2,7 +2,6 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/CacheManager.h"
-#include "CoffeeEngine/IO/ImportData/CreateImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -40,7 +39,7 @@ namespace Coffee {
         {
             COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", path.string());
 
-            Scope<ImportData> importData = LoadImportData(path);
+            Scope<ImportData> importData = ImportDataUtils::LoadImportData(path);
             switch (importData->type)
             {
                 case ResourceType::Texture2D:
@@ -195,66 +194,5 @@ namespace Coffee {
         {
             ResourceRegistry::Remove(uuid);
         }*/
-    }
-
-    void ResourceLoader::SaveImportData(Scope<ImportData>& importData)
-    {
-        std::filesystem::path importFilePath = importData->originalPath;
-        importFilePath += ".import";
-
-        // backup the original path
-        std::filesystem::path originalPathCopy = importData->originalPath;
-
-        importData->originalPath = std::filesystem::relative(importData->originalPath, s_WorkingDirectory);
-
-        std::ofstream importFile(importFilePath);
-        cereal::JSONOutputArchive archive(importFile);
-        archive(CEREAL_NVP(importData));
-
-        // restore the original path
-        importData->originalPath = originalPathCopy;
-    }
-
-    // TODO: Think if the path should be the .import path or the resource and replace the extension inside the function
-    Scope<ImportData> ResourceLoader::LoadImportData(const std::filesystem::path& path)
-    {
-        //ResourceType type = GetResourceTypeFromExtension(path);
-        Scope<ImportData> importData;
-
-        std::filesystem::path importFilePath = path;
-
-        if(path.extension() != ".import") {
-            COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Import file {0} does not have the .import extension!", path.string());
-            throw std::runtime_error("Import file does not have the .import extension");
-        }
-    
-        if (!std::filesystem::exists(importFilePath))
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Import file {0} does not exist!", importFilePath.string());
-            throw std::runtime_error("Import file does not exist");
-        }
-    
-        std::ifstream importFile(importFilePath);
-        if (!importFile.is_open())
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Failed to open import file {0}", importFilePath.string());
-            throw std::runtime_error("Failed to open import file");
-        }
-    
-        try
-        {
-            cereal::JSONInputArchive archive(importFile);
-            archive(CEREAL_NVP(importData));
-        }
-        catch (const cereal::Exception& e)
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Failed to parse import file {0}: {1}", importFilePath.string(), e.what());
-            throw;
-        }
-    
-        // Convert the relative path to an absolute path
-        importData->originalPath = s_WorkingDirectory / importData->originalPath;
-    
-        return importData;
     }
 }
