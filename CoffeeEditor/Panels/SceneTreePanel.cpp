@@ -1052,7 +1052,9 @@ namespace Coffee {
                     glm::vec3 velocity = rbComponent.rb->GetVelocity();
                     ImGui::Text("Current Velocity: X: %.2f, Y: %.2f, Z: %.2f", 
                                 velocity.x, velocity.y, velocity.z);
-                    
+
+                    // ---------------------Physics Debug Controls---------------------
+                    /*
                     // Add force/impulse controls
                     static glm::vec3 forceToApply = {0.0f, 0.0f, 0.0f};
                     ImGui::Separator();
@@ -1086,6 +1088,7 @@ namespace Coffee {
                     {
                         rbComponent.rb->ResetVelocity();
                     }
+                    */
                 }
                 else
                 {
