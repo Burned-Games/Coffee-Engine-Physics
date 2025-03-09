@@ -2,6 +2,9 @@
 
 #include "CoffeeEngine/Animation/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ImportData/ImportData.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -11,8 +14,8 @@
 
 #include <assimp/scene.h>
 #include <cereal/access.hpp>
-#include <cereal/types/polymorphic.hpp>
 #include <cereal/archives/binary.hpp>
+#include <cereal/types/polymorphic.hpp>
 #include <cereal/types/vector.hpp>
 #include <ozz/animation/offline/animation_builder.h>
 #include <ozz/animation/offline/raw_animation.h>
@@ -52,6 +55,10 @@ namespace Coffee {
          * @param filePath The file path to the model.
          */
         Model(const std::filesystem::path& path);
+
+        Model(ImportData& importData);
+
+        void LoadFromFilePath(const std::filesystem::path& path);
 
         /**
          * @brief Gets the meshes of the model.
@@ -167,21 +174,23 @@ namespace Coffee {
         {
             // convert this to UUIDs
             std::vector<UUID> meshUUIDs;
-            for (const auto& mesh : m_Meshes)
+            for(const auto& mesh : m_Meshes)
             {
                 meshUUIDs.push_back(mesh->GetUUID());
             }
             archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
+            SaveAnimations(m_UUID);
         }
         template<class Archive>
         void load(Archive& archive)
         {
             std::vector<UUID> meshUUIDs;
             archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
-            for (const auto& meshUUID : meshUUIDs)
+            for (const auto& data : meshUUIDs)
             {
-                m_Meshes.push_back(ResourceLoader::LoadMesh(meshUUID));
+                m_Meshes.push_back(ResourceLoader::GetResource<Mesh>(data));
             }
+            ImportAnimations(m_UUID);
         }
 
         /**
