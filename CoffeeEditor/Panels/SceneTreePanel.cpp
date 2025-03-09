@@ -1119,6 +1119,33 @@ namespace Coffee {
                     m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
                 }
                 entity.RemoveComponent<RigidbodyComponent>();
+        if (entity.HasComponent<AnimatorComponent>())
+        {
+            auto& animatorComponent = entity.GetComponent<AnimatorComponent>();
+
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                const char* animationName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.CurrentAnimation)->GetAnimationName().c_str();
+
+                if (ImGui::BeginCombo("Animation", animationName))
+                {
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
+                    {
+                        if (ImGui::Selectable(name.c_str()) && name != animationName)
+                        {
+                            animatorComponent.GetAnimationSystem()->SetCurrentAnimation(name, &animatorComponent);
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                ImGui::DragFloat("Blend Duration", &animatorComponent.BlendDuration, 0.01f, 0.01f, 2.0f, "%.2f");
+
+                ImGui::DragFloat("Blend Threshold", &animatorComponent.BlendThreshold, 0.01f, 0.01f, 1.0f, "%.2f");
+
+                ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
+
             }
         }
         

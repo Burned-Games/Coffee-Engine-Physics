@@ -63,9 +63,14 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     nfd::nfd
     icon_font_cpp_headers
     Wwise
+    msdf-atlas-gen
+    ozz_animation
+    ozz_animation_offline
     ${LUA_LIBRARIES}
     ${BULLET_LIBRARIES}
 )
+
+option(MSDF_ATLAS_MSDFGEN_EXTERNAL "Use external msdfgen" ON)
 
 # Set this in a profile like (Release + Profile)
 option(TRACY_ENABLE "Enable Tracy Profiler" ON)
@@ -73,6 +78,10 @@ option(TRACY_ON_DEMAND "Enable Tracy on-demand mode" OFF)
 option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on first call)" OFF)
 
 option(NFD_PORTAL "Use xdg-desktop-portal instead of GTK" ON)
+
+if (WIN32)
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+endif()
 
 if (UNIX)
     option(SDL_SHARED "Use shared SDL" OFF)
@@ -84,7 +93,9 @@ add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/ImGuizmo)
 add_subdirectory(vendor/IconFontCppHeaders)
+add_subdirectory(vendor/ozz_animation)
 add_subdirectory(vendor/Wwise)
+add_subdirectory(vendor/msdf-atlas-gen)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=1)

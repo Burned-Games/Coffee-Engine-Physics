@@ -13,9 +13,9 @@
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
-#include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Renderer3D.h"
+#include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
@@ -37,9 +37,12 @@
 
 namespace Coffee {
 
+    Ref<AnimationSystem> Scene::m_AnimationSystem;
+
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
+        m_AnimationSystem = CreateRef<AnimationSystem>();
     }
 
 /*     Scene::Scene(Ref<Scene> other)
@@ -253,10 +256,18 @@ namespace Coffee {
 
         m_SceneTree->Update();
 
-        Renderer::BeginScene(camera);
+        Renderer::GetCurrentRenderTarget()->SetCamera(camera, glm::inverse(camera.GetViewMatrix()));
 
         // TEST ------------------------------
         m_Octree.DebugDraw();
+
+        auto animatorView = m_Registry.view<AnimatorComponent>();
+
+        for (auto& entity : animatorView)
+        {
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
+        }
 
         UpdateAudioComponentsPositions();
 
@@ -273,9 +284,9 @@ namespace Coffee {
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-            
+
             //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
-            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
+            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -290,10 +301,8 @@ namespace Coffee {
             lightComponent.Position = transformComponent.GetWorldTransform()[3];
             lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
-            Renderer::Submit(lightComponent);
+            Renderer3D::Submit(lightComponent);
         }
-
-        Renderer::EndScene();
     }
 
     void Scene::OnUpdateRuntime(float dt)
@@ -401,10 +410,32 @@ namespace Coffee {
         }
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
-        Renderer::BeginScene(*camera, cameraTransform);
+        Renderer::GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
 
         //m_Octree.DebugDraw();
 
+        // Get all the static meshes from the Octree
+/* 
+        glm::mat4 testProjection = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 100.0f);
+
+        Frustum frustum = Frustum(camera->GetProjection() * glm::inverse(cameraTransform));
+        DebugRenderer::DrawFrustum(frustum, glm::vec4(1.0f), 1.0f);
+
+        auto meshes = m_Octree.Query(frustum);
+
+        for(auto& mesh : meshes)
+        {
+            Renderer::Submit(RenderCommand{mesh.transform, mesh.object, mesh.object->GetMaterial(), 0});
+        } */
+
+        auto animatorView = m_Registry.view<AnimatorComponent>();
+
+        for (auto& entity : animatorView)
+        {
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
+        }
+        
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
@@ -418,8 +449,8 @@ namespace Coffee {
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-
-            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
+            
+            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -434,10 +465,8 @@ namespace Coffee {
             lightComponent.Position = transformComponent.GetWorldTransform()[3];
             lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
-            Renderer::Submit(lightComponent);
+            Renderer3D::Submit(lightComponent);
         }
-
-        Renderer::EndScene();
     }
 
     void Scene::OnEvent(Event& e)
@@ -502,9 +531,13 @@ namespace Coffee {
             .get<LightComponent>(archive)
             .get<RigidbodyComponent>(archive)
             .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+            .get<AudioZoneComponent>(archive)
+            .get<LightComponent>(archive);
+
+            scene->AssignAnimatorsToMeshes(m_AnimationSystem->GetAnimators());
         
         scene->m_FilePath = path;
     
@@ -565,9 +598,11 @@ namespace Coffee {
             .get<LightComponent>(archive)
             .get<RigidbodyComponent>(archive)
             .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+            .get<AudioZoneComponent>(archive)
+            .get<LightComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -582,11 +617,19 @@ namespace Coffee {
     }
 
     // Is possible that this function will be moved to the SceneTreePanel but for now it will stay here
-    void AddModelToTheSceneTree(Scene* scene, Ref<Model> model)
+    void AddModelToTheSceneTree(Scene* scene, Ref<Model> model, AnimatorComponent* animatorComponent)
     {
         static Entity parent;
 
         Entity modelEntity = scene->CreateEntity(model->GetName());
+
+        if (model->HasAnimations())
+        {
+            animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetSkeleton(), model->GetAnimationController(), Scene::GetAnimationSystem());
+            animatorComponent->GetAnimationSystem()->SetCurrentAnimation(0, animatorComponent);
+            animatorComponent->modelUUID = model->GetUUID();
+            animatorComponent->animatorUUID = UUID();
+        }
 
         if((entt::entity)parent != entt::null)modelEntity.SetParent(parent);
         modelEntity.GetComponent<TransformComponent>().SetLocalTransform(model->GetTransform());
@@ -599,6 +642,12 @@ namespace Coffee {
             Entity entity = hasMultipleMeshes ? scene->CreateEntity(mesh->GetName()) : modelEntity;
 
             entity.AddComponent<MeshComponent>(mesh);
+
+            if (animatorComponent)
+            {
+                entity.GetComponent<MeshComponent>().animator = animatorComponent;
+                entity.GetComponent<MeshComponent>().animatorUUID = animatorComponent->animatorUUID;
+            }
 
             if(mesh->GetMaterial())
             {
@@ -614,10 +663,26 @@ namespace Coffee {
         for(auto& c : model->GetChildren())
         {
             parent = modelEntity;
-            AddModelToTheSceneTree(scene, c);
+            AddModelToTheSceneTree(scene, c, animatorComponent);
         }
     }
 
+    void Scene::AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators)
+    {
+        std::vector<Entity> entities = GetAllEntities();
+        for (auto entity : entities)
+        {
+            if (entity.HasComponent<MeshComponent>())
+            {
+                for (auto animator : animators)
+                {
+                    MeshComponent* meshComponent = &entity.GetComponent<MeshComponent>();
+                    if (meshComponent->animatorUUID == animator->animatorUUID && !meshComponent->animator)
+                        meshComponent->animator = animator;
+                }
+            }
+        }
+    }
     void Scene::UpdateAudioComponentsPositions()
     {
         auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
