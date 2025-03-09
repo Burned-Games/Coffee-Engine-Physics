@@ -60,7 +60,7 @@ namespace Coffee {
 
         s_SkyboxMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
 
-        s_SkyboxShader = CreateRef<Shader>("assets/shaders/SkyboxShader.glsl");
+        s_SkyboxShader = Shader::Create("assets/shaders/SkyboxShader.glsl");
 
         ZoneScoped;
 
@@ -123,8 +123,13 @@ namespace Coffee {
         s_Stats.VertexCount = 0;
         s_Stats.IndexCount = 0;
 
-        // This resize the camera to the viewport size. Think how to manage this in a better way :p
-        camera.SetViewportSize(s_viewportWidth, s_viewportHeight);
+        if(s_viewportResized)
+        {
+            ResizeFramebuffers();
+            s_viewportResized = false;
+            // This resize the camera to the viewport size. Think how to manage this in a better way :p
+            camera.SetViewportSize(s_viewportWidth, s_viewportHeight);
+        }
 
         s_RendererData.cameraData.view = glm::inverse(transform);
         s_RendererData.cameraData.projection = camera.GetProjection();

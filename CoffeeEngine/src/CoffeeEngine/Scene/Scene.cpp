@@ -403,7 +403,7 @@ namespace Coffee {
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::BeginScene(*camera, cameraTransform);
 
-        m_Octree.DebugDraw();
+        //m_Octree.DebugDraw();
 
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
