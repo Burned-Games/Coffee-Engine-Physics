@@ -6,7 +6,6 @@
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
-#include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -30,7 +29,6 @@ namespace Coffee {
 
     static Ref<Mesh> s_ScreenQuad;
     static Ref<Shader> s_FinalPassShader;
-    static Ref<Texture2D> s_BestHUDEver;
 
     RuntimeLayer::RuntimeLayer() : Layer("Runtime")
     {
@@ -43,7 +41,6 @@ namespace Coffee {
 
         s_ScreenQuad = PrimitiveMesh::CreateQuad();
         s_FinalPassShader = CreateRef<Shader>("FinalPassShader", std::string(finalPassShaderSource));
-        s_BestHUDEver = Texture2D::Load("assets/textures/Plantilla HUD Final Bien V1.png", false);
 
         std::initializer_list<Attachment> ForwardFramebufferAttachments = {
             {ImageFormat::RGBA32F, "Color"},
@@ -86,12 +83,6 @@ namespace Coffee {
         Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget);
 
         m_ActiveScene->OnUpdateRuntime(dt);
-
-        glm::vec2 screenSize = m_ViewportSize;
-
-        glm::mat4 hudTransform = glm::translate(glm::mat4(1.0f), { screenSize.x / 2, screenSize.y/2, 0.0f }) * glm::scale(glm::mat4(1.0f), { screenSize.x, -screenSize.y, 1.0f });
-
-        Renderer2D::DrawQuad(hudTransform, s_BestHUDEver);
 
         Renderer::SetCurrentRenderTarget(nullptr);
 
