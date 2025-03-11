@@ -131,6 +131,12 @@ namespace Coffee {
          */
         void AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators);
 
+        /**
+         * @brief Gets the physics world.
+         * @return A reference to the physics world.
+         */
+        const PhysicsWorld& GetPhysicsWorld() const { return m_PhysicsWorld; }
+
     private:
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;

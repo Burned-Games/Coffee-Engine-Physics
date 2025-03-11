@@ -11,6 +11,7 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
+#include "CoffeeEngine/Physics/RaycastSystem.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -851,6 +852,34 @@ namespace Coffee {
         
         luaState.set_function("create_rigidbody", [](const RigidBody::Properties& props, const Ref<Collider>& collider) {
             return RigidBody::Create(props, collider);
+        });
+
+        // RaycastHit usertype
+        luaState.new_usertype<RaycastHit>("RaycastHit",
+            "entity", &RaycastHit::hitEntity,
+            "position", &RaycastHit::position,
+            "normal", &RaycastHit::normal,
+            "distance", &RaycastHit::distance,
+            "hasHit", &RaycastHit::hasHit
+        );
+        
+        // Raycast functions
+        luaState.set_function("raycast", [](Scene* scene, const glm::vec3& origin, const glm::vec3& direction, float maxDistance) {
+            if (!scene) {
+                COFFEE_CORE_ERROR("Raycast: Invalid scene reference");
+                RaycastHit emptyHit;
+                emptyHit.hasHit = false;
+                return emptyHit;
+            }
+            return RaycastSystem::Raycast(scene->GetPhysicsWorld(), origin, direction, maxDistance);
+        });
+        
+        luaState.set_function("raycast_all", [](Scene* scene, const glm::vec3& origin, const glm::vec3& direction, float maxDistance) {
+            if (!scene) {
+                COFFEE_CORE_ERROR("RaycastAll: Invalid scene reference");
+                return std::vector<RaycastHit>{};
+            }
+            return RaycastSystem::RaycastAll(scene->GetPhysicsWorld(), origin, direction, maxDistance);
         });
 
         # pragma endregion
