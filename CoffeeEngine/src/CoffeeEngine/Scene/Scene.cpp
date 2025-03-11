@@ -145,33 +145,6 @@ namespace Coffee {
 
             scriptComponent.script->OnReady();
         }
-
-        // Get all entities with ColliderComponent
-        auto colliderView = m_Registry.view<ColliderComponent, TransformComponent>();
-        for (auto entity : colliderView) {
-            Entity e{entity, this};
-            auto& colliderComp = e.GetComponent<ColliderComponent>();
-            auto& transform = e.GetComponent<TransformComponent>();
-
-            if (colliderComp.collider) {
-                // Initialize standalone collider if not used by a rigidbody
-                if (!e.HasComponent<RigidbodyComponent>()) {
-                    colliderComp.collider->InitializeStandalone();
-                    colliderComp.collider->SetTrigger(colliderComp.isTrigger);
-
-                    // Set initial transform
-                    glm::vec3 position = transform.Position;
-                    glm::quat rotation = glm::quat(glm::radians(transform.Rotation));
-                    colliderComp.collider->SetTransform(position, rotation);
-
-                    // Register with collision system
-                    CollisionSystem::RegisterCollider(e, colliderComp.collider->getCollisionObject());
-
-                    // Add to physics world
-                    m_PhysicsWorld.addCollisionObject(colliderComp.collider->getCollisionObject());
-                }
-            }
-        }
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
@@ -366,10 +339,7 @@ namespace Coffee {
 
     void Scene::OnExitRuntime()
     {
-
-
-        // Clear collision system state
-        CollisionSystem::Shutdown();        
+        CollisionSystem::Shutdown();
         Audio::StopAllEvents();
     }
 
