@@ -515,6 +515,8 @@ namespace Coffee {
                     self->AddComponent<ScriptComponent>();
                 } else if (componentName == "AudioSourceComponent") {
                     self->AddComponent<AudioSourceComponent>();
+                } else if (componentName == "ColliderComponent") {
+                    self->AddComponent<ColliderComponent>();
                 }
             },
             "get_component", [this](Entity* self, const std::string& componentName) -> sol::object {
@@ -536,6 +538,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<RigidbodyComponent>()));
                 } else if (componentName == "AudioSourceComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AudioSourceComponent>()));
+                } else if (componentName == "ColliderComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<ColliderComponent>()));
                 }
                 
                 return sol::nil;
@@ -561,6 +565,8 @@ namespace Coffee {
                     return self->HasComponent<AnimatorComponent>();
                 } else if (componentName == "AudioSourceComponent") {
                     return self->HasComponent<AudioSourceComponent>();
+                } else if (componentName == "ColliderComponent") {
+                    return self->HasComponent<ColliderComponent>();
                 }
                 return false;
             },
@@ -583,6 +589,8 @@ namespace Coffee {
                     self->RemoveComponent<RigidbodyComponent>();
                 } else if (componentName == "AudioSourceComponent") {
                     self->RemoveComponent<AudioSourceComponent>();
+                } else if (componentName == "ColliderComponent") {
+                    self->RemoveComponent<ColliderComponent>();
                 }
             },
             "set_parent", &Entity::SetParent,
@@ -667,6 +675,25 @@ namespace Coffee {
                 });
             },
             "on_collision_exit", [](RigidbodyComponent& self, sol::protected_function fn) {
+                self.callback.OnCollisionExit([fn](CollisionInfo& info) {
+                    fn(info.entityA, info.entityB);
+                });
+            }
+        );
+
+        luaState.new_usertype<ColliderComponent>("ColliderComponent",
+            "collider", &ColliderComponent::collider,
+            "on_collision_enter", [](ColliderComponent& self, sol::protected_function fn) {
+                self.callback.OnCollisionEnter([fn](CollisionInfo& info) {
+                    fn(info.entityA, info.entityB);
+                });
+            },
+            "on_collision_stay", [](ColliderComponent& self, sol::protected_function fn) {
+                self.callback.OnCollisionStay([fn](CollisionInfo& info) {
+                    fn(info.entityA, info.entityB);
+                });
+            },
+            "on_collision_exit", [](ColliderComponent& self, sol::protected_function fn) {
                 self.callback.OnCollisionExit([fn](CollisionInfo& info) {
                     fn(info.entityA, info.entityB);
                 });
