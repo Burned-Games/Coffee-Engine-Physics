@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/Physics/CollisionSystem.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Camera.h"
 #include "CoffeeEngine/Renderer/Material.h"
@@ -18,6 +19,7 @@
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"
+
 #include <IconsLucide.h>
 
 #include <CoffeeEngine/Scripting/Script.h>
@@ -748,7 +750,6 @@ namespace Coffee {
             }
         }
 
-        // Add RigidBody component editor UI
         if (entity.HasComponent<RigidbodyComponent>())
         {
             auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
@@ -847,201 +848,67 @@ namespace Coffee {
                     // Add collider type selection and configuration
                     ImGui::Separator();
                     ImGui::Text("Collider");
-                    
-                    Ref<Collider> currentCollider = rbComponent.rb->GetCollider();
-                    int colliderType = -1; // -1: Unknown, 0: Box, 1: Sphere, 2: Capsule
-                    
-                    if (currentCollider) {
-                        if (std::dynamic_pointer_cast<BoxCollider>(currentCollider)) {
-                            colliderType = 0;
-                        } else if (std::dynamic_pointer_cast<SphereCollider>(currentCollider)) {
-                            colliderType = 1;
-                        } else if (std::dynamic_pointer_cast<CapsuleCollider>(currentCollider)) {
-                            colliderType = 2;
-                        }
-                    }
-                    
-                    static const char* colliderTypeNames[] = { "Box", "Sphere", "Capsule" };
-                    int newColliderType = colliderType;
-                    
-                    if (ImGui::Combo("Type##ColliderType", &newColliderType, colliderTypeNames, 3)) {
-                        // User selected a new collider type
-                        Ref<Collider> newCollider;
-                        
-                        // Create new collider based on selection
-                        switch (newColliderType) {
-                            case 0: { // Box
-                                glm::vec3 size(1.0f, 1.0f, 1.0f);
-                                if (auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(currentCollider)) {
-                                    size = boxCollider->GetSize();
-                                }
-                                newCollider = CreateRef<BoxCollider>(size);
-                                break;
-                            }
-                            case 1: { // Sphere
-                                float radius = 0.5f;
-                                if (auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(currentCollider)) {
-                                    radius = sphereCollider->GetRadius();
-                                }
-                                newCollider = CreateRef<SphereCollider>(radius);
-                                break;
-                            }
-                            case 2: { // Capsule
-                                float radius = 0.5f;
-                                float height = 2.0f;
-                                if (auto capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider>(currentCollider)) {
-                                    radius = capsuleCollider->GetRadius();
-                                    height = capsuleCollider->GetHeight();
-                                }
-                                newCollider = CreateRef<CapsuleCollider>(radius, height);
-                                break;
-                            }
-                        }
-                        
-                        if (newCollider) {
+
+                    if (entity.HasComponent<ColliderComponent>()) {
+                        auto& colliderComp = entity.GetComponent<ColliderComponent>();
+
+                        // Show the type of collider being used
+                        std::string colliderType = "Unknown";
+                        if (std::dynamic_pointer_cast<BoxCollider>(colliderComp.collider))
+                            colliderType = "Box";
+                        else if (std::dynamic_pointer_cast<SphereCollider>(colliderComp.collider))
+                            colliderType = "Sphere";
+                        else if (std::dynamic_pointer_cast<CapsuleCollider>(colliderComp.collider))
+                            colliderType = "Capsule";
+
+                        ImGui::Text("Using %s Collider from ColliderComponent", colliderType.c_str());
+
+                        // Allow updating the rigidbody's collider when the ColliderComponent changes
+                        if (rbComponent.rb->GetCollider() != colliderComp.collider) {
                             // Store current rigidbody properties
                             RigidBody::Properties props = rbComponent.rb->GetProperties();
                             glm::vec3 position = rbComponent.rb->GetPosition();
                             glm::vec3 rotation = rbComponent.rb->GetRotation();
-                            
+                            glm::vec3 velocity = rbComponent.rb->GetVelocity();
+
                             // Remove from physics world
                             m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
-                            
-                            // Create new rigidbody with new collider
-                            rbComponent.rb = RigidBody::Create(props, newCollider);
+
+                            // Create new rigidbody with the collider from ColliderComponent
+                            rbComponent.rb = RigidBody::Create(props, colliderComp.collider);
                             rbComponent.rb->SetPosition(position);
                             rbComponent.rb->SetRotation(rotation);
-                            
+                            rbComponent.rb->SetVelocity(velocity);
+
                             // Add back to physics world
                             m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
-                            
+
                             // Set user pointer for collision detection
                             rbComponent.rb->GetNativeBody()->setUserPointer(
                                 reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
                         }
-                    }
-                    
-                    // Show collider-specific properties
-                    if (currentCollider) {
-                        switch (colliderType) {
-                            case 0: { // Box collider properties
-                                auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(currentCollider);
-                                if (boxCollider) {
-                                    glm::vec3 size = boxCollider->GetSize();
-                                    
-                                    ImGui::Text("Size");
-                                    if (ImGui::DragFloat3("##BoxSize", glm::value_ptr(size), 0.1f, 0.01f, 100.0f)) {
-                                        // Create new box collider with updated size
-                                        Ref<BoxCollider> newCollider = CreateRef<BoxCollider>(size);
-                                        
-                                        // Store current rigidbody properties
-                                        RigidBody::Properties props = rbComponent.rb->GetProperties();
-                                        glm::vec3 position = rbComponent.rb->GetPosition();
-                                        glm::vec3 rotation = rbComponent.rb->GetRotation();
-                                        glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                                        
-                                        // Remove from physics world
-                                        m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
-                                        
-                                        // Create new rigidbody with new collider
-                                        rbComponent.rb = RigidBody::Create(props, newCollider);
-                                        rbComponent.rb->SetPosition(position);
-                                        rbComponent.rb->SetRotation(rotation);
-                                        rbComponent.rb->SetVelocity(velocity);
-                                        
-                                        // Add back to physics world
-                                        m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
-                                        rbComponent.rb->GetNativeBody()->setUserPointer(
-                                            reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
-                                    }
-                                }
-                                break;
-                            }
-                            case 1: { // Sphere collider properties
-                                auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(currentCollider);
-                                if (sphereCollider) {
-                                    float radius = sphereCollider->GetRadius();
-                                    
-                                    ImGui::Text("Radius");
-                                    if (ImGui::DragFloat("##SphereRadius", &radius, 0.1f, 0.01f, 100.0f)) {
-                                        // Create new sphere collider with updated radius
-                                        Ref<Collider> newCollider = CreateRef<SphereCollider>(radius);
-                                        
-                                        // Store current rigidbody properties
-                                        RigidBody::Properties props = rbComponent.rb->GetProperties();
-                                        glm::vec3 position = rbComponent.rb->GetPosition();
-                                        glm::vec3 rotation = rbComponent.rb->GetRotation();
-                                        glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                                        
-                                        // Remove from physics world
-                                        m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
-                                        
-                                        // Create new rigidbody with new collider
-                                        rbComponent.rb = RigidBody::Create(props, newCollider);
-                                        rbComponent.rb->SetPosition(position);
-                                        rbComponent.rb->SetRotation(rotation);
-                                        rbComponent.rb->SetVelocity(velocity);
-                                        
-                                        // Add back to physics world
-                                        m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
-                                        rbComponent.rb->GetNativeBody()->setUserPointer(
-                                            reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
-                                    }
-                                }
-                                break;
-                            }
-                            case 2: { // Capsule collider properties
-                                auto capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider>(currentCollider);
-                                if (capsuleCollider) {
-                                    float radius = capsuleCollider->GetRadius();
-                                    float height = capsuleCollider->GetHeight();
-                                    
-                                    float totalHeight = height + 2.0f * radius; // Total height including spherical caps
-                                    
-                                    ImGui::Text("Radius");
-                                    bool radiusChanged = ImGui::DragFloat("##CapsuleRadius", &radius, 0.1f, 0.01f, 100.0f);
-                                    
-                                    ImGui::Text("Total Height");
-                                    bool heightChanged = ImGui::DragFloat("##CapsuleHeight", &totalHeight, 0.1f, 0.01f, 100.0f);
-                                    
-                                    if (radiusChanged || heightChanged) {
-                                        if (totalHeight < radius * 2.0f) {
-                                            totalHeight = radius * 2.0f;
-                                        }
-                                        
-                                        float cylinderHeight = totalHeight - 2.0f * radius;
-                                        
-                                        // Create new capsule collider with updated parameters
-                                        Ref<Collider> newCollider = CreateRef<CapsuleCollider>(radius, cylinderHeight);
-                                        
-                                        // Store current rigidbody properties
-                                        RigidBody::Properties props = rbComponent.rb->GetProperties();
-                                        glm::vec3 position = rbComponent.rb->GetPosition();
-                                        glm::vec3 rotation = rbComponent.rb->GetRotation();
-                                        glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                                        
-                                        // Remove from physics world
-                                        m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
-                                        
-                                        // Create new rigidbody with new collider
-                                        rbComponent.rb = RigidBody::Create(props, newCollider);
-                                        rbComponent.rb->SetPosition(position);
-                                        rbComponent.rb->SetRotation(rotation);
-                                        rbComponent.rb->SetVelocity(velocity);
-                                        
-                                        // Add back to physics world
-                                        m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
-                                        rbComponent.rb->GetNativeBody()->setUserPointer(
-                                            reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
-                                    }
-                                }
-                                break;
-                            }
+
+                        if (ImGui::Button("Open ColliderComponent Settings")) {
+                            // This will auto-expand the collider component in the UI
+                            ImGui::SetNextItemOpen(true);
                         }
                     }
-                    
-                    // Add friction and drag controls
-                    ImGui::Separator();
+                    else {
+                        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "No ColliderComponent found");
+
+                        if (ImGui::Button("Add ColliderComponent")) {
+                            // Create a default box collider using the current rigidbody collider if possible
+                            Ref<Collider> collider = rbComponent.rb->GetCollider();
+                            if (!collider) {
+                                collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+                            }
+
+                            // Add the ColliderComponent
+                            auto& colliderComp = entity.AddComponent<ColliderComponent>(collider);
+
+                            // No need to initialize standalone since it's used by rigidbody
+                        }
+                    }
                     
                     ImGui::Text("Friction");
                     float friction = rbComponent.rb->GetFriction();
@@ -1120,6 +987,236 @@ namespace Coffee {
                     m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
                 }
                 entity.RemoveComponent<RigidbodyComponent>();
+            }
+        }
+
+        // Add after other component UI sections in the DrawComponents method
+        if (entity.HasComponent<ColliderComponent>())
+        {
+            auto& colliderComp = entity.GetComponent<ColliderComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("Collider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Trigger toggle
+                bool isTrigger = colliderComp.isTrigger;
+                if (ImGui::Checkbox("Is Trigger", &isTrigger))
+                {
+                    colliderComp.isTrigger = isTrigger;
+                    if (colliderComp.collider) {
+                        colliderComp.collider->SetTrigger(isTrigger);
+                    }
+                }
+
+                ImGui::SameLine();
+
+                // Collider type selection
+                Ref<Collider> currentCollider = colliderComp.collider;
+                int colliderType = -1; // -1: Unknown, 0: Box, 1: Sphere, 2: Capsule
+
+                if (currentCollider) {
+                    if (std::dynamic_pointer_cast<BoxCollider>(currentCollider)) {
+                        colliderType = 0;
+                    } else if (std::dynamic_pointer_cast<SphereCollider>(currentCollider)) {
+                        colliderType = 1;
+                    } else if (std::dynamic_pointer_cast<CapsuleCollider>(currentCollider)) {
+                        colliderType = 2;
+                    }
+                }
+
+                static const char* colliderTypeNames[] = { "Box", "Sphere", "Capsule" };
+                int newColliderType = colliderType;
+
+                ImGui::Text("Collider Type");
+                if (ImGui::Combo("##ColliderType", &newColliderType, colliderTypeNames, 3)) {
+                    // User selected a new collider type
+                    Ref<Collider> newCollider;
+
+                    // Create new collider based on selection
+                    switch (newColliderType) {
+                        case 0: { // Box
+                            glm::vec3 size(1.0f, 1.0f, 1.0f);
+                            if (auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(currentCollider)) {
+                                size = boxCollider->GetSize();
+                            }
+                            newCollider = CreateRef<BoxCollider>(size);
+                            break;
+                        }
+                        case 1: { // Sphere
+                            float radius = 0.5f;
+                            if (auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(currentCollider)) {
+                                radius = sphereCollider->GetRadius();
+                            }
+                            newCollider = CreateRef<SphereCollider>(radius);
+                            break;
+                        }
+                        case 2: { // Capsule
+                            float radius = 0.5f;
+                            float height = 2.0f;
+                            if (auto capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider>(currentCollider)) {
+                                radius = capsuleCollider->GetRadius();
+                                height = capsuleCollider->GetHeight();
+                            }
+                            newCollider = CreateRef<CapsuleCollider>(radius, height);
+                            break;
+                        }
+                    }
+
+                    if (newCollider) {
+                        // Remove old collider from physics world
+                        if (currentCollider && currentCollider->getCollisionObject()) {
+                            CollisionSystem::UnregisterCollisionObject(currentCollider->getCollisionObject());
+                            m_Context->m_PhysicsWorld.removeCollisionObject(currentCollider->getCollisionObject());
+                        }
+
+                        // Initialize new collider
+                        newCollider->InitializeStandalone();
+                        newCollider->SetTrigger(colliderComp.isTrigger);
+
+                        // Set position from transform
+                        if (entity.HasComponent<TransformComponent>()) {
+                            auto& transform = entity.GetComponent<TransformComponent>();
+                            glm::quat rotation = glm::quat(glm::radians(transform.Rotation));
+                            newCollider->SetTransform(transform.Position, rotation);
+                        }
+
+                        // Update the component
+                        colliderComp.collider = newCollider;
+
+                        // Register with physics system
+                        CollisionSystem::RegisterCollider(entity, newCollider->getCollisionObject());
+                        m_Context->m_PhysicsWorld.addCollisionObject(newCollider->getCollisionObject());
+                    }
+                }
+
+                // Show collider-specific properties
+                if (currentCollider) {
+                    ImGui::Separator();
+
+                    switch (colliderType) {
+                        case 0: { // Box collider properties
+                            auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(currentCollider);
+                            if (boxCollider) {
+                                glm::vec3 size = boxCollider->GetSize();
+
+                                ImGui::Text("Size");
+                                if (ImGui::DragFloat3("##BoxSize", glm::value_ptr(size), 0.1f, 0.01f, 100.0f)) {
+                                    // Remove old collider from physics world
+                                    CollisionSystem::UnregisterCollisionObject(currentCollider->getCollisionObject());
+                                    m_Context->m_PhysicsWorld.removeCollisionObject(currentCollider->getCollisionObject());
+
+                                    // Create new box collider with updated size
+                                    Ref<BoxCollider> newCollider = CreateRef<BoxCollider>(size);
+                                    newCollider->InitializeStandalone();
+                                    newCollider->SetTrigger(colliderComp.isTrigger);
+
+                                    // Set position from transform
+                                    if (entity.HasComponent<TransformComponent>()) {
+                                        auto& transform = entity.GetComponent<TransformComponent>();
+                                        glm::quat rotation = glm::quat(glm::radians(transform.Rotation));
+                                        newCollider->SetTransform(transform.Position, rotation);
+                                    }
+
+                                    // Update the component
+                                    colliderComp.collider = newCollider;
+
+                                    // Register with physics system
+                                    CollisionSystem::RegisterCollider(entity, newCollider->getCollisionObject());
+                                    m_Context->m_PhysicsWorld.addCollisionObject(newCollider->getCollisionObject());
+                                }
+                            }
+                            break;
+                        }
+                        case 1: { // Sphere collider properties
+                            auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(currentCollider);
+                            if (sphereCollider) {
+                                float radius = sphereCollider->GetRadius();
+
+                                ImGui::Text("Radius");
+                                if (ImGui::DragFloat("##SphereRadius", &radius, 0.1f, 0.01f, 100.0f)) {
+                                    // Remove old collider from physics world
+                                    CollisionSystem::UnregisterCollisionObject(currentCollider->getCollisionObject());
+                                    m_Context->m_PhysicsWorld.removeCollisionObject(currentCollider->getCollisionObject());
+
+                                    // Create new sphere collider with updated radius
+                                    Ref<SphereCollider> newCollider = CreateRef<SphereCollider>(radius);
+                                    newCollider->InitializeStandalone();
+                                    newCollider->SetTrigger(colliderComp.isTrigger);
+
+                                    // Set position from transform
+                                    if (entity.HasComponent<TransformComponent>()) {
+                                        auto& transform = entity.GetComponent<TransformComponent>();
+                                        glm::quat rotation = glm::quat(glm::radians(transform.Rotation));
+                                        newCollider->SetTransform(transform.Position, rotation);
+                                    }
+
+                                    // Update the component
+                                    colliderComp.collider = newCollider;
+
+                                    // Register with physics system
+                                    CollisionSystem::RegisterCollider(entity, newCollider->getCollisionObject());
+                                    m_Context->m_PhysicsWorld.addCollisionObject(newCollider->getCollisionObject());
+                                }
+                            }
+                            break;
+                        }
+                        case 2: { // Capsule collider properties
+                            auto capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider>(currentCollider);
+                            if (capsuleCollider) {
+                                float radius = capsuleCollider->GetRadius();
+                                float height = capsuleCollider->GetHeight();
+                                float totalHeight = height + 2.0f * radius; // Total height including spherical caps
+
+                                ImGui::Text("Radius");
+                                bool radiusChanged = ImGui::DragFloat("##CapsuleRadius", &radius, 0.1f, 0.01f, 100.0f);
+
+                                ImGui::Text("Total Height");
+                                bool heightChanged = ImGui::DragFloat("##CapsuleHeight", &totalHeight, 0.1f, 0.01f, 100.0f);
+
+                                if (radiusChanged || heightChanged) {
+                                    if (totalHeight < radius * 2.0f) {
+                                        totalHeight = radius * 2.0f;
+                                    }
+
+                                    float cylinderHeight = totalHeight - 2.0f * radius;
+
+                                    // Remove old collider from physics world
+                                    CollisionSystem::UnregisterCollisionObject(currentCollider->getCollisionObject());
+                                    m_Context->m_PhysicsWorld.removeCollisionObject(currentCollider->getCollisionObject());
+
+                                    // Create new capsule collider with updated parameters
+                                    Ref<CapsuleCollider> newCollider = CreateRef<CapsuleCollider>(radius, cylinderHeight);
+                                    newCollider->InitializeStandalone();
+                                    newCollider->SetTrigger(colliderComp.isTrigger);
+
+                                    // Set position from transform
+                                    if (entity.HasComponent<TransformComponent>()) {
+                                        auto& transform = entity.GetComponent<TransformComponent>();
+                                        glm::quat rotation = glm::quat(glm::radians(transform.Rotation));
+                                        newCollider->SetTransform(transform.Position, rotation);
+                                    }
+
+                                    // Update the component
+                                    colliderComp.collider = newCollider;
+
+                                    // Register with physics system
+                                    CollisionSystem::RegisterCollider(entity, newCollider->getCollisionObject());
+                                    m_Context->m_PhysicsWorld.addCollisionObject(newCollider->getCollisionObject());
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!isCollapsingHeaderOpen) {
+                // Clean up before removing component
+                if (colliderComp.collider && colliderComp.collider->getCollisionObject()) {
+                    CollisionSystem::UnregisterCollisionObject(colliderComp.collider->getCollisionObject());
+                    m_Context->m_PhysicsWorld.removeCollisionObject(colliderComp.collider->getCollisionObject());
+                }
+                entity.RemoveComponent<ColliderComponent>();
             }
         }
 
@@ -1291,7 +1388,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Collider Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1461,6 +1558,34 @@ namespace Coffee {
                                 entity.RemoveComponent<RigidbodyComponent>();
                             }
                         }
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Collider Component")
+                {
+                    if(!entity.HasComponent<ColliderComponent>())
+                    {
+                        // Create a default box collider
+                        Ref<BoxCollider> collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+
+                        // Add component with the collider
+                        auto& colliderComp = entity.AddComponent<ColliderComponent>(collider);
+
+                        // Initialize the standalone collider
+                        collider->InitializeStandalone();
+
+                        // Set position/rotation from transform if available
+                        if (entity.HasComponent<TransformComponent>()) {
+                            auto& transform = entity.GetComponent<TransformComponent>();
+                            glm::quat rotation = glm::quat(glm::radians(transform.Rotation));
+                            collider->SetTransform(transform.Position, rotation);
+                        }
+
+                        // Register with collision system
+                        CollisionSystem::RegisterCollider(entity, collider->getCollisionObject());
+
+                        // Add to physics world
+                        m_Context->m_PhysicsWorld.addCollisionObject(collider->getCollisionObject());
                     }
                     ImGui::CloseCurrentPopup();
                 }

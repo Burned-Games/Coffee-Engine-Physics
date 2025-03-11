@@ -762,6 +762,36 @@ namespace Coffee {
             }
     };
 
+    struct ColliderComponent {
+        Ref<Collider> collider;
+        bool isTrigger = false;
+        CollisionCallback callback;
+
+        ColliderComponent() = default;
+        ColliderComponent(const ColliderComponent&) = default;
+
+        ColliderComponent(const Ref<Collider>& inCollider, bool inIsTrigger = false)
+            : collider(inCollider), isTrigger(inIsTrigger) {}
+
+    private:
+        friend class cereal::access;
+
+        template<class Archive>
+        void save(Archive& archive) const {
+            archive(
+                CEREAL_NVP(collider),
+                CEREAL_NVP(isTrigger)
+            );
+        }
+
+        template<class Archive>
+        void load(Archive& archive) {
+            archive(
+                CEREAL_NVP(collider),
+                CEREAL_NVP(isTrigger)
+            );
+        }
+    };
 }
 
 /** @} */

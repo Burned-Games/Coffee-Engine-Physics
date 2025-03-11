@@ -6,6 +6,7 @@
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/polymorphic.hpp>
+#include <glm/detail/type_quat.hpp>
 #include <glm/glm.hpp>
 
 namespace Coffee {
@@ -17,16 +18,60 @@ namespace Coffee {
     class Collider {
     public:
         virtual ~Collider() {
-            if (m_Shape) {
+            if (m_Shape)
+            {
                 delete m_Shape;
                 m_Shape = nullptr;
+            }
+
+            if (m_CollisionObject) {
+                delete m_CollisionObject;
+                m_CollisionObject = nullptr;
             }
         }
 
         btCollisionShape* getShape() const { return m_Shape; }
 
+        btCollisionObject* getCollisionObject() const { return m_CollisionObject; }
+
+        // Initialize standalone collider (not tied to rigidbody)
+        void InitializeStandalone() {
+            if (!m_CollisionObject) {
+                m_CollisionObject = new btCollisionObject();
+                m_CollisionObject->setCollisionShape(m_Shape);
+                m_CollisionObject->setCollisionFlags(m_CollisionObject->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+            }
+        }
+
+        // Set transform for standalone collider
+        void SetTransform(const glm::vec3& position, const glm::quat& rotation) {
+            if (m_CollisionObject) {
+                btTransform transform;
+                transform.setIdentity();
+                transform.setOrigin(btVector3(position.x, position.y, position.z));
+                transform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+                m_CollisionObject->setWorldTransform(transform);
+            }
+        }
+
+        // Set trigger status
+        void SetTrigger(bool isTrigger) {
+            m_IsTrigger = isTrigger;
+            if (m_CollisionObject) {
+                if (isTrigger) {
+                    m_CollisionObject->setCollisionFlags(m_CollisionObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+                } else {
+                    m_CollisionObject->setCollisionFlags(m_CollisionObject->getCollisionFlags() & ~btCollisionObject::CF_NO_CONTACT_RESPONSE);
+                }
+            }
+        }
+
+        bool IsTrigger() const { return m_IsTrigger; }
+
     protected:
         btCollisionShape* m_Shape = nullptr;
+        btCollisionObject* m_CollisionObject = nullptr;
+        bool m_IsTrigger = false;
         
         // Add friend declaration for cereal
         friend class cereal::access;
@@ -37,7 +82,7 @@ namespace Coffee {
             btCollisionShape* shape = getShape();
             int shapeType = shape ? shape->getShapeType() : -1;
             archive(cereal::make_nvp("ShapeType", shapeType));
-
+            archive(cereal::make_nvp("IsTrigger", m_IsTrigger));
             if (shape) {
                 switch (shapeType) {
                     case BOX_SHAPE_PROXYTYPE: {
@@ -69,6 +114,11 @@ namespace Coffee {
         void load(Archive& archive) {
             int shapeType;
             archive(cereal::make_nvp("ShapeType", shapeType));
+            try {
+                archive(cereal::make_nvp("IsTrigger", m_IsTrigger));
+            } catch (...) {
+                m_IsTrigger = false;
+            }
 
             if (m_Shape) {
                 delete m_Shape;

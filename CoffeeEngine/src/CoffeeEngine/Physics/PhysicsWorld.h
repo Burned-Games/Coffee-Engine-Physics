@@ -17,6 +17,8 @@ namespace Coffee {
 
         void addRigidBody(btRigidBody* body) const;
         void removeRigidBody(btRigidBody* body) const;
+        void addCollisionObject(btCollisionObject* bt_collision_object) const;
+        void removeCollisionObject(btCollisionObject* bt_collision_object) const;
         void stepSimulation(float dt) const;
 
         void setGravity(float gravity) const;
@@ -26,7 +28,8 @@ namespace Coffee {
 
         void drawCollisionShapes() const;
 
-    private:
+
+      private:
         btDefaultCollisionConfiguration* collisionConfig;
         btCollisionDispatcher* dispatcher;
         btBroadphaseInterface* broadphase;

@@ -1,6 +1,7 @@
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Physics/CollisionSystem.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
+#include "CoffeeEngine/Scene/Components.h"
 
 #include <glm/fwd.hpp>
 
@@ -35,8 +36,19 @@ namespace Coffee {
         dynamicsWorld->addRigidBody(body);
     }
 
-    void PhysicsWorld::removeRigidBody(btRigidBody* body) const {
+    void PhysicsWorld::removeRigidBody(btRigidBody* body) const
+    {
         dynamicsWorld->removeRigidBody(body);
+    }
+
+    void PhysicsWorld::addCollisionObject(btCollisionObject* bt_collision_object) const
+    {
+        dynamicsWorld->addCollisionObject(bt_collision_object);
+    }
+
+    void PhysicsWorld::removeCollisionObject(btCollisionObject* bt_collision_object) const
+    {
+        dynamicsWorld->removeCollisionObject(bt_collision_object);
     }
 
     void PhysicsWorld::stepSimulation(const float dt) const {

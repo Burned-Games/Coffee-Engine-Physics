@@ -6,9 +6,48 @@ namespace Coffee {
 
     Scene* CollisionSystem::s_Scene = nullptr;
     std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> CollisionSystem::s_ActiveCollisions;
+    std::unordered_map<btCollisionObject*, Entity> CollisionSystem::s_CollisionObjectToEntity;
 
-    void CollisionSystem::Initialize(Scene* scene) {
+    void CollisionSystem::Initialize(Scene* scene)
+    {
         s_Scene = scene;
+    }
+
+    void CollisionSystem::RegisterCollider(Entity entity, btCollisionObject* collisionObject) {
+        if (!collisionObject) return;
+
+        // Store the entity handle in the collision object's user pointer
+        collisionObject->setUserPointer(reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<entt::entity>(entity))));
+
+        // Store mapping from collision object to entity
+        s_CollisionObjectToEntity[collisionObject] = entity;
+    }
+
+    void CollisionSystem::RegisterRigidbody(Entity entity, btRigidBody* rigidBody) {
+        if (!rigidBody) return;
+
+        // Store the entity handle in the rigidbody's user pointer
+        rigidBody->setUserPointer(reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<entt::entity>(entity))));
+
+        // Store mapping from collision object to entity
+        s_CollisionObjectToEntity[rigidBody] = entity;
+    }
+
+    void CollisionSystem::UnregisterCollisionObject(btCollisionObject* collisionObject) {
+        if (!collisionObject) return;
+
+        // Remove from active collisions
+        auto it = s_ActiveCollisions.begin();
+        while (it != s_ActiveCollisions.end()) {
+            if (it->first == collisionObject || it->second == collisionObject) {
+                it = s_ActiveCollisions.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        // Remove from mapping
+        s_CollisionObjectToEntity.erase(collisionObject);
     }
 
     void CollisionSystem::checkCollisions(const PhysicsWorld& world) {
